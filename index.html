@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daniel Kwan | Computer Engineering @ UWaterloo</title>
+  <meta name="description" content="Daniel Kwan - Computer Engineering student at University of Waterloo. Passionate about machine learning, full-stack development, and autonomous systems.">
+  <meta name="author" content="Daniel Kwan">
+
+  <meta property="og:title" content="Daniel Kwan | Portfolio">
+  <meta property="og:description" content="Computer Engineering student at University of Waterloo. Passionate about machine learning, full-stack development, and autonomous systems.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://daniel.uwce.ca">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Daniel Kwan | Portfolio">
+  <meta name="twitter:description" content="Computer Engineering @ University of Waterloo">
+
+  <link rel="canonical" href="https://daniel.uwce.ca">
+  <link rel="icon" href="favicon.ico">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Star Field Canvas -->
+  <canvas id="starfield" aria-hidden="true"></canvas>
+
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="#home" class="nav-logo">Daniel Kwan</a>
+      <div class="nav-links">
+        <a href="#home" class="nav-link active" data-section="home">Home</a>
+        <a href="#about" class="nav-link" data-section="about">About</a>
+        <a href="#resume" class="nav-link" data-section="resume">Resume</a>
+        <a href="#blog" class="nav-link" data-section="blog">Blog</a>
+      </div>
+      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#home" class="mobile-nav-link" data-section="home">Home</a>
+    <a href="#about" class="mobile-nav-link" data-section="about">About</a>
+    <a href="#resume" class="mobile-nav-link" data-section="resume">Resume</a>
+    <a href="#blog" class="mobile-nav-link" data-section="blog">Blog</a>
+  </div>
+
+  <main>
+    <!-- Home Section -->
+    <section id="home" class="section hero-section">
+      <!-- Floating Orbs -->
+      <div class="floating-orb orb-1"></div>
+      <div class="floating-orb orb-2"></div>
+      <div class="floating-orb orb-3"></div>
+      <div class="floating-orb orb-4"></div>
+
+      <div class="hero-content">
+        <!-- Profile Image with Orbital Rings -->
+        <div class="profile-container fade-in">
+          <div class="orbital-ring outer-ring"></div>
+          <div class="orbital-ring middle-ring"></div>
+          <div class="orbital-ring inner-ring"></div>
+          <div class="profile-glow"></div>
+          <img src="daniel-profile-nobg.png" alt="Daniel Kwan" class="profile-image">
+        </div>
+
+        <!-- Name -->
+        <h1 class="hero-name gradient-text text-glow fade-in delay-1">Daniel Kwan</h1>
+
+        <!-- Tagline -->
+        <div class="hero-tagline fade-in delay-2">
+          <span class="tagline-text">Computer Engineering</span>
+          <span class="typing-cursor"></span>
+        </div>
+        <p class="hero-subtitle fade-in delay-2">University of Waterloo</p>
+
+        <!-- Social Links -->
+        <div class="social-links fade-in delay-3">
+          <a href="https://github.com/danielkwan-dev" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="GitHub">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+          </a>
+          <a href="https://www.linkedin.com/in/daniel-kwan-923071220/" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="LinkedIn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+          </a>
+          <a href="mailto:d35kwan@uwaterloo.ca" class="social-link" aria-label="Email">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          </a>
+          <a href="Daniel_Kwan_Resume.pdf" download class="social-link" aria-label="Download Resume">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+          </a>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="scroll-indicator fade-in delay-4">
+          <span class="scroll-text">scroll</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+      </div>
+
+      <!-- Hello World Section -->
+      <div class="hello-section">
+        <div class="container">
+          <h2 class="section-title fade-in-up">Hello, World</h2>
+          <div class="hello-content fade-in-up">
+            <p>I'm a student with an interest in machine learning, full stack development, and cybersecurity. I love tackling challenging problems that push me to learn and grow.</p>
+            <p>Currently a software developer in the <span class="highlight">Waterloo Aerial Robotics Group</span>, implementing autonomous drone navigation in the Autonomy subteam.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA Section -->
+      <div class="cta-section">
+        <div class="container">
+          <p class="cta-text fade-in-up">If you think we could build something cool together or just want to chat, reach out.</p>
+          <a href="mailto:d35kwan@uwaterloo.ca" class="cta-button fade-in-up">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            Get in Touch
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="section">
+      <div class="container">
+        <div class="about-header fade-in-up">
+          <div class="code-decorator">
+            <span class="keyword">class </span>
+            <span class="class-name">About</span>
+            <span> {</span>
+          </div>
+          <h1 class="page-title gradient-text">About Me</h1>
+          <p class="page-subtitle">Computer Engineering @ University of Waterloo</p>
+        </div>
+
+        <div class="about-content fade-in-up">
+          <p>I'm a passionate student currently pursuing my Bachelor's of Applied Science in Computer Engineering at the University of Waterloo. My interests span across <span class="highlight">machine learning</span>, <span class="highlight">full stack development</span>, and <span class="highlight">cybersecurity</span>.</p>
+          <p>These days I'm currently a software developer in the Waterloo Aerial Robotics Group in the Autonomy subteam, implementing the code for drones to perform autonomous tasks.</p>
+          <p>I grew up in Vancouver, Canada, and from a young age I was always curious about how things worked. I loved coding and spent a lot of time exploring software and cybersecurity, mostly out of genuine curiosity and the satisfaction of figuring things out.</p>
+          <p>In high school, I found balance through sports, especially volleyball. Playing competitively taught me a lot about teamwork, communication, and staying calm under pressure. Another major part of my growth came from being a police cadet with the Vancouver Police Department, where I served as a corporal.</p>
+        </div>
+
+        <div class="highlights-grid fade-in-up">
+          <div class="highlight-card">
+            <div class="highlight-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/></svg>
+            </div>
+            <div class="highlight-content">
+              <h3>Machine Learning</h3>
+              <p>Building intelligent systems with TensorFlow, PyTorch, and computer vision pipelines.</p>
+            </div>
+          </div>
+          <div class="highlight-card">
+            <div class="highlight-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            </div>
+            <div class="highlight-content">
+              <h3>Full-Stack Development</h3>
+              <p>Creating end-to-end applications with modern web technologies and RESTful APIs.</p>
+            </div>
+          </div>
+          <div class="highlight-card">
+            <div class="highlight-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>
+            </div>
+            <div class="highlight-content">
+              <h3>Autonomous Systems</h3>
+              <p>Developing software for drones to perform autonomous navigation and tasks.</p>
+            </div>
+          </div>
+          <div class="highlight-card">
+            <div class="highlight-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div class="highlight-content">
+              <h3>Leadership</h3>
+              <p>Leading technical workshops and working alongside like-minded developers.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="skills-section fade-in-up">
+          <h2 class="skills-title">
+            <span class="keyword">const </span>skills <span class="operator">=</span> {
+          </h2>
+
+          <div class="skills-container">
+            <div class="skill-category">
+              <h3 class="skill-label">languages:</h3>
+              <div class="skill-badges">
+                <span class="badge">Python</span>
+                <span class="badge">C++</span>
+                <span class="badge">C</span>
+                <span class="badge">SQL</span>
+                <span class="badge">Java</span>
+                <span class="badge">JavaScript</span>
+                <span class="badge">HTML/CSS</span>
+              </div>
+            </div>
+
+            <div class="skill-category">
+              <h3 class="skill-label">frameworks:</h3>
+              <div class="skill-badges">
+                <span class="badge">PyTorch</span>
+                <span class="badge">TensorFlow</span>
+                <span class="badge">Keras</span>
+                <span class="badge">NumPy</span>
+                <span class="badge">Pandas</span>
+                <span class="badge">OpenCV</span>
+                <span class="badge">Sci-kit learn</span>
+              </div>
+            </div>
+
+            <div class="skill-category">
+              <h3 class="skill-label">tools:</h3>
+              <div class="skill-badges">
+                <span class="badge">Git</span>
+                <span class="badge">GitHub</span>
+                <span class="badge">MAVLink</span>
+                <span class="badge">Bitbucket</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="code-decorator">}</div>
+        </div>
+
+        <div class="code-decorator fade-in-up">}</div>
+      </div>
+    </section>
+
+    <!-- Resume Section -->
+    <section id="resume" class="section">
+      <div class="container">
+        <div class="resume-header fade-in-up">
+          <h1 class="page-title">Resume</h1>
+          <p class="page-subtitle">Download or view my full resume</p>
+        </div>
+
+        <div class="resume-card fade-in-up">
+          <div class="resume-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+          </div>
+          <div class="resume-info">
+            <h2>Daniel Kwan - Resume</h2>
+            <p>Computer Engineering @ University of Waterloo</p>
+          </div>
+          <div class="resume-actions">
+            <a href="Daniel_Kwan_Resume.pdf" download="Daniel_Kwan_Resume.pdf" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+              Download PDF
+            </a>
+            <a href="Daniel_Kwan_Resume.pdf" target="_blank" rel="noopener noreferrer" class="btn btn-outline">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+              View in Browser
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Blog Section -->
+    <section id="blog" class="section">
+      <div class="container">
+        <div class="blog-header fade-in-up">
+          <h1 class="page-title">Blog</h1>
+          <p class="page-subtitle">Thoughts on software development, machine learning, and tech</p>
+        </div>
+
+        <div class="blog-posts fade-in-up">
+          <article class="blog-card">
+            <div class="blog-meta">
+              <span class="blog-date">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+                January 10, 2026
+              </span>
+              <span class="blog-read-time">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                5 min read
+              </span>
+            </div>
+            <h2 class="blog-title">Getting Started with Autonomous Robotics</h2>
+            <p class="blog-excerpt">An introduction to the world of autonomous systems and my journey at the Waterloo Aerial Robotics Group.</p>
+            <div class="blog-footer">
+              <div class="blog-tags">
+                <span class="tag">Robotics</span>
+                <span class="tag">Python</span>
+                <span class="tag">MAVLink</span>
+              </div>
+              <span class="blog-link">
+                Read more
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              </span>
+            </div>
+          </article>
+
+          <article class="blog-card">
+            <div class="blog-meta">
+              <span class="blog-date">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+                January 5, 2026
+              </span>
+              <span class="blog-read-time">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                8 min read
+              </span>
+            </div>
+            <h2 class="blog-title">Building a Real-Time Sign Language Recognition System</h2>
+            <p class="blog-excerpt">A deep dive into creating a CNN-based ASL recognition system during uOttaHacks.</p>
+            <div class="blog-footer">
+              <div class="blog-tags">
+                <span class="tag">Machine Learning</span>
+                <span class="tag">TensorFlow</span>
+                <span class="tag">OpenCV</span>
+              </div>
+              <span class="blog-link">
+                Read more
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              </span>
+            </div>
+          </article>
+
+          <article class="blog-card">
+            <div class="blog-meta">
+              <span class="blog-date">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+                October 20, 2025
+              </span>
+              <span class="blog-read-time">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                6 min read
+              </span>
+            </div>
+            <h2 class="blog-title">NASA Space Apps: Discovering Exoplanets with ML</h2>
+            <p class="blog-excerpt">How our team achieved top 2% at the NASA Space Apps Hackathon by analyzing Kepler telescope data.</p>
+            <div class="blog-footer">
+              <div class="blog-tags">
+                <span class="tag">NASA</span>
+                <span class="tag">Machine Learning</span>
+                <span class="tag">Hackathon</span>
+              </div>
+              <span class="blog-link">
+                Read more
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              </span>
+            </div>
+          </article>
+        </div>
+
+        <div class="blog-coming-soon fade-in-up">
+          <p>More posts coming soon! Stay tuned for updates on my latest projects and learnings.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <p class="footer-text">
+        <span class="primary-text">&copy;</span> <span id="year"></span> Daniel Kwan
+        <span class="separator">|</span>
+        <span class="accent-text">Built with</span> passion
+      </p>
+      <div class="footer-links">
+        <a href="https://github.com/danielkwan-dev" target="_blank" rel="noopener noreferrer" class="footer-link" aria-label="GitHub">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+        </a>
+        <a href="https://www.linkedin.com/in/daniel-kwan-923071220/" target="_blank" rel="noopener noreferrer" class="footer-link" aria-label="LinkedIn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+        </a>
+        <a href="mailto:d35kwan@uwaterloo.ca" class="footer-link" aria-label="Email">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>
