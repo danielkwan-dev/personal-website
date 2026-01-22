@@ -1114,3 +1114,7 @@ body::before {
   pointer-events: none;
   z-index: 1;
 }
+
+.un-prefix {
+  color: #ff79c6; /* Neon Pink - fits your dark theme */
+}
