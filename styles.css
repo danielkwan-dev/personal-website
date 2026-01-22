@@ -669,6 +669,10 @@ img {
   color: var(--accent);
 }
 
+.un-keyword {
+  color: hsl(120, 80%, 50%);
+}
+
 .class-name {
   color: var(--primary);
 }
