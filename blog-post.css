@@ -1,0 +1,340 @@
+/* Blog Post Page Styles */
+
+.blog-post-page {
+  padding-top: 100px;
+  padding-bottom: 4rem;
+  min-height: 100vh;
+}
+
+/* Back Link */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  transition: color 0.3s;
+  margin-bottom: 2rem;
+}
+
+.back-link:hover {
+  color: var(--primary);
+}
+
+/* Blog Post Header */
+.blog-post-header {
+  margin-bottom: 3rem;
+  text-align: center;
+}
+
+.blog-post-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  line-height: 1.3;
+}
+
+@media (min-width: 768px) {
+  .blog-post-title {
+    font-size: 2.75rem;
+  }
+}
+
+.blog-post-meta {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}
+
+.blog-post-meta .blog-date,
+.blog-post-meta .blog-read-time {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.blog-post-tags {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Difficulty Rankings */
+.difficulty-rankings {
+  background: rgba(20, 24, 30, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 3rem;
+  text-align: center;
+}
+
+.difficulty-rankings h3 {
+  font-size: 1rem;
+  color: var(--muted-foreground);
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.ranking-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.difficulty-indicator {
+  color: var(--muted-foreground);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+
+/* Course Code Styles */
+.course-code {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  letter-spacing: 0.02em;
+}
+
+.course-code.ece {
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.2), rgba(147, 51, 234, 0.1));
+  border: 1px solid rgba(147, 51, 234, 0.4);
+  color: hsl(270, 80%, 70%);
+  text-shadow: 0 0 10px rgba(147, 51, 234, 0.3);
+}
+
+.course-code.math {
+  background: linear-gradient(135deg, rgba(0, 179, 179, 0.2), rgba(0, 179, 179, 0.1));
+  border: 1px solid rgba(0, 179, 179, 0.4);
+  color: var(--primary);
+  text-shadow: 0 0 10px rgba(0, 179, 179, 0.3);
+}
+
+.course-code.comm {
+  background: linear-gradient(135deg, rgba(255, 165, 0, 0.2), rgba(255, 165, 0, 0.1));
+  border: 1px solid rgba(255, 165, 0, 0.4);
+  color: hsl(38, 100%, 60%);
+  text-shadow: 0 0 10px rgba(255, 165, 0, 0.3);
+}
+
+/* Blog Post Content */
+.blog-post-content {
+  max-width: 750px;
+  margin: 0 auto;
+}
+
+.content-section {
+  margin-bottom: 3rem;
+}
+
+.content-section h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: var(--foreground);
+  position: relative;
+  padding-left: 1rem;
+}
+
+.content-section h2::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.25rem;
+  bottom: 0.25rem;
+  width: 3px;
+  background: linear-gradient(180deg, var(--primary), var(--accent));
+  border-radius: 3px;
+}
+
+.content-section p {
+  color: var(--muted-foreground);
+  line-height: 1.9;
+  margin-bottom: 1.25rem;
+  font-size: 1.0625rem;
+}
+
+/* Course Review Cards */
+.course-review {
+  background: rgba(20, 24, 30, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s;
+}
+
+.course-review:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.course-review.featured {
+  border-color: rgba(147, 51, 234, 0.3);
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.08), rgba(20, 24, 30, 0.8));
+}
+
+.course-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.course-name {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+.difficulty-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, rgba(255, 50, 50, 0.2), rgba(255, 100, 50, 0.2));
+  border: 1px solid rgba(255, 80, 50, 0.5);
+  color: hsl(15, 100%, 65%);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.course-review p {
+  color: var(--muted-foreground);
+  line-height: 1.8;
+  margin-bottom: 1rem;
+}
+
+.course-review p:last-child {
+  margin-bottom: 0;
+}
+
+.course-review .tip {
+  background: rgba(0, 179, 179, 0.1);
+  border-left: 3px solid var(--primary);
+  padding: 1rem;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  margin-top: 1rem;
+}
+
+.course-review .tip strong {
+  color: var(--primary);
+}
+
+/* Tips Section */
+.tips-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .tips-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.tip-card {
+  background: rgba(20, 24, 30, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  transition: all 0.3s;
+}
+
+.tip-card:hover {
+  border-color: rgba(0, 179, 179, 0.3);
+  transform: translateY(-4px);
+}
+
+.tip-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 179, 179, 0.1);
+  border: 1px solid rgba(0, 179, 179, 0.2);
+  border-radius: 12px;
+  color: var(--primary);
+  margin-bottom: 1rem;
+}
+
+.tip-card h3 {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--foreground);
+}
+
+.tip-card p {
+  font-size: 0.9375rem;
+  color: var(--muted-foreground);
+  line-height: 1.7;
+}
+
+/* Conclusion */
+.conclusion .highlight-box {
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.1), rgba(0, 179, 179, 0.1));
+  border: 1px solid rgba(147, 51, 234, 0.2);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.conclusion .highlight-box strong {
+  color: var(--accent);
+}
+
+/* Blog Post Footer */
+.blog-post-footer {
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .blog-post-page {
+    padding-top: 80px;
+  }
+
+  .blog-post-title {
+    font-size: 1.75rem;
+  }
+
+  .ranking-bar {
+    gap: 0.35rem;
+  }
+
+  .course-code {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .difficulty-indicator {
+    font-size: 0.65rem;
+  }
+
+  .course-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .course-review {
+    padding: 1.25rem;
+  }
+}

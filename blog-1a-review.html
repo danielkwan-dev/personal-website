@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Review on 1A ECE at Waterloo | Daniel Kwan</title>
+  <meta name="description" content="Daniel Kwan's honest review of first semester Computer Engineering at University of Waterloo - courses, tips, and experiences.">
+  <meta name="author" content="Daniel Kwan">
+
+  <meta property="og:title" content="My Review on 1A ECE at Waterloo | Daniel Kwan">
+  <meta property="og:description" content="An honest review of first semester Computer Engineering at University of Waterloo.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://daniel.uwce.ca/blog-1a-review.html">
+
+  <link rel="canonical" href="https://daniel.uwce.ca/blog-1a-review.html">
+  <link rel="icon" href="favicon.jpg">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="blog-post.css">
+</head>
+<body>
+  <!-- Star Field Canvas -->
+  <canvas id="starfield" aria-hidden="true"></canvas>
+
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">Daniel Kwan</a>
+      <div class="nav-links">
+        <a href="index.html#home" class="nav-link">Home</a>
+        <a href="index.html#about" class="nav-link">About</a>
+        <a href="index.html#resume" class="nav-link">Resume</a>
+        <a href="index.html#blog" class="nav-link active">Blog</a>
+      </div>
+      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html#home" class="mobile-nav-link">Home</a>
+    <a href="index.html#about" class="mobile-nav-link">About</a>
+    <a href="index.html#resume" class="mobile-nav-link">Resume</a>
+    <a href="index.html#blog" class="mobile-nav-link active">Blog</a>
+  </div>
+
+  <main>
+    <article class="blog-post-page">
+      <div class="container">
+        <!-- Blog Header -->
+        <header class="blog-post-header fade-in">
+          <a href="index.html#blog" class="back-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+            Back to Blog
+          </a>
+          <h1 class="blog-post-title gradient-text">My Review on 1A ECE at Waterloo!</h1>
+          <div class="blog-post-meta">
+            <span class="blog-date">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+              January 2026
+            </span>
+            <span class="blog-read-time">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              12 min read
+            </span>
+          </div>
+          <div class="blog-post-tags">
+            <span class="tag">University</span>
+            <span class="tag">ECE</span>
+            <span class="tag">Waterloo</span>
+            <span class="tag">First Year</span>
+          </div>
+        </header>
+
+        <!-- Difficulty Rankings -->
+        <div class="difficulty-rankings fade-in">
+          <h3>Course Difficulty Rankings</h3>
+          <div class="ranking-bar">
+            <span class="course-code ece">ECE 105</span>
+            <span class="difficulty-indicator">>>>>></span>
+            <span class="course-code ece">ECE 150</span>
+            <span class="difficulty-indicator">>></span>
+            <span class="course-code math">MATH 115</span>
+            <span class="difficulty-indicator">></span>
+            <span class="course-code math">MATH 117</span>
+            <span class="difficulty-indicator">></span>
+            <span class="course-code comm">COMMST 192</span>
+            <span class="difficulty-indicator">></span>
+            <span class="course-code ece">ECE 190</span>
+            <span class="difficulty-indicator">></span>
+            <span class="course-code ece">ECE 198</span>
+          </div>
+        </div>
+
+        <!-- Blog Content -->
+        <div class="blog-post-content fade-in">
+          <section class="content-section">
+            <p>Now that I'm almost a month into my 1B term and finally soaked in all of 1A, I want to give my own opinion and feedback on how 1A/first semester went.</p>
+
+            <p>Starting with when I got accepted to Waterloo in March, I was so shocked when I read the email. I'm originally from Vancouver so I thought UBC would be my route – Waterloo was just a shot in the dark for me. My exact thought was, "Mind as well try." I remember reading reddit pages where people said you needed a 99% average to get in (not true) and thought I had no chance.</p>
+
+            <p>When I got the acceptance from Waterloo, I had already paid the housing deposit for UBC since I never thought I would actually be going to East Canada for university. Fast forward to just before September, I fully processed that I was going to leave my family and friends. I became stressed out for university since I've heard how notoriously hard the ECE program was, and started doom scrolling Reddit, Discord, and Google on anything related to Waterloo. Paired with this, my grandpa was not doing well health-wise, so my mind was everywhere.</p>
+          </section>
+
+          <section class="content-section">
+            <h2>Arriving at Waterloo</h2>
+            <p>Having already toured Waterloo earlier in the year, getting to campus was not a huge surprise. Alternatively, I had even lower expectations for how the campus would be because when I did the campus tour, it was during finals week and the weather was the usual depressing weather we all see at campus. You can imagine how it felt being on campus at that time.</p>
+
+            <p>Orientation week was pretty fun, I was able to meet a lot of new people and the events planned by EngSoc were pretty well-made. The biggest letdown was that EdComm wasn't actually composed of the top performing engineers, but it was a unique concept for orientation. The best part was definitely the sunny weather for that week – I don't think I've seen the sun in a while.</p>
+          </section>
+
+          <section class="content-section">
+            <h2>Starting 1A</h2>
+            <p>Sadly, my grandpa passed away when starting the term, so I was not mentally ready to start. But, the beauty of going to Waterloo is that you learn to suck it up and keep going.</p>
+
+            <p>To be honest, it was a lot more manageable than I expected. When I heard that we were taking seven courses, I thought it would be over. In grade 12, I had 2 classes per semester since I was able to gather up enough credits in the earlier years to get free blocks in senior year, so jumping from 2 courses per semester to 7 courses would have been the death of me. Realistically, there are only 4-5 courses (depending if you count English since it is very prof dependent) that you would actually need to put substantial work in.</p>
+          </section>
+
+          <!-- Course Reviews -->
+          <section class="content-section course-section">
+            <h2>Course Reviews</h2>
+
+            <div class="course-review">
+              <div class="course-header">
+                <span class="course-code ece">ECE 190</span>
+                <span class="course-name">Engineering Profession and Practice</span>
+              </div>
+              <p>Basically an engineering course where we learned about ethics, values, rules of being engineers, etc. Professor Dan Davidson is a very organized and well-spoken professor, so it is a shame that he was the one teaching us 190. Many people skip lectures, but it is a good idea to go to them so you don't really need to cram it all for the midterm/final. Not much to say about this course other than to study more than you think you need to, the midterm/final is harder than you would expect even though it's all multiple choice.</p>
+            </div>
+
+            <div class="course-review">
+              <div class="course-header">
+                <span class="course-code ece">ECE 198</span>
+                <span class="course-name">Project Studio</span>
+              </div>
+              <p>This course is led by Professor Saini. We started out with workshops in random groups playing around with Arduino, breadboards, circuits, etc. I never had any opportunities in school to have a computer engineering course or any course that specialized in hardware, so this was a very fun experience for me. After the workshops, you form a group of 4 and work together the rest of the semester to make one project that you present at the end of the semester. Pretty easy and manageable depending on the TA marking you and how high-level you want to go with your project.</p>
+            </div>
+
+            <div class="course-review">
+              <div class="course-header">
+                <span class="course-code comm">COMMST 192</span>
+                <span class="course-name">Communication in Engineering</span>
+              </div>
+              <p>Even though ECE takes all of the same courses in 1A, this is the one course where it could be one student's hardest class and another student's easiest. For me, it was the latter. I got taught by Professor Kate Wells where she taught us public speaking. She's a very passionate and easygoing professor. Participate in class, don't talk when she's talking, complete assignments, and you will get a good grade in the course.</p>
+              <p>I heard other people in my program had a very different experience where they had to do hundreds of pages of readings, numerous quizzes, presentations, etc. Luckily, having done a lot of presentations for school fairs and other activities, this course was not difficult. Stay on top of your work and you should be fine for this course.</p>
+            </div>
+
+            <div class="course-review">
+              <div class="course-header">
+                <span class="course-code ece">ECE 150</span>
+                <span class="course-name">Fundamentals of Programming (C++)</span>
+              </div>
+              <p>Taught by Professor Douglas Harder. First day he taught us, I already knew his class would be very interesting. He's very passionate and sometimes goes off topic but at least it's interesting. His website is very useful in studying as it contains his slides, problems, past exams, and numerous readings.</p>
+              <p>I already have experience learning C, so much of this course was review for me, but it was still valuable in attending lectures. Harder is who I think by far is one of the professor's who genuinely cares about us students and wants us to excel. Don't be afraid to ask him questions, he wants to help.</p>
+              <p class="tip"><strong>Tip:</strong> Spam past exams and genuinely understand what you're doing. Don't focus on memorization. Do the projects yourself and don't use AI. Something I found funny was that he included a hidden "AI finder" message in one of the project descriptions where if you copy pasted the project description into AI, it would format the code in a way that he knows it's AI. The goat.</p>
+            </div>
+
+            <div class="course-review">
+              <div class="course-header">
+                <span class="course-code math">MATH 117</span>
+                <span class="course-name">Calculus 1</span>
+              </div>
+              <p>Derivatives and integrals taught by Professor Sachin Kotecha. Young professor but his notes are very organized and he's incredibly clear in his teaching. He reminds me of how a high school teacher would teach, which I enjoyed.</p>
+              <p class="tip"><strong>Tip:</strong> Take notes in class, do the problem sets before every tutorial, and spam past exams. His teaching would be a little fast if you did not take calculus in high school, so try your best to keep up.</p>
+            </div>
+
+            <div class="course-review">
+              <div class="course-header">
+                <span class="course-code math">MATH 115</span>
+                <span class="course-name">Linear Algebra</span>
+              </div>
+              <p>Taught by Professor Ryan Trelford. His notes are the best. He writes notes on the whiteboard, but they are very organized and he keeps them on for a while for you to copy. I didn't learn vectors and matrices in Vancouver, so the start of the course was a bit weird to me, but it wasn't too hard to catch up.</p>
+              <p class="tip"><strong>Tip:</strong> Read the online textbook, it's genuinely one of the greatest pieces of literature written. Many problems, in-depth proofs, looks visually appealing, you name it. This course is pretty fast paced as well, but as long as you attend all classes and keep up with the problem sets and do past exams, you can pass this course with a good grade.</p>
+            </div>
+
+            <div class="course-review featured">
+              <div class="course-header">
+                <span class="course-code ece">ECE 105</span>
+                <span class="course-name">Classical Mechanics</span>
+                <span class="difficulty-badge">THE Course</span>
+              </div>
+              <p>Taught by Professor Jamie Forrest. This was <strong>THE</strong> course of 1A. Every time I entered a lecture, I left feeling even more confused. Professor Forrest is a very knowledgeable and smart professor; however, it is incredibly difficult to understand what he teaches during the lectures.</p>
+              <p>He doesn't show all his steps and randomly pulls out equations. You need to go back home and review it extensively before it clicks and realize everything he's teaching is right (even though you believed he was just randomly blabbering). He also teaches using an overhead projector, so it's difficult to even manage to write all his notes before he moves his paper away.</p>
+              <p>In his defence, he was also dealing with turning into course coordinator after the previous coordinator passed away, so he had a lot of things on his plate as well.</p>
+              <p>The good thing about this course was that we were all in it together, so even though I left the lectures/exams feeling trash, everyone else around me was feeling the same. After the 30 page final exam where he also taught us waves and harmonics for some reason, I did not know what to expect. I remember putting my pencil down after the exam ending and looking around. Everyone was looking at each other and had pure shock on their faces.</p>
+              <p>Somehow, I managed to complete this course with a pretty high grade. This course makes you use your highschool knowledge of physics to the extreme. Like always, genuinely try to understand the material since there's only a certain amount of "different" types of questions he can ask.</p>
+            </div>
+          </section>
+
+          <!-- Tips Section -->
+          <section class="content-section tips-section">
+            <h2>Tips for Incoming 1A Students</h2>
+            <div class="tips-grid">
+              <div class="tip-card">
+                <div class="tip-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/></svg>
+                </div>
+                <h3>Stay on Top of Lectures</h3>
+                <p>The pace will be a lot faster than high school – don't let it sweep you away. I know how tempting it is to skip, but attending lectures makes a huge difference.</p>
+              </div>
+              <div class="tip-card">
+                <div class="tip-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>
+                </div>
+                <h3>Practice Problems</h3>
+                <p>Do practice problems and past exams religiously. Understanding concepts through application is key to success.</p>
+              </div>
+              <div class="tip-card">
+                <div class="tip-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                </div>
+                <h3>Prioritize Yourself</h3>
+                <p>Get at least 6-7 hours of sleep and eat/drink well. We're doing this for 5 years straight with no summer breaks. Find a balance.</p>
+              </div>
+              <div class="tip-card">
+                <div class="tip-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <h3>Balance Co-op Search</h3>
+                <p>If you're in stream 4, try to balance your time between searching for co-op and school. Optimize your resume, do interview prep/leetcode, and apply, apply, apply.</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- Conclusion -->
+          <section class="content-section conclusion">
+            <h2>Final Thoughts</h2>
+            <p>All in all, 1A was not a bad semester at all. I met many new people and I was able to deal with the workload a lot better than I thought. No caffeine needed (yet).</p>
+            <p>1A is not a weeding out term, it's a term to get you used to university.</p>
+            <p class="highlight-box"><strong>Last note:</strong> When you're eating, take that time for yourself. Don't try to keep studying to maximize efficiency. We're human, we need breaks. The terms only get harder, what you need to find is an optimal balance between academic and personal life.</p>
+          </section>
+        </div>
+
+        <!-- Back to Blog -->
+        <div class="blog-post-footer fade-in">
+          <a href="index.html#blog" class="back-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+            Back to Blog
+          </a>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <p class="footer-text">
+        <span class="primary-text">&copy;</span> <span id="year"></span> Daniel Kwan
+        <span class="separator">|</span>
+        <span class="accent-text">Built with</span> passion
+      </p>
+      <div class="footer-links">
+        <a href="https://github.com/danielkwan-dev" target="_blank" rel="noopener noreferrer" class="footer-link" aria-label="GitHub">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+        </a>
+        <a href="https://www.linkedin.com/in/daniel-kwan-923071220/" target="_blank" rel="noopener noreferrer" class="footer-link" aria-label="LinkedIn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+        </a>
+        <a href="mailto:d35kwan@uwaterloo.ca" class="footer-link" aria-label="Email">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>
