@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>What are Neural Networks? | Daniel Kwan</title>
+  <meta name="description" content="A beginner's journey into machine learning - from classical ML to deep learning and neural networks.">
+  <meta name="author" content="Daniel Kwan">
+
+  <meta property="og:title" content="What are Neural Networks? | Daniel Kwan">
+  <meta property="og:description" content="A beginner's journey into machine learning - from classical ML to deep learning and neural networks.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://daniel.uwce.ca/blog/intro-to-ml.html">
+
+  <link rel="canonical" href="https://daniel.uwce.ca/blog/intro-to-ml.html">
+  <link rel="icon" href="../favicon.ico">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../blog-post.css">
+</head>
+<body>
+  <!-- Star Field Canvas -->
+  <canvas id="starfield" aria-hidden="true"></canvas>
+
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="../index.html" class="nav-logo">Daniel Kwan</a>
+      <div class="nav-links">
+        <a href="../index.html#home" class="nav-link">Home</a>
+        <a href="../index.html#about" class="nav-link">About</a>
+        <a href="../index.html#resume" class="nav-link">Resume</a>
+        <a href="../index.html#blog" class="nav-link active">Blog</a>
+      </div>
+      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="../index.html#home" class="mobile-nav-link">Home</a>
+    <a href="../index.html#about" class="mobile-nav-link">About</a>
+    <a href="../index.html#resume" class="mobile-nav-link">Resume</a>
+    <a href="../index.html#blog" class="mobile-nav-link active">Blog</a>
+  </div>
+
+  <main>
+    <article class="blog-post-page">
+      <div class="container">
+        <!-- Blog Header -->
+        <header class="blog-post-header fade-in">
+          <a href="../index.html#blog" class="back-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+            Back to Blog
+          </a>
+          <h1 class="blog-post-title gradient-text">What are Neural Networks?</h1>
+          <div class="blog-post-meta">
+            <span class="blog-date">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+              January 2026
+            </span>
+            <span class="blog-read-time">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              10 min read
+            </span>
+          </div>
+          <div class="blog-post-tags">
+            <span class="tag">Machine Learning</span>
+            <span class="tag">Deep Learning</span>
+            <span class="tag">Neural Networks</span>
+            <span class="tag">Python</span>
+          </div>
+        </header>
+
+        <!-- Blog Content -->
+        <div class="blog-post-content fade-in">
+          <section class="content-section">
+            <p>If you had told me a year ago that I'd be building systems that can "learn" from data, I wouldn't have believed you. You would expect that you would need PhD level qualifications to start actually understanding Artificial Intelligence. But the truth is, the barrier to entry isn't genius or a diploma. It's <strong>curiosity</strong>.</p>
+
+            <p>I myself realized how much you can learn and improve as a person if you're just curious about something and willing to put your foot through the door.</p>
+
+            <p>Lately, I've been diving deep into Machine Learning for my own projects, and honestly? It is, in my opinion, one of the most fascinating fields currently. It's not magic, and it's not sci-fi. It's an incredibly elegant way of using math to solve problems that traditional code just can't touch.</p>
+
+            <p class="highlight-box">Here is what I've learned so far, broken down simply.</p>
+          </section>
+
+          <section class="content-section">
+            <h2>Level 1: The Two Pillars of Classical Machine Learning</h2>
+
+            <p>To really get this, we have to clear up the vocabulary. "Machine Learning" isn't just one big blob of code; it's a toolkit. In Classical Machine Learning, there are two main types of problems: <strong>Regression</strong> and <strong>Classification</strong>.</p>
+
+            <div class="ml-concept-card">
+              <h3>1. Regression (Predicting a Value)</h3>
+              <p>Imagine you're trying to predict the price of a house. You have data like square footage, number of bedrooms, and location. You aren't looking for a "Yes/No" answer; you're looking for a specific number (e.g., $850,000).</p>
+              <ul>
+                <li><strong>The Goal:</strong> Fit a line (or a complex curve) to your data to predict a continuous value.</li>
+                <li><strong>The Vibe:</strong> "Based on the past trends, the next value is probably X."</li>
+              </ul>
+            </div>
+
+            <div class="ml-concept-card">
+              <h3>2. Classification (Predicting a Label)</h3>
+              <p>This is where you want to categorize things. Is this email "Spam" or "Not Spam"? Is this tumor "Malignant" or "Benign"?</p>
+              <ul>
+                <li><strong>The Goal:</strong> Draw a boundary line between groups of data.</li>
+                <li><strong>The Vibe:</strong> "This data point looks like it belongs to Group A, not Group B."</li>
+              </ul>
+            </div>
+
+            <p>Classical algorithms like <strong>Linear Regression</strong> (for values) or <strong>Decision Trees</strong> (for labels) are fantastic when you have neat, organized data. But what happens when the data gets messy?</p>
+          </section>
+
+          <section class="content-section">
+            <h2>Level 2: Enter Deep Learning (The Fun Stuff)</h2>
+
+            <p>Deep learning is what got me genuinely so interested in machine learning. It's so recent, yet so powerful.</p>
+
+            <p>What if your data isn't a neat spreadsheet? What if it's a messy image, a voice recording, or raw sensor data?</p>
+
+            <p>Classical ML struggles here because you have to tell it exactly what features to look for. <strong>Deep Learning changes everything.</strong> It learns the features for you.</p>
+
+            <p>This is the domain of <strong>Neural Networks</strong>.</p>
+          </section>
+
+          <section class="content-section">
+            <h2>Visualizing Neural Networks</h2>
+
+            <p>To visualize this, I always go back to one example (shoutout to <a href="https://www.youtube.com/watch?v=aircAruvnKk" target="_blank" rel="noopener noreferrer" class="inline-link">3Blue1Brown</a>).</p>
+
+            <p>Imagine you want a computer to recognize a handwritten number "3" inside a tiny 28x28 pixel grid.</p>
+
+            <div class="ml-concept-card highlight">
+              <p><strong>The Input:</strong> You have 784 pixels (28 x 28). Each pixel is a "neuron" holding a number between 0 (black) and 1 (white).</p>
+              <p><strong>The Goal:</strong> You want the final output layer to light up the specific neuron labeled "3."</p>
+            </div>
+
+            <h3>How does it get there?</h3>
+            <p>It works through <strong>layers of abstraction</strong>.</p>
+
+            <div class="layer-breakdown">
+              <div class="layer-item">
+                <span class="layer-label">Layer 1</span>
+                <span class="layer-name">The Edges</span>
+                <p>The first layer of neurons looks at the raw pixels. Some neurons might be tuned to light up only when they see a horizontal line. Others light up for a vertical line.</p>
+              </div>
+              <div class="layer-item">
+                <span class="layer-label">Layer 2</span>
+                <span class="layer-name">The Shapes</span>
+                <p>The next layer combines those lines. It realizes, "Hey, if I see a curve at the top and a curve at the bottom, that looks like a loop."</p>
+              </div>
+              <div class="layer-item">
+                <span class="layer-label">Layer 3</span>
+                <span class="layer-name">The Digit</span>
+                <p>The final layer puts it all together. "If I see two loops stacked on top of each other, that's an 8. If I see open curves to the left, that's a 3."</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="content-section">
+            <h2>The Math Behind the Magic</h2>
+
+            <p>The computer doesn't "know" what an edge or a loop is. It just has <strong>Weights</strong> and <strong>Biases</strong>.</p>
+
+            <div class="math-concept">
+              <div class="math-item">
+                <h4>Weights (W)</h4>
+                <p>Think of these as connection strengths. If a specific pixel is crucial for being a "3," it gets a high weight. It's like a volume knob—green lines for positive connections, red lines for negative ones.</p>
+              </div>
+              <div class="math-item">
+                <h4>Biases (b)</h4>
+                <p>This is a threshold. Maybe a neuron only fires if the weighted sum is greater than 10. That threshold is the bias.</p>
+              </div>
+              <div class="math-item">
+                <h4>Activation Function (σ)</h4>
+                <p>This "squishes" the result into a range (usually 0 to 1). It's what allows the network to make complex decisions rather than just drawing straight lines.</p>
+              </div>
+            </div>
+
+            <p>When you initialize a network, these weights are random. The "learning" process is just the computer automatically tuning these <strong>13,000+ knobs and dials</strong> until the input pixels for "3" successfully light up the output label "3."</p>
+          </section>
+
+          <section class="content-section">
+            <h2>Putting it into Practice: The NASA Space Apps Hackathon</h2>
+
+            <p>I didn't truly grasp the power of this until I competed in the <strong>NASA Space Apps Hackathon</strong> last year.</p>
+
+            <p>My team and I attacked the hardest difficulty challenge. Our goal was to analyze raw data from the Kepler space telescope to identify exoplanets. The data was massive, noisy, and full of false signals. A simple regression model wouldn't have cut it.</p>
+
+            <p>This is where we used <strong>Convolutional Neural Networks (CNNs)</strong>.</p>
+
+            <p>A CNN is a specific type of deep learning designed for "spatial" data. We applied the exact same logic from the handwritten digit example to star brightness data.</p>
+
+            <div class="layer-breakdown">
+              <div class="layer-item">
+                <span class="layer-label">Early Layers</span>
+                <p>Detected simple dips in brightness (transits).</p>
+              </div>
+              <div class="layer-item">
+                <span class="layer-label">Middle Layers</span>
+                <p>Combined dips to find periodic patterns (orbits).</p>
+              </div>
+              <div class="layer-item">
+                <span class="layer-label">Deep Layers</span>
+                <p>Aggregated the info to classify the star: "Planet Confirmed" or "False Positive."</p>
+              </div>
+            </div>
+
+            <p class="highlight-box">The most satisfying moment was realizing that we didn't have to hard-code the physics of orbits. We gave the model the data, and it <strong>learned what a planet looked like on its own</strong>.</p>
+          </section>
+
+          <section class="content-section">
+            <h2>The Real "Point" of Deep Learning</h2>
+
+            <p>So, why do we actually need Deep Learning? Why can't we just stick to the simpler Classical stuff?</p>
+
+            <p>It comes down to one word: <strong>Representation</strong>.</p>
+
+            <p>In Classical ML, the engineer has to be the genius. If I wanted to detect a cat in a photo using classical methods, I would have to manually write code to find "triangular ears" or "whiskers." That's exhausting.</p>
+
+            <p>The "point" of a Neural Network is that it <strong>automates this</strong>. It learns its own representation of the world. I don't tell it what a planet looks like; I show it examples, and it figures out the features that matter.</p>
+
+            <p class="highlight-box"><strong>This allows us to stop writing rules and start focusing on curating data.</strong></p>
+          </section>
+
+          <section class="content-section conclusion">
+            <h2>Final Thoughts</h2>
+
+            <p>Machine learning has been something that I was hesitant in touching at the start because it sounded really scary, but once I started watching videos, following tutorials, and eventually implementing it myself into my projects, I realized genuinely how cool this concept is.</p>
+
+            <p>The barrier to entry isn't a PhD or years of experience. It's just curiosity and a willingness to start somewhere. If you're thinking about diving in, I'd highly recommend starting with:</p>
+
+            <ul class="resource-list">
+              <li><a href="https://www.youtube.com/watch?v=aircAruvnKk" target="_blank" rel="noopener noreferrer">3Blue1Brown's Neural Network series</a> - The best visual explanation out there</li>
+              <li><strong>Hands-on projects</strong> - Start with something simple like digit recognition</li>
+              <li><strong>PyTorch or TensorFlow</strong> - Pick one and stick with it</li>
+            </ul>
+
+            <p>Trust me, once it clicks, you'll be hooked.</p>
+          </section>
+        </div>
+
+        <!-- Back to Blog -->
+        <div class="blog-post-footer fade-in">
+          <a href="../index.html#blog" class="back-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+            Back to Blog
+          </a>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <p class="footer-text">
+        <span class="primary-text">&copy;</span> <span id="year"></span> Daniel Kwan
+        <span class="separator">|</span>
+        <span class="accent-text">Built with</span> passion
+      </p>
+      <div class="footer-links">
+        <a href="https://github.com/danielkwan-dev" target="_blank" rel="noopener noreferrer" class="footer-link" aria-label="GitHub">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+        </a>
+        <a href="https://www.linkedin.com/in/daniel-kwan-923071220/" target="_blank" rel="noopener noreferrer" class="footer-link" aria-label="LinkedIn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+        </a>
+        <a href="mailto:d35kwan@uwaterloo.ca" class="footer-link" aria-label="Email">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../main.js"></script>
+</body>
+</html>
