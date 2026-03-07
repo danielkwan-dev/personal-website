@@ -393,7 +393,7 @@ function initStarField() {
     return {
       x: x,
       y: y,
-      speed: Math.random() * 0.6 + 0.8,
+      speed: Math.random() * 0.8 + 1.4,
       size: Math.random() * 3 + 6,
       alpha: Math.random() * 0.15 + 0.5,
       angle: angle,
