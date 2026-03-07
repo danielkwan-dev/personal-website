@@ -38,16 +38,16 @@ function initTypewriter() {
         setTimeout(tick, 1800);
         return;
       }
-      setTimeout(tick, 80);
+      setTimeout(tick, 40);
     } else {
       render(i - 1);
       i--;
       if (i === 0) {
         deleting = false;
-        setTimeout(tick, 500);
+        setTimeout(tick, 400);
         return;
       }
-      setTimeout(tick, 45);
+      setTimeout(tick, 22);
     }
   }
 
