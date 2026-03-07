@@ -8,7 +8,42 @@ document.addEventListener('DOMContentLoaded', function() {
   initMobileMenu();
   initScrollAnimations();
   initStarField();
+  initTypewriter();
 });
+
+// Typewriter effect for "University of Waterloo"
+function initTypewriter() {
+  const el = document.getElementById('waterloo-typewriter');
+  if (!el) return;
+
+  const text = 'University of Waterloo';
+  let i = 0;
+  let deleting = false;
+
+  function tick() {
+    if (!deleting) {
+      el.textContent = text.slice(0, i + 1);
+      i++;
+      if (i === text.length) {
+        deleting = true;
+        setTimeout(tick, 1800);
+        return;
+      }
+      setTimeout(tick, 80);
+    } else {
+      el.textContent = text.slice(0, i - 1);
+      i--;
+      if (i === 0) {
+        deleting = false;
+        setTimeout(tick, 500);
+        return;
+      }
+      setTimeout(tick, 45);
+    }
+  }
+
+  setTimeout(tick, 800);
+}
 
 // Navigation
 function initNavigation() {

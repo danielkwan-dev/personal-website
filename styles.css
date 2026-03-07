@@ -528,8 +528,19 @@ img {
 }
 
 .hero-subtitle {
-  color: var(--muted-foreground);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.125rem;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
   margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+  .hero-subtitle {
+    font-size: 1.25rem;
+  }
 }
 
 /* Social Links */
