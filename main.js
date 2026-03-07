@@ -7,9 +7,28 @@ document.addEventListener('DOMContentLoaded', function() {
   initNavigation();
   initMobileMenu();
   initScrollAnimations();
-  initStarField();
+  const sf = initStarField();
   initTypewriter();
+  initThemeToggle(sf && sf.setDayMode);
 });
+
+// Day/Night theme toggle
+function initThemeToggle(setDayMode) {
+  const btn = document.getElementById('themeToggle');
+  const sunIcon = document.getElementById('iconSun');
+  const moonIcon = document.getElementById('iconMoon');
+  if (!btn) return;
+
+  let isDay = false;
+
+  btn.addEventListener('click', function() {
+    isDay = !isDay;
+    document.body.classList.toggle('day-mode', isDay);
+    sunIcon.style.display = isDay ? 'none' : 'block';
+    moonIcon.style.display = isDay ? 'block' : 'none';
+    if (setDayMode) setDayMode(isDay);
+  });
+}
 
 // Typewriter effect for "Computer Engineering @ uWaterloo"
 function initTypewriter() {
@@ -168,12 +187,25 @@ function initStarField() {
   let bgGradient = null;  // Cache background gradient
   const frameInterval = 1000 / config.targetFPS;
 
-  // Theme colors
-  const theme = {
+  // Theme definitions
+  let isDayMode = false;
+  const nightTheme = {
     background: { h: 220, s: 20, l: 10 },
     foreground: { h: 210, s: 40, l: 98 },
     primary: { h: 180, s: 70, l: 50 },
     accent: { h: 280, s: 70, l: 60 }
+  };
+  const dayTheme = {
+    background: { h: 205, s: 55, l: 78 },
+    foreground: { h: 30, s: 20, l: 20 },
+    primary: { h: 42, s: 95, l: 55 },
+    accent: { h: 20, s: 85, l: 60 }
+  };
+  const theme = {
+    background: { ...nightTheme.background },
+    foreground: { ...nightTheme.foreground },
+    primary: { ...nightTheme.primary },
+    accent: { ...nightTheme.accent }
   };
 
   // Helper functions
@@ -227,11 +259,12 @@ function initStarField() {
     for (let i = 0; i < config.starCount; i++) {
       const isFar = Math.random() < 0.85; // More far stars (simpler to draw)
       const base = isFar ? 0.25 : 0.4;
+      const alphaMul = isDayMode ? 0.04 : 1;
       const star = {
         x: Math.random() * w,
         y: Math.random() * h,
         r: isFar ? Math.random() * 0.8 + 0.3 : Math.random() * 1.5 + 0.5,
-        baseAlpha: Math.random() * 0.4 + base,
+        baseAlpha: (Math.random() * 0.4 + base) * alphaMul,
         twinkleSpeed: Math.random() * 0.01 + 0.003,
         twinklePhase: Math.random() * Math.PI * 2,
         tint: starTints[Math.floor(Math.random() * starTints.length)]
@@ -277,19 +310,31 @@ function initStarField() {
     // Create dust
     dust = Array.from({ length: config.dustCount }, () => createDust(w, h));
 
-    // Create planet
-    planet = {
-      x: w * 0.12,
-      y: h * 0.7,
-      r: Math.min(w, h) * 0.18,
-      tint: mixLightness(theme.primary, -10),
-      wobblePhase: Math.random() * Math.PI * 2,
-      ring: {
-        tilt: -0.35,
-        width: 0.35,
-        alpha: 0.18
-      }
-    };
+    // Create planet or sun
+    if (isDayMode) {
+      planet = {
+        x: w * 0.82,
+        y: h * 0.13,
+        r: Math.min(w, h) * 0.1,
+        tint: { ...theme.primary },
+        wobblePhase: Math.random() * Math.PI * 2,
+        ring: null,
+        isSun: true
+      };
+    } else {
+      planet = {
+        x: w * 0.12,
+        y: h * 0.7,
+        r: Math.min(w, h) * 0.18,
+        tint: mixLightness(theme.primary, -10),
+        wobblePhase: Math.random() * Math.PI * 2,
+        ring: {
+          tilt: -0.35,
+          width: 0.35,
+          alpha: 0.18
+        }
+      };
+    }
   }
 
   function createDust(w, h) {
@@ -398,47 +443,69 @@ function initStarField() {
     }
     ctx.globalAlpha = 1;
 
-    // Draw planet
+    // Draw planet or sun
     if (planet) {
       const p = planet;
       const wobble = Math.sin(time * 0.15 + p.wobblePhase) * (p.r * 0.008);
       const cx = p.x + wobble;
       const cy = p.y + wobble * 0.5;
 
-      // Atmospheric glow
-      ctx.save();
-      ctx.globalCompositeOperation = 'screen';
-      ctx.globalAlpha = 0.15;
-      ctx.fillStyle = hsl(mixLightness(p.tint, 20), 1);
-      ctx.beginPath();
-      ctx.arc(cx, cy, p.r * 1.2, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-
-      // Body gradient
-      const g = ctx.createRadialGradient(cx - p.r * 0.3, cy - p.r * 0.3, p.r * 0.1, cx, cy, p.r);
-      g.addColorStop(0, hsl(mixLightness(p.tint, 18), 0.95));
-      g.addColorStop(0.5, hsl(mixLightness(p.tint, 4), 0.95));
-      g.addColorStop(1, hsl(mixLightness(p.tint, -15), 0.95));
-
-      ctx.beginPath();
-      ctx.arc(cx, cy, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = g;
-      ctx.fill();
-
-      // Ring
-      if (p.ring) {
-        const ringR = p.r * (1.1 + p.ring.width);
+      if (p.isSun) {
+        // Sun: layered glow rings + bright core
         ctx.save();
-        ctx.translate(cx, cy);
-        ctx.rotate(p.ring.tilt);
         ctx.globalCompositeOperation = 'screen';
-        ctx.strokeStyle = hsl(mixLightness(p.tint, 25), p.ring.alpha);
-        ctx.lineWidth = p.r * 0.12;
-        ctx.beginPath();
-        ctx.ellipse(0, 0, ringR, ringR * 0.3, 0, 0, Math.PI * 2);
-        ctx.stroke();
+        for (let gi = 3; gi >= 1; gi--) {
+          ctx.globalAlpha = 0.06 * gi * 0.5;
+          ctx.fillStyle = hsl(p.tint, 1);
+          ctx.beginPath();
+          ctx.arc(cx, cy, p.r * (1 + gi * 0.65), 0, Math.PI * 2);
+          ctx.fill();
+        }
         ctx.restore();
+
+        const sunGrad = ctx.createRadialGradient(cx - p.r * 0.25, cy - p.r * 0.25, 0, cx, cy, p.r);
+        sunGrad.addColorStop(0, hsl(mixLightness(p.tint, 38), 1));
+        sunGrad.addColorStop(0.45, hsl(mixLightness(p.tint, 15), 1));
+        sunGrad.addColorStop(1, hsl(mixLightness(p.tint, -12), 0.95));
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = sunGrad;
+        ctx.fill();
+      } else {
+        // Planet: atmospheric glow + body + ring
+        ctx.save();
+        ctx.globalCompositeOperation = 'screen';
+        ctx.globalAlpha = 0.15;
+        ctx.fillStyle = hsl(mixLightness(p.tint, 20), 1);
+        ctx.beginPath();
+        ctx.arc(cx, cy, p.r * 1.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        const g = ctx.createRadialGradient(cx - p.r * 0.3, cy - p.r * 0.3, p.r * 0.1, cx, cy, p.r);
+        g.addColorStop(0, hsl(mixLightness(p.tint, 18), 0.95));
+        g.addColorStop(0.5, hsl(mixLightness(p.tint, 4), 0.95));
+        g.addColorStop(1, hsl(mixLightness(p.tint, -15), 0.95));
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = g;
+        ctx.fill();
+
+        if (p.ring) {
+          const ringR = p.r * (1.1 + p.ring.width);
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate(p.ring.tilt);
+          ctx.globalCompositeOperation = 'screen';
+          ctx.strokeStyle = hsl(mixLightness(p.tint, 25), p.ring.alpha);
+          ctx.lineWidth = p.r * 0.12;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, ringR, ringR * 0.3, 0, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
       }
     }
 
@@ -463,8 +530,8 @@ function initStarField() {
     }
     ctx.globalAlpha = 1;
 
-    // Draw shooting stars
-    spawnShootingStar(w, h);
+    // Draw shooting stars (night only)
+    if (!isDayMode) spawnShootingStar(w, h);
     for (const st of shootingStars) {
       if (!st.active) continue;
 
@@ -506,4 +573,17 @@ function initStarField() {
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(initScene, 100);
   });
+
+  function setDayMode(isDay) {
+    isDayMode = isDay;
+    const t = isDay ? dayTheme : nightTheme;
+    theme.background = { ...t.background };
+    theme.foreground = { ...t.foreground };
+    theme.primary = { ...t.primary };
+    theme.accent = { ...t.accent };
+    bgGradient = null;
+    initScene();
+  }
+
+  return { setDayMode };
 }
