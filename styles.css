@@ -494,20 +494,23 @@ img {
 .hero-tagline {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.tagline-text {
   font-family: 'JetBrains Mono', monospace;
   font-size: 1.125rem;
-  color: var(--muted-foreground);
+  margin-bottom: 2rem;
 }
 
 @media (min-width: 768px) {
-  .tagline-text {
+  .hero-tagline {
     font-size: 1.25rem;
   }
+}
+
+.tagline-muted {
+  color: var(--muted-foreground);
+}
+
+.tagline-colored {
+  color: var(--primary);
 }
 
 .typing-cursor {
@@ -516,6 +519,7 @@ img {
   height: 1.25rem;
   background: var(--primary);
   animation: blink 0.8s infinite;
+  margin-left: 1px;
 }
 
 @keyframes blink {
@@ -525,16 +529,6 @@ img {
   50% {
     opacity: 0;
   }
-}
-
-.hero-subtitle {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 1.125rem;
-  color: var(--primary);
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  margin-bottom: 2rem;
 }
 
 @media (min-width: 768px) {

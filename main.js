@@ -11,18 +11,27 @@ document.addEventListener('DOMContentLoaded', function() {
   initTypewriter();
 });
 
-// Typewriter effect for "University of Waterloo"
+// Typewriter effect for "Computer Engineering @ uWaterloo"
 function initTypewriter() {
   const el = document.getElementById('waterloo-typewriter');
   if (!el) return;
 
-  const text = 'University of Waterloo';
+  const text = 'Computer Engineering @ uWaterloo';
+  const splitAt = 'Computer Engineering @ '.length; // muted up to here, colored after
   let i = 0;
   let deleting = false;
 
+  function render(len) {
+    if (len <= splitAt) {
+      el.innerHTML = `<span class="tagline-muted">${text.slice(0, len)}</span>`;
+    } else {
+      el.innerHTML = `<span class="tagline-muted">${text.slice(0, splitAt)}</span><span class="tagline-colored">${text.slice(splitAt, len)}</span>`;
+    }
+  }
+
   function tick() {
     if (!deleting) {
-      el.textContent = text.slice(0, i + 1);
+      render(i + 1);
       i++;
       if (i === text.length) {
         deleting = true;
@@ -31,7 +40,7 @@ function initTypewriter() {
       }
       setTimeout(tick, 80);
     } else {
-      el.textContent = text.slice(0, i - 1);
+      render(i - 1);
       i--;
       if (i === 0) {
         deleting = false;
