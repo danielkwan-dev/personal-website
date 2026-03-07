@@ -1286,3 +1286,56 @@ body.day-mode .text-glow {
                0 0 40px rgba(195, 150, 60, 0.2),
                0 0 60px rgba(195, 150, 60, 0.1);
 }
+
+/* --- Hologram Profile Picture --- */
+.profile-image {
+  filter: saturate(0.5) brightness(1.15) drop-shadow(0 0 12px rgba(0, 242, 255, 0.5));
+  animation: holoFlicker 4s ease-in-out infinite;
+}
+
+.holo-scanlines {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(0, 242, 255, 0.06) 3px,
+    rgba(0, 242, 255, 0.06) 4px
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+@keyframes holoFlicker {
+  0%, 100% { opacity: 1; filter: saturate(0.5) brightness(1.15) hue-rotate(0deg) drop-shadow(0 0 12px rgba(0, 242, 255, 0.5)); }
+  30%      { opacity: 0.92; filter: saturate(0.5) brightness(1.2) hue-rotate(8deg) drop-shadow(0 0 16px rgba(0, 242, 255, 0.6)); }
+  50%      { opacity: 0.85; filter: saturate(0.4) brightness(1.1) hue-rotate(-5deg) drop-shadow(0 0 10px rgba(0, 242, 255, 0.4)); }
+  70%      { opacity: 0.95; filter: saturate(0.5) brightness(1.18) hue-rotate(5deg) drop-shadow(0 0 14px rgba(0, 242, 255, 0.55)); }
+}
+
+body.day-mode .profile-image {
+  filter: saturate(0.5) brightness(1.15) drop-shadow(0 0 12px rgba(195, 150, 60, 0.45));
+}
+
+body.day-mode .holo-scanlines {
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(195, 150, 60, 0.05) 3px,
+    rgba(195, 150, 60, 0.05) 4px
+  );
+}
+
+@keyframes holoFlickerDay {
+  0%, 100% { opacity: 1; filter: saturate(0.5) brightness(1.15) hue-rotate(0deg) drop-shadow(0 0 12px rgba(195, 150, 60, 0.45)); }
+  30%      { opacity: 0.92; filter: saturate(0.5) brightness(1.2) hue-rotate(5deg) drop-shadow(0 0 16px rgba(195, 150, 60, 0.55)); }
+  50%      { opacity: 0.85; filter: saturate(0.4) brightness(1.1) hue-rotate(-3deg) drop-shadow(0 0 10px rgba(195, 150, 60, 0.35)); }
+  70%      { opacity: 0.95; filter: saturate(0.5) brightness(1.18) hue-rotate(3deg) drop-shadow(0 0 14px rgba(195, 150, 60, 0.5)); }
+}
+
+body.day-mode .profile-image {
+  animation-name: holoFlickerDay;
+}
