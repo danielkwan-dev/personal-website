@@ -363,15 +363,43 @@ function initStarField() {
   }
 
   function createSpaceship(w, h) {
-    const goingRight = Math.random() < 0.5;
+    // Pick a random edge: 0=left, 1=right, 2=top, 3=bottom
+    const edge = Math.floor(Math.random() * 4);
+    let x, y, angle;
+
+    switch (edge) {
+      case 0: // from left
+        x = -30;
+        y = Math.random() * h * 0.7 + h * 0.1;
+        angle = (Math.random() - 0.5) * 0.5; // mostly rightward
+        break;
+      case 1: // from right
+        x = w + 30;
+        y = Math.random() * h * 0.7 + h * 0.1;
+        angle = Math.PI + (Math.random() - 0.5) * 0.5; // mostly leftward
+        break;
+      case 2: // from top
+        x = Math.random() * w * 0.8 + w * 0.1;
+        y = -30;
+        angle = Math.PI / 2 + (Math.random() - 0.5) * 0.6; // mostly downward
+        break;
+      default: // from bottom
+        x = Math.random() * w * 0.8 + w * 0.1;
+        y = h + 30;
+        angle = -Math.PI / 2 + (Math.random() - 0.5) * 0.6; // mostly upward
+        break;
+    }
+
     return {
-      x: goingRight ? -80 : w + 80,
-      y: Math.random() * h * 0.6 + h * 0.05,
-      speed: Math.random() * 0.35 + 0.2,
-      size: Math.random() * 4 + 7,
-      alpha: Math.random() * 0.15 + 0.45,
-      direction: goingRight ? 1 : -1,
-      drift: (Math.random() - 0.5) * 0.03,
+      x: x,
+      y: y,
+      speed: Math.random() * 0.6 + 0.8,
+      size: Math.random() * 3 + 6,
+      alpha: Math.random() * 0.15 + 0.5,
+      angle: angle,
+      drift: 0,
+      driftTarget: 0,
+      driftTimer: 0,
       engineFlicker: Math.random() * Math.PI * 2,
       smokeTrail: [],
       active: true
@@ -622,30 +650,39 @@ function initStarField() {
     spawnSpaceship(w, h);
     for (let i = spaceships.length - 1; i >= 0; i--) {
       const ship = spaceships[i];
-      ship.x += ship.speed * ship.direction;
-      ship.y += ship.drift;
+      // Random wandering — nudge the angle periodically
+      ship.driftTimer--;
+      if (ship.driftTimer <= 0) {
+        ship.driftTarget = (Math.random() - 0.5) * 0.012;
+        ship.driftTimer = Math.floor(Math.random() * 80 + 40);
+      }
+      ship.drift += (ship.driftTarget - ship.drift) * 0.03;
+      ship.angle += ship.drift;
+
+      ship.x += Math.cos(ship.angle) * ship.speed;
+      ship.y += Math.sin(ship.angle) * ship.speed;
       ship.engineFlicker += 0.12;
 
-      // Remove if off screen
-      if ((ship.direction === 1 && ship.x > w + 60) || (ship.direction === -1 && ship.x < -60)) {
+      // Remove if off screen (any edge with padding)
+      if (ship.x < -80 || ship.x > w + 80 || ship.y < -80 || ship.y > h + 80) {
         spaceships.splice(i, 1);
         continue;
       }
 
       const s = ship.size;
-      const dir = ship.direction;
       const cx = ship.x;
       const cy = ship.y;
 
       // Add smoke puff
       if (Math.random() < 0.35) {
+        const smokeAngle = ship.angle + Math.PI; // behind the ship
         ship.smokeTrail.push({
-          x: cx - dir * s * 2.5,
-          y: cy + (Math.random() - 0.5) * s * 0.5,
+          x: cx + Math.cos(smokeAngle) * s * 2.5 + (Math.random() - 0.5) * s * 0.3,
+          y: cy + Math.sin(smokeAngle) * s * 2.5 + (Math.random() - 0.5) * s * 0.5,
           r: s * 0.3 + Math.random() * s * 0.25,
           alpha: 0.2 + Math.random() * 0.1,
-          vx: -dir * (Math.random() * 0.2 + 0.08),
-          vy: (Math.random() - 0.5) * 0.1,
+          vx: Math.cos(smokeAngle) * (Math.random() * 0.2 + 0.08),
+          vy: Math.sin(smokeAngle) * (Math.random() * 0.2 + 0.08) + (Math.random() - 0.5) * 0.05,
           decay: 0.003 + Math.random() * 0.003
         });
       }
@@ -673,7 +710,7 @@ function initStarField() {
 
       ctx.save();
       ctx.translate(cx, cy);
-      ctx.scale(dir, 1);
+      ctx.rotate(ship.angle);
 
       const a = ship.alpha;
 
