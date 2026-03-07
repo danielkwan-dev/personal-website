@@ -501,7 +501,7 @@ img {
 .tagline-text {
   font-family: 'JetBrains Mono', monospace;
   font-size: 1.125rem;
-  color: var(--primary);
+  color: var(--muted-foreground);
 }
 
 @media (min-width: 768px) {
