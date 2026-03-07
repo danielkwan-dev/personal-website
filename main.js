@@ -365,11 +365,11 @@ function initStarField() {
   function createSpaceship(w, h) {
     const goingRight = Math.random() < 0.5;
     return {
-      x: goingRight ? -40 : w + 40,
-      y: Math.random() * h * 0.65 + h * 0.05,
-      speed: Math.random() * 0.3 + 0.15,
-      size: Math.random() * 2 + 2.5,
-      alpha: Math.random() * 0.25 + 0.3,
+      x: goingRight ? -80 : w + 80,
+      y: Math.random() * h * 0.6 + h * 0.05,
+      speed: Math.random() * 0.35 + 0.2,
+      size: Math.random() * 4 + 7,
+      alpha: Math.random() * 0.15 + 0.45,
       direction: goingRight ? 1 : -1,
       drift: (Math.random() - 0.5) * 0.03,
       engineFlicker: Math.random() * Math.PI * 2,
@@ -379,8 +379,8 @@ function initStarField() {
   }
 
   function spawnSpaceship(w, h) {
-    if (spaceships.length >= 3) return;
-    if (Math.random() < 0.002) {
+    if (spaceships.length >= 2) return;
+    if (Math.random() < 0.003) {
       spaceships.push(createSpaceship(w, h));
     }
   }
@@ -637,16 +637,16 @@ function initStarField() {
       const cx = ship.x;
       const cy = ship.y;
 
-      // Add smoke puff every few frames
-      if (Math.random() < 0.3) {
+      // Add smoke puff
+      if (Math.random() < 0.35) {
         ship.smokeTrail.push({
-          x: cx - dir * s * 2.2,
-          y: cy + (Math.random() - 0.5) * s * 0.4,
-          r: s * 0.4 + Math.random() * s * 0.3,
-          alpha: 0.25 + Math.random() * 0.1,
-          vx: -dir * (Math.random() * 0.15 + 0.05),
-          vy: (Math.random() - 0.5) * 0.08,
-          decay: 0.006 + Math.random() * 0.004
+          x: cx - dir * s * 2.5,
+          y: cy + (Math.random() - 0.5) * s * 0.5,
+          r: s * 0.3 + Math.random() * s * 0.25,
+          alpha: 0.2 + Math.random() * 0.1,
+          vx: -dir * (Math.random() * 0.2 + 0.08),
+          vy: (Math.random() - 0.5) * 0.1,
+          decay: 0.003 + Math.random() * 0.003
         });
       }
 
@@ -655,7 +655,7 @@ function initStarField() {
         const p = ship.smokeTrail[j];
         p.x += p.vx;
         p.y += p.vy;
-        p.r += 0.03;
+        p.r += 0.06;
         p.alpha -= p.decay;
 
         if (p.alpha <= 0) {
@@ -664,7 +664,7 @@ function initStarField() {
         }
 
         ctx.globalAlpha = p.alpha * ship.alpha;
-        ctx.fillStyle = 'rgba(160, 165, 175, 0.6)';
+        ctx.fillStyle = 'rgba(150, 155, 165, 0.5)';
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fill();
@@ -675,79 +675,118 @@ function initStarField() {
       ctx.translate(cx, cy);
       ctx.scale(dir, 1);
 
-      // --- Ship body (facing right in local coords) ---
       const a = ship.alpha;
 
-      // Main fuselage — elongated rounded shape
-      ctx.fillStyle = `rgba(140, 148, 160, ${a})`;
+      // --- Main fuselage ---
+      ctx.fillStyle = `rgba(155, 160, 170, ${a})`;
       ctx.beginPath();
-      ctx.ellipse(0, 0, s * 2, s * 0.55, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Nose cone — slightly lighter
-      ctx.fillStyle = `rgba(170, 178, 190, ${a})`;
-      ctx.beginPath();
-      ctx.moveTo(s * 2, 0);
-      ctx.lineTo(s * 3, 0);
-      ctx.lineTo(s * 2, -s * 0.3);
-      ctx.lineTo(s * 2, s * 0.3);
+      // Pointed nose tapering to wider rear
+      ctx.moveTo(s * 3.2, 0);                         // nose tip
+      ctx.lineTo(s * 1.5, -s * 0.35);                 // upper nose
+      ctx.lineTo(-s * 0.5, -s * 0.5);                 // upper mid
+      ctx.lineTo(-s * 2, -s * 0.55);                  // upper rear
+      ctx.lineTo(-s * 2.2, -s * 0.4);                 // rear top edge
+      ctx.lineTo(-s * 2.2, s * 0.4);                  // rear bottom edge
+      ctx.lineTo(-s * 2, s * 0.55);                   // lower rear
+      ctx.lineTo(-s * 0.5, s * 0.5);                  // lower mid
+      ctx.lineTo(s * 1.5, s * 0.35);                  // lower nose
       ctx.closePath();
       ctx.fill();
 
-      // Cockpit window — small highlight
-      ctx.fillStyle = `rgba(180, 220, 255, ${a * 0.7})`;
+      // Lighter top panel
+      ctx.fillStyle = `rgba(180, 185, 195, ${a * 0.6})`;
       ctx.beginPath();
-      ctx.ellipse(s * 1.4, -s * 0.05, s * 0.35, s * 0.15, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Top wing/fin
-      ctx.fillStyle = `rgba(120, 128, 140, ${a})`;
-      ctx.beginPath();
-      ctx.moveTo(-s * 0.3, -s * 0.5);
-      ctx.lineTo(-s * 1.6, -s * 1.3);
-      ctx.lineTo(-s * 1.8, -s * 1.1);
-      ctx.lineTo(-s * 1.2, -s * 0.5);
+      ctx.moveTo(s * 3.2, 0);
+      ctx.lineTo(s * 1.5, -s * 0.35);
+      ctx.lineTo(-s * 0.5, -s * 0.5);
+      ctx.lineTo(-s * 2, -s * 0.55);
+      ctx.lineTo(-s * 2, 0);
+      ctx.lineTo(s * 1.5, 0);
       ctx.closePath();
       ctx.fill();
 
-      // Bottom wing/fin
+      // Cockpit window
+      ctx.fillStyle = `rgba(140, 210, 255, ${a * 0.8})`;
       ctx.beginPath();
-      ctx.moveTo(-s * 0.3, s * 0.5);
-      ctx.lineTo(-s * 1.6, s * 1.3);
-      ctx.lineTo(-s * 1.8, s * 1.1);
-      ctx.lineTo(-s * 1.2, s * 0.5);
+      ctx.ellipse(s * 1.6, -s * 0.08, s * 0.5, s * 0.18, -0.1, 0, Math.PI * 2);
+      ctx.fill();
+      // Window glint
+      ctx.fillStyle = `rgba(220, 245, 255, ${a * 0.5})`;
+      ctx.beginPath();
+      ctx.ellipse(s * 1.75, -s * 0.12, s * 0.15, s * 0.07, -0.1, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Top wing
+      ctx.fillStyle = `rgba(120, 125, 138, ${a})`;
+      ctx.beginPath();
+      ctx.moveTo(-s * 0.2, -s * 0.5);
+      ctx.lineTo(-s * 1.2, -s * 1.6);
+      ctx.lineTo(-s * 2, -s * 1.5);
+      ctx.lineTo(-s * 2.2, -s * 1.2);
+      ctx.lineTo(-s * 1.5, -s * 0.55);
       ctx.closePath();
       ctx.fill();
 
-      // Engine exhaust — flickering orange-white glow
-      const flicker = Math.sin(ship.engineFlicker) * 0.12 + 0.5;
-      const exLen = s * 1.5 + Math.sin(ship.engineFlicker * 1.7) * s * 0.4;
-
-      // Outer glow
-      const eg = ctx.createRadialGradient(-s * 2.2, 0, 0, -s * 2.2, 0, s * 1.8);
-      eg.addColorStop(0, `rgba(255, 160, 60, ${flicker * a * 0.4})`);
-      eg.addColorStop(0.4, `rgba(255, 100, 40, ${flicker * a * 0.15})`);
-      eg.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = eg;
+      // Bottom wing
       ctx.beginPath();
-      ctx.arc(-s * 2.2, 0, s * 1.8, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Exhaust flame cone
-      ctx.fillStyle = `rgba(255, 200, 100, ${flicker * a * 0.6})`;
-      ctx.beginPath();
-      ctx.moveTo(-s * 2, -s * 0.25);
-      ctx.lineTo(-s * 2 - exLen, 0);
-      ctx.lineTo(-s * 2, s * 0.25);
+      ctx.moveTo(-s * 0.2, s * 0.5);
+      ctx.lineTo(-s * 1.2, s * 1.6);
+      ctx.lineTo(-s * 2, s * 1.5);
+      ctx.lineTo(-s * 2.2, s * 1.2);
+      ctx.lineTo(-s * 1.5, s * 0.55);
       ctx.closePath();
       ctx.fill();
 
-      // Inner bright core
-      ctx.fillStyle = `rgba(255, 240, 220, ${flicker * a * 0.5})`;
+      // Wing detail lines
+      ctx.strokeStyle = `rgba(95, 100, 115, ${a * 0.5})`;
+      ctx.lineWidth = 0.5;
       ctx.beginPath();
-      ctx.moveTo(-s * 2, -s * 0.12);
-      ctx.lineTo(-s * 2 - exLen * 0.5, 0);
-      ctx.lineTo(-s * 2, s * 0.12);
+      ctx.moveTo(-s * 0.6, -s * 0.52);
+      ctx.lineTo(-s * 1.6, -s * 1.35);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(-s * 0.6, s * 0.52);
+      ctx.lineTo(-s * 1.6, s * 1.35);
+      ctx.stroke();
+
+      // Engine nozzles (two small rectangles at rear)
+      ctx.fillStyle = `rgba(90, 95, 105, ${a})`;
+      ctx.fillRect(-s * 2.5, -s * 0.3, s * 0.35, s * 0.25);
+      ctx.fillRect(-s * 2.5, s * 0.05, s * 0.35, s * 0.25);
+
+      // Exhaust flames
+      const flicker = Math.sin(ship.engineFlicker) * 0.15 + 0.55;
+      const exLen = s * 1.8 + Math.sin(ship.engineFlicker * 2.3) * s * 0.5;
+
+      // Top engine flame
+      ctx.fillStyle = `rgba(255, 180, 80, ${flicker * a * 0.7})`;
+      ctx.beginPath();
+      ctx.moveTo(-s * 2.5, -s * 0.28);
+      ctx.lineTo(-s * 2.5 - exLen, -s * 0.17);
+      ctx.lineTo(-s * 2.5, -s * 0.07);
+      ctx.closePath();
+      ctx.fill();
+
+      // Bottom engine flame
+      ctx.beginPath();
+      ctx.moveTo(-s * 2.5, s * 0.07);
+      ctx.lineTo(-s * 2.5 - exLen, s * 0.17);
+      ctx.lineTo(-s * 2.5, s * 0.28);
+      ctx.closePath();
+      ctx.fill();
+
+      // Bright inner flame cores
+      ctx.fillStyle = `rgba(255, 240, 200, ${flicker * a * 0.6})`;
+      ctx.beginPath();
+      ctx.moveTo(-s * 2.5, -s * 0.22);
+      ctx.lineTo(-s * 2.5 - exLen * 0.4, -s * 0.17);
+      ctx.lineTo(-s * 2.5, -s * 0.12);
+      ctx.closePath();
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(-s * 2.5, s * 0.12);
+      ctx.lineTo(-s * 2.5 - exLen * 0.4, s * 0.17);
+      ctx.lineTo(-s * 2.5, s * 0.22);
       ctx.closePath();
       ctx.fill();
 
