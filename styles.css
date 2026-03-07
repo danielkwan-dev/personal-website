@@ -689,6 +689,12 @@ img {
   font-weight: 500;
 }
 
+/* CTA Inline (inside hello section) */
+.cta-inline {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
 /* CTA Section */
 .cta-section {
   padding: 0 1rem 6rem;
