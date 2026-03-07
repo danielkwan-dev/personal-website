@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const sf = initStarField();
   initTypewriter();
   initThemeToggle(sf && sf.setDayMode);
+  initHoloGlitch();
 });
 
 // Day/Night theme toggle
@@ -71,6 +72,21 @@ function initTypewriter() {
   }
 
   setTimeout(tick, 800);
+}
+
+// Hologram glitch effect — triggers every 5-10 seconds
+function initHoloGlitch() {
+  const el = document.querySelector('.holo-glitch');
+  if (!el) return;
+
+  function triggerGlitch() {
+    el.classList.add('glitch-active');
+    setTimeout(() => el.classList.remove('glitch-active'), 300);
+    const next = 5000 + Math.random() * 5000; // 5-10s
+    setTimeout(triggerGlitch, next);
+  }
+
+  setTimeout(triggerGlitch, 3000); // first glitch after 3s
 }
 
 // Navigation
