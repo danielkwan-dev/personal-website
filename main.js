@@ -196,10 +196,10 @@ function initStarField() {
     accent: { h: 280, s: 70, l: 60 }
   };
   const dayTheme = {
-    background: { h: 205, s: 55, l: 78 },
-    foreground: { h: 30, s: 20, l: 20 },
-    primary: { h: 42, s: 95, l: 55 },
-    accent: { h: 20, s: 85, l: 60 }
+    background: { h: 230, s: 15, l: 6 },
+    foreground: { h: 40, s: 20, l: 90 },
+    primary: { h: 38, s: 60, l: 55 },
+    accent: { h: 22, s: 45, l: 52 }
   };
   const theme = {
     background: { ...nightTheme.background },
@@ -259,7 +259,7 @@ function initStarField() {
     for (let i = 0; i < config.starCount; i++) {
       const isFar = Math.random() < 0.85; // More far stars (simpler to draw)
       const base = isFar ? 0.25 : 0.4;
-      const alphaMul = isDayMode ? 0.04 : 1;
+      const alphaMul = 1;
       const star = {
         x: Math.random() * w,
         y: Math.random() * h,
@@ -451,27 +451,58 @@ function initStarField() {
       const cy = p.y + wobble * 0.5;
 
       if (p.isSun) {
-        // Sun: layered glow rings + bright core
+        // Outer corona glow
         ctx.save();
         ctx.globalCompositeOperation = 'screen';
-        for (let gi = 3; gi >= 1; gi--) {
-          ctx.globalAlpha = 0.06 * gi * 0.5;
-          ctx.fillStyle = hsl(p.tint, 1);
-          ctx.beginPath();
-          ctx.arc(cx, cy, p.r * (1 + gi * 0.65), 0, Math.PI * 2);
-          ctx.fill();
-        }
+        const corona = ctx.createRadialGradient(cx, cy, p.r * 0.9, cx, cy, p.r * 1.7);
+        corona.addColorStop(0, 'hsl(45 90% 70% / 0.18)');
+        corona.addColorStop(0.3, 'hsl(38 80% 55% / 0.1)');
+        corona.addColorStop(0.6, 'hsl(25 70% 45% / 0.04)');
+        corona.addColorStop(1, 'hsl(0 0% 0% / 0)');
+        ctx.fillStyle = corona;
+        ctx.beginPath();
+        ctx.arc(cx, cy, p.r * 1.7, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Pulsing haze
+        const pulse = Math.sin(time * 0.4 + p.wobblePhase) * 0.03 + 0.07;
+        const haze = ctx.createRadialGradient(cx, cy, p.r, cx, cy, p.r * 2.2);
+        haze.addColorStop(0, `hsl(42 70% 60% / ${pulse})`);
+        haze.addColorStop(0.5, `hsl(30 60% 50% / ${pulse * 0.3})`);
+        haze.addColorStop(1, 'hsl(0 0% 0% / 0)');
+        ctx.fillStyle = haze;
+        ctx.beginPath();
+        ctx.arc(cx, cy, p.r * 2.2, 0, Math.PI * 2);
+        ctx.fill();
         ctx.restore();
 
-        const sunGrad = ctx.createRadialGradient(cx - p.r * 0.25, cy - p.r * 0.25, 0, cx, cy, p.r);
-        sunGrad.addColorStop(0, hsl(mixLightness(p.tint, 38), 1));
-        sunGrad.addColorStop(0.45, hsl(mixLightness(p.tint, 15), 1));
-        sunGrad.addColorStop(1, hsl(mixLightness(p.tint, -12), 0.95));
+        // Sun body — white-yellow center to golden-orange edge
+        const sunGrad = ctx.createRadialGradient(cx - p.r * 0.2, cy - p.r * 0.2, p.r * 0.1, cx, cy, p.r);
+        sunGrad.addColorStop(0, 'hsl(55 95% 92% / 0.99)');
+        sunGrad.addColorStop(0.25, 'hsl(48 90% 75% / 0.98)');
+        sunGrad.addColorStop(0.6, 'hsl(40 85% 58% / 0.97)');
+        sunGrad.addColorStop(0.85, 'hsl(28 80% 45% / 0.96)');
+        sunGrad.addColorStop(1, 'hsl(18 75% 35% / 0.9)');
 
         ctx.beginPath();
         ctx.arc(cx, cy, p.r, 0, Math.PI * 2);
         ctx.fillStyle = sunGrad;
         ctx.fill();
+
+        // Limb darkening
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, p.r, 0, Math.PI * 2);
+        ctx.clip();
+        const limb = ctx.createRadialGradient(cx, cy, p.r * 0.5, cx, cy, p.r);
+        limb.addColorStop(0, 'hsl(0 0% 0% / 0)');
+        limb.addColorStop(0.7, 'hsl(0 0% 0% / 0)');
+        limb.addColorStop(1, 'hsl(15 60% 20% / 0.3)');
+        ctx.fillStyle = limb;
+        ctx.beginPath();
+        ctx.arc(cx, cy, p.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
       } else {
         // Planet: atmospheric glow + body + ring
         ctx.save();
@@ -531,7 +562,7 @@ function initStarField() {
     ctx.globalAlpha = 1;
 
     // Draw shooting stars (night only)
-    if (!isDayMode) spawnShootingStar(w, h);
+    spawnShootingStar(w, h);
     for (const st of shootingStars) {
       if (!st.active) continue;
 
