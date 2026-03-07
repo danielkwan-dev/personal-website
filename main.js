@@ -277,8 +277,8 @@ function initStarField() {
       }
     }
 
-    // Reset spaceships
-    spaceships = [];
+    // Reset spaceships — spawn one immediately so the user sees it on load
+    spaceships = [createSpaceship(w, h)];
 
     // Create shooting stars
     shootingStars = Array.from({ length: config.shootingStarCount }, () => ({
