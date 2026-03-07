@@ -559,7 +559,7 @@ function initStarField() {
         ctx.fill();
         ctx.restore();
       } else {
-        // Planet: atmospheric glow + body + ring
+        // Planet: atmospheric glow
         ctx.save();
         ctx.globalCompositeOperation = 'screen';
         ctx.globalAlpha = 0.15;
@@ -569,27 +569,132 @@ function initStarField() {
         ctx.fill();
         ctx.restore();
 
+        // Planet body base gradient
         const g = ctx.createRadialGradient(cx - p.r * 0.3, cy - p.r * 0.3, p.r * 0.1, cx, cy, p.r);
         g.addColorStop(0, hsl(mixLightness(p.tint, 18), 0.95));
-        g.addColorStop(0.5, hsl(mixLightness(p.tint, 4), 0.95));
-        g.addColorStop(1, hsl(mixLightness(p.tint, -15), 0.95));
+        g.addColorStop(0.35, hsl(mixLightness(p.tint, 8), 0.95));
+        g.addColorStop(0.65, hsl(mixLightness(p.tint, -2), 0.95));
+        g.addColorStop(1, hsl(mixLightness(p.tint, -18), 0.95));
 
         ctx.beginPath();
         ctx.arc(cx, cy, p.r, 0, Math.PI * 2);
         ctx.fillStyle = g;
         ctx.fill();
 
+        // Surface bands (horizontal stripes)
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, p.r, 0, Math.PI * 2);
+        ctx.clip();
+
+        const bandCount = 6;
+        for (let b = 0; b < bandCount; b++) {
+          const bandY = cy - p.r + (p.r * 2 / bandCount) * b + p.r * 0.05;
+          const bandH = p.r * 2 / bandCount * 0.4;
+          const bandAlpha = (b % 2 === 0) ? 0.06 : 0.1;
+          ctx.fillStyle = hsl(mixLightness(p.tint, b % 2 === 0 ? -8 : 5), bandAlpha);
+          ctx.fillRect(cx - p.r, bandY, p.r * 2, bandH);
+        }
+
+        // Storm / swirl detail
+        ctx.globalAlpha = 0.07;
+        ctx.fillStyle = hsl(mixLightness(p.tint, 15), 1);
+        ctx.beginPath();
+        ctx.ellipse(cx + p.r * 0.2, cy - p.r * 0.15, p.r * 0.18, p.r * 0.08, 0.3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 0.05;
+        ctx.fillStyle = hsl(mixLightness(p.tint, -10), 1);
+        ctx.beginPath();
+        ctx.ellipse(cx - p.r * 0.3, cy + p.r * 0.35, p.r * 0.14, p.r * 0.06, -0.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+
+        // Craters
+        const craters = [
+          { ox: 0.25, oy: -0.3, r: 0.08 },
+          { ox: -0.15, oy: 0.2, r: 0.06 },
+          { ox: 0.35, oy: 0.15, r: 0.05 },
+          { ox: -0.3, oy: -0.1, r: 0.04 },
+          { ox: 0.05, oy: 0.4, r: 0.07 }
+        ];
+        for (const cr of craters) {
+          const crx = cx + p.r * cr.ox;
+          const cry = cy + p.r * cr.oy;
+          const crr = p.r * cr.r;
+          // Crater shadow (darker)
+          ctx.fillStyle = hsl(mixLightness(p.tint, -20), 0.12);
+          ctx.beginPath();
+          ctx.arc(crx, cry, crr, 0, Math.PI * 2);
+          ctx.fill();
+          // Crater rim highlight
+          ctx.strokeStyle = hsl(mixLightness(p.tint, 10), 0.08);
+          ctx.lineWidth = 0.5;
+          ctx.beginPath();
+          ctx.arc(crx - crr * 0.15, cry - crr * 0.15, crr * 0.9, Math.PI * 1.2, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        ctx.restore();
+
+        // Terminator shadow (dark side)
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, p.r, 0, Math.PI * 2);
+        ctx.clip();
+        const terminator = ctx.createLinearGradient(cx - p.r, cy, cx + p.r, cy);
+        terminator.addColorStop(0, 'rgba(0, 0, 0, 0)');
+        terminator.addColorStop(0.55, 'rgba(0, 0, 0, 0)');
+        terminator.addColorStop(0.85, 'rgba(0, 0, 0, 0.2)');
+        terminator.addColorStop(1, 'rgba(0, 0, 0, 0.45)');
+        ctx.fillStyle = terminator;
+        ctx.fillRect(cx - p.r, cy - p.r, p.r * 2, p.r * 2);
+        ctx.restore();
+
+        // Atmosphere rim glow
+        ctx.save();
+        ctx.globalCompositeOperation = 'screen';
+        const rim = ctx.createRadialGradient(cx, cy, p.r * 0.92, cx, cy, p.r * 1.05);
+        rim.addColorStop(0, 'rgba(0, 0, 0, 0)');
+        rim.addColorStop(0.5, hsl(mixLightness(p.tint, 25), 0.12));
+        rim.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = rim;
+        ctx.beginPath();
+        ctx.arc(cx, cy, p.r * 1.05, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Ring system
         if (p.ring) {
-          const ringR = p.r * (1.1 + p.ring.width);
           ctx.save();
           ctx.translate(cx, cy);
           ctx.rotate(p.ring.tilt);
+
+          const ringInner = p.r * 1.15;
+          const ringOuter = p.r * (1.15 + p.ring.width);
+          const ringMid = (ringInner + ringOuter) * 0.5;
+
+          // Outer ring band
           ctx.globalCompositeOperation = 'screen';
-          ctx.strokeStyle = hsl(mixLightness(p.tint, 25), p.ring.alpha);
-          ctx.lineWidth = p.r * 0.12;
+          ctx.strokeStyle = hsl(mixLightness(p.tint, 20), p.ring.alpha * 0.7);
+          ctx.lineWidth = (ringOuter - ringMid) * 0.8;
           ctx.beginPath();
-          ctx.ellipse(0, 0, ringR, ringR * 0.3, 0, 0, Math.PI * 2);
+          ctx.ellipse(0, 0, ringOuter * 0.95, ringOuter * 0.28, 0, 0, Math.PI * 2);
           ctx.stroke();
+
+          // Inner ring band (brighter)
+          ctx.strokeStyle = hsl(mixLightness(p.tint, 30), p.ring.alpha);
+          ctx.lineWidth = (ringMid - ringInner) * 0.9;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, ringInner * 1.05, ringInner * 0.31, 0, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // Gap line between bands
+          ctx.strokeStyle = hsl(mixLightness(p.tint, -15), p.ring.alpha * 0.3);
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, ringMid, ringMid * 0.3, 0, 0, Math.PI * 2);
+          ctx.stroke();
+
           ctx.restore();
         }
       }
