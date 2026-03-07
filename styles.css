@@ -147,6 +147,10 @@ img {
   height: 64px;
 }
 
+.nav-logo-spacer {
+  width: 0;
+}
+
 .nav-logo {
   font-size: 1.125rem;
   font-weight: 600;
@@ -612,6 +616,16 @@ img {
   background: rgba(0, 179, 179, 0.2);
   transform: translateY(-5px) scale(1.1);
   box-shadow: 0 0 20px rgba(0, 179, 179, 0.5);
+}
+
+/* Hero Quote */
+.hero-quote {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-style: italic;
+  color: var(--muted-foreground);
+  opacity: 0.5;
+  letter-spacing: 0.03em;
 }
 
 /* Scroll Indicator */
