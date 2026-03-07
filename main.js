@@ -178,6 +178,7 @@ function initStarField() {
   let farStars = [];      // Pre-separated for no filtering
   let nearStars = [];     // Pre-separated for no filtering
   let shootingStars = [];
+  let spaceships = [];
   let nebulae = [];
   let dust = [];
   let planet = null;
@@ -276,6 +277,9 @@ function initStarField() {
       }
     }
 
+    // Reset spaceships
+    spaceships = [];
+
     // Create shooting stars
     shootingStars = Array.from({ length: config.shootingStarCount }, () => ({
       x: 0,
@@ -356,6 +360,28 @@ function initStarField() {
       life: Math.random() * 500,
       maxLife: 550 + Math.random() * 650
     };
+  }
+
+  function createSpaceship(w, h) {
+    const goingRight = Math.random() < 0.5;
+    return {
+      x: goingRight ? -20 : w + 20,
+      y: Math.random() * h * 0.7 + h * 0.05,
+      speed: Math.random() * 0.4 + 0.2,
+      size: Math.random() * 1.5 + 1.5,
+      alpha: Math.random() * 0.3 + 0.2,
+      direction: goingRight ? 1 : -1,
+      drift: (Math.random() - 0.5) * 0.05,
+      engineFlicker: Math.random() * Math.PI * 2,
+      active: true
+    };
+  }
+
+  function spawnSpaceship(w, h) {
+    if (spaceships.length >= 3) return;
+    if (Math.random() < 0.002) {
+      spaceships.push(createSpaceship(w, h));
+    }
   }
 
   function spawnShootingStar(w, h) {
@@ -589,6 +615,65 @@ function initStarField() {
       if (st.alpha <= 0 || st.x > w + 200 || st.y > h + 200) {
         st.active = false;
       }
+    }
+
+    // Draw spaceships
+    spawnSpaceship(w, h);
+    for (let i = spaceships.length - 1; i >= 0; i--) {
+      const ship = spaceships[i];
+      ship.x += ship.speed * ship.direction;
+      ship.y += ship.drift;
+      ship.engineFlicker += 0.15;
+
+      // Remove if off screen
+      if ((ship.direction === 1 && ship.x > w + 30) || (ship.direction === -1 && ship.x < -30)) {
+        spaceships.splice(i, 1);
+        continue;
+      }
+
+      const s = ship.size;
+      const dir = ship.direction;
+      const cx = ship.x;
+      const cy = ship.y;
+
+      ctx.save();
+      ctx.globalAlpha = ship.alpha;
+
+      // Engine glow (behind the ship)
+      const engineGlow = Math.sin(ship.engineFlicker) * 0.15 + 0.35;
+      const ex = cx - dir * s * 3;
+      const eg = ctx.createRadialGradient(ex, cy, 0, ex, cy, s * 3);
+      eg.addColorStop(0, `rgba(100, 200, 255, ${engineGlow * ship.alpha})`);
+      eg.addColorStop(0.5, `rgba(80, 160, 255, ${engineGlow * ship.alpha * 0.3})`);
+      eg.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = eg;
+      ctx.beginPath();
+      ctx.arc(ex, cy, s * 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Ship body — small triangle/arrow shape
+      ctx.fillStyle = `rgba(180, 200, 220, ${ship.alpha})`;
+      ctx.beginPath();
+      ctx.moveTo(cx + dir * s * 2.5, cy);             // nose
+      ctx.lineTo(cx - dir * s * 1.5, cy - s * 0.8);   // top wing
+      ctx.lineTo(cx - dir * s * 1, cy);                // center notch
+      ctx.lineTo(cx - dir * s * 1.5, cy + s * 0.8);   // bottom wing
+      ctx.closePath();
+      ctx.fill();
+
+      // Engine trail — thin fading line
+      const trailLen = s * 8;
+      const tg = ctx.createLinearGradient(cx - dir * s * 1.5, cy, cx - dir * (s * 1.5 + trailLen), cy);
+      tg.addColorStop(0, `rgba(100, 180, 255, ${ship.alpha * 0.5})`);
+      tg.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.strokeStyle = tg;
+      ctx.lineWidth = s * 0.4;
+      ctx.beginPath();
+      ctx.moveTo(cx - dir * s * 1.5, cy);
+      ctx.lineTo(cx - dir * (s * 1.5 + trailLen), cy);
+      ctx.stroke();
+
+      ctx.restore();
     }
 
     animationId = requestAnimationFrame(animate);
