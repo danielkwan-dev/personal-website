@@ -9,7 +9,7 @@
 - **Home** - Hero section with profile, social links, and introduction
 - **About** - Background, skills, and areas of expertise
 - **Resume** - Download or view resume PDF
-- **Blog** - Technical blog posts
+- **Blog** - Blog posts about university, topics that I am interested in, my life
 
 ## Tech Stack
 
