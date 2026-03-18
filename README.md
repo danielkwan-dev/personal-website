@@ -1,4 +1,4 @@
-# Daniel Kwan - Personal Website
+# Daniel Kwan - Personal Website 
 
 ## Live Site
 
@@ -8,7 +8,7 @@
 
 - **Home** - Hero section with profile, social links, and introduction
 - **About** - Background, skills, and areas of expertise
-- **Resume** - Download or view resume PDF
+- **Resume** - Download or view resume PDF version
 - **Blog** - Blog posts about university, topics that I am interested in, my life
 
 ## Tech Stack
