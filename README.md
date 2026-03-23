@@ -1,6 +1,6 @@
-# Daniel Kwan - Personal Website
+# Daniel Kwan - Personal Website 
 
-## Live Site
+## Feel free to check out the **live site!**
 
 [daniel.uwce.ca](https://daniel.uwce.ca)
 
@@ -8,14 +8,8 @@
 
 - **Home** - Hero section with profile, social links, and introduction
 - **About** - Background, skills, and areas of expertise
-- **Resume** - Download or view resume PDF
+- **Resume** - Download or view resume PDF version
 - **Blog** - Blog posts about university, topics that I am interested in, my life
-
-## Tech Stack
-
-- HTML5
-- CSS3 (Custom properties, animations, flexbox, grid)
-- Vanilla JavaScript (Canvas API, Intersection Observer)
 
 ## Contact
 
