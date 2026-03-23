@@ -81,20 +81,25 @@ function initNavigation() {
   // Smooth scroll to sections
   navLinks.forEach(link => {
     link.addEventListener('click', function(e) {
-      e.preventDefault();
-      const targetId = this.getAttribute('href').substring(1);
-      const targetSection = document.getElementById(targetId);
+      const href = this.getAttribute('href');
 
-      if (targetSection) {
-        const offsetTop = targetSection.offsetTop - 64; // Account for navbar height
-        window.scrollTo({
-          top: offsetTop,
-          behavior: 'smooth'
-        });
+      // Only handle pure anchor links (#section) on the current page
+      if (href.startsWith('#')) {
+        e.preventDefault();
+        const targetId = href.substring(1);
+        const targetSection = document.getElementById(targetId);
+
+        if (targetSection) {
+          const offsetTop = targetSection.offsetTop - 64;
+          window.scrollTo({
+            top: offsetTop,
+            behavior: 'smooth'
+          });
+        }
+
+        closeMobileMenu();
       }
-
-      // Close mobile menu if open
-      closeMobileMenu();
+      // For links like ../index.html#about, let the browser navigate normally
     });
   });
 
