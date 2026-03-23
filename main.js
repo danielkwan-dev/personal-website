@@ -1082,29 +1082,37 @@ function initStarField() {
       };
     }
 
-    // Collect all currently visible planets as "old" (fade them out)
-    const oldPlanets = [];
+    // Collect all currently visible planets
+    const visiblePlanets = [];
     if (themeTransition) {
-      // Mid-transition: grab both planets at their current alpha
-      if (themeTransition.oldPlanet && themeTransition.oldPlanet.transAlpha > 0.01) {
-        oldPlanets.push(themeTransition.oldPlanet);
+      for (const op of themeTransition.oldPlanets) {
+        if (op.transAlpha > 0.01) visiblePlanets.push(op);
       }
       if (themeTransition.newPlanet && themeTransition.newPlanet.transAlpha > 0.01) {
-        oldPlanets.push(themeTransition.newPlanet);
+        visiblePlanets.push(themeTransition.newPlanet);
       }
     } else if (planet) {
       const op = { ...planet, transAlpha: 1 };
       if (op.ring) op.ring = { ...op.ring };
       if (op.tint) op.tint = { ...op.tint };
-      oldPlanets.push(op);
+      visiblePlanets.push(op);
     }
 
+    // If a visible planet matches the type we need, reclaim it as the new planet
+    const needsSun = isDay;
+    const reclaimIdx = visiblePlanets.findIndex(p => !!p.isSun === needsSun);
+    if (reclaimIdx !== -1) {
+      newPlanet = visiblePlanets.splice(reclaimIdx, 1)[0];
+      // Keep its current alpha — it just stays/grows visible
+    }
+
+    // Everything else fades out
     themeTransition = {
       from: fromTheme,
       to: toTheme,
       progress: 0,
       duration: 90,
-      oldPlanets: oldPlanets,
+      oldPlanets: visiblePlanets,
       newPlanet: newPlanet
     };
   }
