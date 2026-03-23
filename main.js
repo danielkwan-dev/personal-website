@@ -480,29 +480,30 @@ function initStarField() {
       if (tt.progress >= 1) {
         tt.progress = 1;
         lerpTheme(tt.from, tt.to, 1);
-        // Finalize: set planet to new planet
         planet = tt.newPlanet;
         planet.transAlpha = 1;
-        // Update nebulae tints to final theme
         if (nebulae.length >= 2) {
           nebulae[0].tint = mixLightness(theme.primary, 6);
           nebulae[1].tint = mixLightness(theme.accent, -4);
         }
         themeTransition = null;
       } else {
-        // Smooth ease in-out
         const ease = tt.progress < 0.5
           ? 2 * tt.progress * tt.progress
           : 1 - Math.pow(-2 * tt.progress + 2, 2) / 2;
         lerpTheme(tt.from, tt.to, ease);
-        // Update nebulae tints during transition
         if (nebulae.length >= 2) {
           nebulae[0].tint = mixLightness(theme.primary, 6);
           nebulae[1].tint = mixLightness(theme.accent, -4);
         }
-        // Animate old planet fading/flying out, new planet fading/flying in
-        if (tt.oldPlanet) tt.oldPlanet.transAlpha = Math.max(0, 1 - ease * 2);
-        if (tt.newPlanet) tt.newPlanet.transAlpha = Math.max(0, (ease - 0.4) / 0.6);
+        // Fade out all old planets from their current alpha
+        for (const op of tt.oldPlanets) {
+          op.transAlpha = Math.max(0, op.transAlpha - 1.5 / tt.duration);
+        }
+        // Remove fully faded old planets
+        tt.oldPlanets = tt.oldPlanets.filter(op => op.transAlpha > 0.01);
+        // Fade in new planet
+        if (tt.newPlanet) tt.newPlanet.transAlpha = Math.min(1, tt.newPlanet.transAlpha + 1.2 / tt.duration);
       }
     }
 
@@ -786,9 +787,11 @@ function initStarField() {
       ctx.restore();
     }
 
-    // Draw planets (handle transition: draw both old and new)
+    // Draw planets (handle transition: draw all old + new)
     if (themeTransition) {
-      if (themeTransition.oldPlanet) drawPlanetBody(themeTransition.oldPlanet, themeTransition.oldPlanet.transAlpha);
+      for (const op of themeTransition.oldPlanets) {
+        drawPlanetBody(op, op.transAlpha);
+      }
       if (themeTransition.newPlanet) drawPlanetBody(themeTransition.newPlanet, themeTransition.newPlanet.transAlpha);
     } else if (planet) {
       drawPlanetBody(planet);
@@ -1047,7 +1050,7 @@ function initStarField() {
     const w = window.innerWidth;
     const h = window.innerHeight;
 
-    // Snapshot current theme as "from"
+    // Snapshot current theme colors (already mid-lerp if transitioning)
     const fromTheme = {
       background: { ...theme.background },
       foreground: { ...theme.foreground },
@@ -1056,8 +1059,9 @@ function initStarField() {
     };
     const toTheme = isDay ? dayTheme : nightTheme;
 
-    // Build the new planet that will fade in
     isDayMode = isDay;
+
+    // Build the new planet that will fade in
     let newPlanet;
     if (isDay) {
       newPlanet = {
@@ -1078,17 +1082,29 @@ function initStarField() {
       };
     }
 
-    // Keep old planet for fade-out
-    const oldPlanet = planet ? { ...planet, transAlpha: 1 } : null;
-    if (oldPlanet && oldPlanet.ring) oldPlanet.ring = { ...oldPlanet.ring };
-    if (oldPlanet && oldPlanet.tint) oldPlanet.tint = { ...oldPlanet.tint };
+    // Collect all currently visible planets as "old" (fade them out)
+    const oldPlanets = [];
+    if (themeTransition) {
+      // Mid-transition: grab both planets at their current alpha
+      if (themeTransition.oldPlanet && themeTransition.oldPlanet.transAlpha > 0.01) {
+        oldPlanets.push(themeTransition.oldPlanet);
+      }
+      if (themeTransition.newPlanet && themeTransition.newPlanet.transAlpha > 0.01) {
+        oldPlanets.push(themeTransition.newPlanet);
+      }
+    } else if (planet) {
+      const op = { ...planet, transAlpha: 1 };
+      if (op.ring) op.ring = { ...op.ring };
+      if (op.tint) op.tint = { ...op.tint };
+      oldPlanets.push(op);
+    }
 
     themeTransition = {
       from: fromTheme,
       to: toTheme,
       progress: 0,
-      duration: 90, // frames (~3.75s at 24fps)
-      oldPlanet: oldPlanet,
+      duration: 90,
+      oldPlanets: oldPlanets,
       newPlanet: newPlanet
     };
   }
