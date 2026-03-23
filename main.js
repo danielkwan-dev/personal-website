@@ -193,6 +193,9 @@ function initStarField() {
   let bgGradient = null;  // Cache background gradient
   const frameInterval = 1000 / config.targetFPS;
 
+  // Theme transition state
+  let themeTransition = null; // { from, to, progress, duration, oldPlanet, newPlanet }
+
   // Theme definitions
   let isDayMode = false;
   const nightTheme = {
@@ -229,6 +232,31 @@ function initStarField() {
       s: c.s,
       l: clamp(c.l + delta, 0, 100)
     };
+  }
+
+  function lerpVal(a, b, t) {
+    return a + (b - a) * t;
+  }
+
+  function lerpColor(a, b, t) {
+    // Handle hue wrapping (shortest path)
+    let dh = b.h - a.h;
+    if (dh > 180) dh -= 360;
+    if (dh < -180) dh += 360;
+    return {
+      h: (a.h + dh * t + 360) % 360,
+      s: lerpVal(a.s, b.s, t),
+      l: lerpVal(a.l, b.l, t)
+    };
+  }
+
+  function lerpTheme(from, to, t) {
+    theme.background = lerpColor(from.background, to.background, t);
+    theme.foreground = lerpColor(from.foreground, to.foreground, t);
+    theme.primary = lerpColor(from.primary, to.primary, t);
+    theme.accent = lerpColor(from.accent, to.accent, t);
+    // Invalidate cached gradient so it rebuilds
+    bgGradient = null;
   }
 
   // Initialize scene
@@ -445,7 +473,48 @@ function initStarField() {
     const h = window.innerHeight;
     time += 0.02;
 
-    // Clear and draw cached background
+    // Advance theme transition if active
+    if (themeTransition) {
+      const tt = themeTransition;
+      tt.progress += 1 / tt.duration;
+      if (tt.progress >= 1) {
+        tt.progress = 1;
+        lerpTheme(tt.from, tt.to, 1);
+        // Finalize: set planet to new planet
+        planet = tt.newPlanet;
+        planet.transAlpha = 1;
+        // Update nebulae tints to final theme
+        if (nebulae.length >= 2) {
+          nebulae[0].tint = mixLightness(theme.primary, 6);
+          nebulae[1].tint = mixLightness(theme.accent, -4);
+        }
+        themeTransition = null;
+      } else {
+        // Smooth ease in-out
+        const ease = tt.progress < 0.5
+          ? 2 * tt.progress * tt.progress
+          : 1 - Math.pow(-2 * tt.progress + 2, 2) / 2;
+        lerpTheme(tt.from, tt.to, ease);
+        // Update nebulae tints during transition
+        if (nebulae.length >= 2) {
+          nebulae[0].tint = mixLightness(theme.primary, 6);
+          nebulae[1].tint = mixLightness(theme.accent, -4);
+        }
+        // Animate old planet fading/flying out, new planet fading/flying in
+        if (tt.oldPlanet) tt.oldPlanet.transAlpha = Math.max(0, 1 - ease * 2);
+        if (tt.newPlanet) tt.newPlanet.transAlpha = Math.max(0, (ease - 0.4) / 0.6);
+      }
+    }
+
+    // Rebuild background gradient if invalidated
+    if (!bgGradient) {
+      bgGradient = ctx.createLinearGradient(0, 0, 0, h);
+      bgGradient.addColorStop(0, hsl(mixLightness(theme.background, -2), 1));
+      bgGradient.addColorStop(0.55, hsl(mixLightness(theme.background, -6), 1));
+      bgGradient.addColorStop(1, hsl(mixLightness(theme.background, -12), 1));
+    }
+
+    // Clear and draw background
     ctx.fillStyle = bgGradient;
     ctx.fillRect(0, 0, w, h);
 
@@ -503,17 +572,25 @@ function initStarField() {
     }
     ctx.globalAlpha = 1;
 
-    // Draw planet or sun
-    if (planet) {
-      const p = planet;
+    // Draw a planet/sun helper (extracted for reuse during transitions)
+    function drawPlanetBody(p, alphaOverride) {
+      const alpha = alphaOverride !== undefined ? alphaOverride : 1;
+      if (alpha <= 0.01) return;
+
+      // Vertical slide offset: 0 = fully visible, slides off-screen as alpha approaches 0
+      const slideOffset = (1 - alpha) * h * 0.3;
       const wobble = Math.sin(time * 0.15 + p.wobblePhase) * (p.r * 0.008);
       const cx = p.x + wobble;
-      const cy = p.y + wobble * 0.5;
+      const cy = p.y + wobble * 0.5 + (p.isSun ? -slideOffset : slideOffset);
+
+      ctx.save();
+      ctx.globalAlpha = alpha;
 
       if (p.isSun) {
         // Outer corona glow
         ctx.save();
         ctx.globalCompositeOperation = 'screen';
+        ctx.globalAlpha = alpha;
         const corona = ctx.createRadialGradient(cx, cy, p.r * 0.9, cx, cy, p.r * 1.7);
         corona.addColorStop(0, 'hsl(45 90% 70% / 0.18)');
         corona.addColorStop(0.3, 'hsl(38 80% 55% / 0.1)');
@@ -536,7 +613,9 @@ function initStarField() {
         ctx.fill();
         ctx.restore();
 
-        // Sun body — white-yellow center to golden-orange edge
+        ctx.globalAlpha = alpha;
+
+        // Sun body
         const sunGrad = ctx.createRadialGradient(cx - p.r * 0.2, cy - p.r * 0.2, p.r * 0.1, cx, cy, p.r);
         sunGrad.addColorStop(0, 'hsl(55 95% 92% / 0.99)');
         sunGrad.addColorStop(0.25, 'hsl(48 90% 75% / 0.98)');
@@ -567,12 +646,14 @@ function initStarField() {
         // Planet: atmospheric glow
         ctx.save();
         ctx.globalCompositeOperation = 'screen';
-        ctx.globalAlpha = 0.15;
+        ctx.globalAlpha = 0.15 * alpha;
         ctx.fillStyle = hsl(mixLightness(p.tint, 20), 1);
         ctx.beginPath();
         ctx.arc(cx, cy, p.r * 1.2, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
+
+        ctx.globalAlpha = alpha;
 
         // Planet body base gradient
         const g = ctx.createRadialGradient(cx - p.r * 0.3, cy - p.r * 0.3, p.r * 0.1, cx, cy, p.r);
@@ -586,7 +667,7 @@ function initStarField() {
         ctx.fillStyle = g;
         ctx.fill();
 
-        // Surface bands (horizontal stripes)
+        // Surface bands
         ctx.save();
         ctx.beginPath();
         ctx.arc(cx, cy, p.r, 0, Math.PI * 2);
@@ -602,17 +683,17 @@ function initStarField() {
         }
 
         // Storm / swirl detail
-        ctx.globalAlpha = 0.07;
+        ctx.globalAlpha = 0.07 * alpha;
         ctx.fillStyle = hsl(mixLightness(p.tint, 15), 1);
         ctx.beginPath();
         ctx.ellipse(cx + p.r * 0.2, cy - p.r * 0.15, p.r * 0.18, p.r * 0.08, 0.3, 0, Math.PI * 2);
         ctx.fill();
-        ctx.globalAlpha = 0.05;
+        ctx.globalAlpha = 0.05 * alpha;
         ctx.fillStyle = hsl(mixLightness(p.tint, -10), 1);
         ctx.beginPath();
         ctx.ellipse(cx - p.r * 0.3, cy + p.r * 0.35, p.r * 0.14, p.r * 0.06, -0.2, 0, Math.PI * 2);
         ctx.fill();
-        ctx.globalAlpha = 1;
+        ctx.globalAlpha = alpha;
 
         // Craters
         const craters = [
@@ -626,12 +707,10 @@ function initStarField() {
           const crx = cx + p.r * cr.ox;
           const cry = cy + p.r * cr.oy;
           const crr = p.r * cr.r;
-          // Crater shadow (darker)
           ctx.fillStyle = hsl(mixLightness(p.tint, -20), 0.12);
           ctx.beginPath();
           ctx.arc(crx, cry, crr, 0, Math.PI * 2);
           ctx.fill();
-          // Crater rim highlight
           ctx.strokeStyle = hsl(mixLightness(p.tint, 10), 0.08);
           ctx.lineWidth = 0.5;
           ctx.beginPath();
@@ -641,8 +720,9 @@ function initStarField() {
 
         ctx.restore();
 
-        // Terminator shadow (dark side)
+        // Terminator shadow
         ctx.save();
+        ctx.globalAlpha = alpha;
         ctx.beginPath();
         ctx.arc(cx, cy, p.r, 0, Math.PI * 2);
         ctx.clip();
@@ -658,6 +738,7 @@ function initStarField() {
         // Atmosphere rim glow
         ctx.save();
         ctx.globalCompositeOperation = 'screen';
+        ctx.globalAlpha = alpha;
         const rim = ctx.createRadialGradient(cx, cy, p.r * 0.92, cx, cy, p.r * 1.05);
         rim.addColorStop(0, 'rgba(0, 0, 0, 0)');
         rim.addColorStop(0.5, hsl(mixLightness(p.tint, 25), 0.12));
@@ -671,6 +752,7 @@ function initStarField() {
         // Ring system
         if (p.ring) {
           ctx.save();
+          ctx.globalAlpha = alpha;
           ctx.translate(cx, cy);
           ctx.rotate(p.ring.tilt);
 
@@ -678,7 +760,6 @@ function initStarField() {
           const ringOuter = p.r * (1.15 + p.ring.width);
           const ringMid = (ringInner + ringOuter) * 0.5;
 
-          // Outer ring band
           ctx.globalCompositeOperation = 'screen';
           ctx.strokeStyle = hsl(mixLightness(p.tint, 20), p.ring.alpha * 0.7);
           ctx.lineWidth = (ringOuter - ringMid) * 0.8;
@@ -686,14 +767,12 @@ function initStarField() {
           ctx.ellipse(0, 0, ringOuter * 0.95, ringOuter * 0.28, 0, 0, Math.PI * 2);
           ctx.stroke();
 
-          // Inner ring band (brighter)
           ctx.strokeStyle = hsl(mixLightness(p.tint, 30), p.ring.alpha);
           ctx.lineWidth = (ringMid - ringInner) * 0.9;
           ctx.beginPath();
           ctx.ellipse(0, 0, ringInner * 1.05, ringInner * 0.31, 0, 0, Math.PI * 2);
           ctx.stroke();
 
-          // Gap line between bands
           ctx.strokeStyle = hsl(mixLightness(p.tint, -15), p.ring.alpha * 0.3);
           ctx.lineWidth = 1;
           ctx.beginPath();
@@ -703,6 +782,16 @@ function initStarField() {
           ctx.restore();
         }
       }
+
+      ctx.restore();
+    }
+
+    // Draw planets (handle transition: draw both old and new)
+    if (themeTransition) {
+      if (themeTransition.oldPlanet) drawPlanetBody(themeTransition.oldPlanet, themeTransition.oldPlanet.transAlpha);
+      if (themeTransition.newPlanet) drawPlanetBody(themeTransition.newPlanet, themeTransition.newPlanet.transAlpha);
+    } else if (planet) {
+      drawPlanetBody(planet);
     }
 
     // Draw near stars - with simple glow
@@ -955,14 +1044,53 @@ function initStarField() {
   });
 
   function setDayMode(isDay) {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+
+    // Snapshot current theme as "from"
+    const fromTheme = {
+      background: { ...theme.background },
+      foreground: { ...theme.foreground },
+      primary: { ...theme.primary },
+      accent: { ...theme.accent }
+    };
+    const toTheme = isDay ? dayTheme : nightTheme;
+
+    // Build the new planet that will fade in
     isDayMode = isDay;
-    const t = isDay ? dayTheme : nightTheme;
-    theme.background = { ...t.background };
-    theme.foreground = { ...t.foreground };
-    theme.primary = { ...t.primary };
-    theme.accent = { ...t.accent };
-    bgGradient = null;
-    initScene();
+    let newPlanet;
+    if (isDay) {
+      newPlanet = {
+        x: w * 0.82, y: h * 0.13,
+        r: Math.min(w, h) * 0.1,
+        tint: { ...toTheme.primary },
+        wobblePhase: Math.random() * Math.PI * 2,
+        ring: null, isSun: true, transAlpha: 0
+      };
+    } else {
+      newPlanet = {
+        x: w * 0.12, y: h * 0.7,
+        r: Math.min(w, h) * 0.18,
+        tint: mixLightness(toTheme.primary, -10),
+        wobblePhase: Math.random() * Math.PI * 2,
+        ring: { tilt: -0.35, width: 0.35, alpha: 0.18 },
+        transAlpha: 0
+      };
+    }
+
+    // Keep old planet for fade-out
+    const oldPlanet = planet ? { ...planet, transAlpha: 1 } : null;
+    if (oldPlanet && oldPlanet.ring) oldPlanet.ring = { ...oldPlanet.ring };
+    if (oldPlanet && oldPlanet.tint) oldPlanet.tint = { ...oldPlanet.tint };
+
+    themeTransition = {
+      from: fromTheme,
+      to: toTheme,
+      progress: 0,
+      duration: 90, // frames (~3.75s at 24fps)
+      oldPlanet: oldPlanet,
+      newPlanet: newPlanet
+    };
   }
 
   return { setDayMode };
