@@ -240,13 +240,23 @@ img {
 .nav-link {
   position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
   height: 64px;
   padding: 0 0.25rem;
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--muted-foreground);
   transition: color 0.3s;
+  line-height: 1.2;
+}
+
+.nav-symbol {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  opacity: 0.45;
+  letter-spacing: 0;
 }
 
 .nav-link:hover,
