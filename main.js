@@ -1,7 +1,8 @@
 // Wait for DOM to be ready
 document.addEventListener('DOMContentLoaded', function() {
-  // Set current year in footer
-  document.getElementById('year').textContent = new Date().getFullYear();
+  // Set current year in footer (if element exists)
+  const yearEl = document.getElementById('year');
+  if (yearEl) yearEl.textContent = new Date().getFullYear();
 
   // Initialize all functionality
   initNavigation();
