@@ -1172,16 +1172,8 @@ img {
   max-width: 1200px;
   margin: 0 auto;
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-@media (min-width: 768px) {
-  .footer-container {
-    flex-direction: row;
-  }
 }
 
 .footer-text {
