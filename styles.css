@@ -355,6 +355,10 @@ img {
     display: none;
   }
 
+  .nav-logo-spacer {
+    width: 34px;
+  }
+
   .mobile-menu-btn {
     display: flex;
   }
