@@ -1,7 +1,4 @@
 # Daniel Kwan - Personal Website 
-
-## Feel free to check out the **live site!**
-
 [daniel.uwce.ca](https://daniel.uwce.ca)
 
 ## Sections
