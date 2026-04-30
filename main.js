@@ -231,6 +231,216 @@ function initScrollAnimations() {
   fadeElements.forEach(el => observer.observe(el));
 }
 
+// ── Planet texture builders ─────────────────────────────────────────────────
+function buildEarthTexture(size) {
+  const c = document.createElement('canvas');
+  c.width = c.height = size;
+  const g = c.getContext('2d');
+
+  // Deep ocean base
+  const ocean = g.createLinearGradient(0, 0, size, size);
+  ocean.addColorStop(0,   '#0a3a7a');
+  ocean.addColorStop(0.5, '#1a5fa8');
+  ocean.addColorStop(1,   '#0d4488');
+  g.fillStyle = ocean;
+  g.fillRect(0, 0, size, size);
+
+  // Shallow coastal water
+  g.fillStyle = 'rgba(30, 120, 180, 0.3)';
+  g.beginPath(); g.ellipse(size*0.28, size*0.38, size*0.18, size*0.12, 0.3, 0, Math.PI*2); g.fill();
+  g.beginPath(); g.ellipse(size*0.62, size*0.48, size*0.14, size*0.08, -0.2, 0, Math.PI*2); g.fill();
+
+  const land = '#3a7a30';
+  const highland = '#5a6e2a';
+
+  // North America
+  g.fillStyle = land;
+  g.beginPath();
+  g.moveTo(size*0.08, size*0.14); g.lineTo(size*0.26, size*0.10);
+  g.lineTo(size*0.34, size*0.18); g.lineTo(size*0.32, size*0.34);
+  g.lineTo(size*0.26, size*0.45); g.lineTo(size*0.18, size*0.47);
+  g.lineTo(size*0.10, size*0.40); g.lineTo(size*0.04, size*0.26);
+  g.closePath(); g.fill();
+  // Rockies / highlands tint
+  g.fillStyle = highland;
+  g.beginPath(); g.ellipse(size*0.14, size*0.28, size*0.05, size*0.10, 0.1, 0, Math.PI*2); g.fill();
+
+  // Greenland
+  g.fillStyle = '#d8e8e0';
+  g.beginPath(); g.ellipse(size*0.34, size*0.07, size*0.06, size*0.04, -0.2, 0, Math.PI*2); g.fill();
+
+  // Central America / Caribbean
+  g.fillStyle = land;
+  g.beginPath(); g.ellipse(size*0.22, size*0.50, size*0.04, size*0.02, 0.3, 0, Math.PI*2); g.fill();
+
+  // South America
+  g.beginPath();
+  g.moveTo(size*0.20, size*0.52); g.lineTo(size*0.30, size*0.50);
+  g.lineTo(size*0.34, size*0.60); g.lineTo(size*0.32, size*0.74);
+  g.lineTo(size*0.26, size*0.78); g.lineTo(size*0.19, size*0.72);
+  g.lineTo(size*0.16, size*0.60);
+  g.closePath(); g.fill();
+  g.fillStyle = highland;
+  g.beginPath(); g.ellipse(size*0.31, size*0.65, size*0.03, size*0.10, 0.15, 0, Math.PI*2); g.fill();
+
+  // Europe
+  g.fillStyle = land;
+  g.beginPath();
+  g.moveTo(size*0.44, size*0.16); g.lineTo(size*0.56, size*0.13);
+  g.lineTo(size*0.59, size*0.24); g.lineTo(size*0.53, size*0.30);
+  g.lineTo(size*0.45, size*0.28);
+  g.closePath(); g.fill();
+  // Iberian peninsula
+  g.beginPath(); g.ellipse(size*0.43, size*0.30, size*0.03, size*0.04, 0.1, 0, Math.PI*2); g.fill();
+  // Scandinavian peninsula
+  g.beginPath(); g.ellipse(size*0.51, size*0.12, size*0.03, size*0.06, 0.2, 0, Math.PI*2); g.fill();
+
+  // Africa
+  g.beginPath();
+  g.moveTo(size*0.44, size*0.32); g.lineTo(size*0.60, size*0.28);
+  g.lineTo(size*0.64, size*0.38); g.lineTo(size*0.62, size*0.56);
+  g.lineTo(size*0.56, size*0.68); g.lineTo(size*0.48, size*0.66);
+  g.lineTo(size*0.42, size*0.54); g.lineTo(size*0.42, size*0.38);
+  g.closePath(); g.fill();
+  g.fillStyle = '#8a7a30'; // Sahara
+  g.beginPath(); g.ellipse(size*0.52, size*0.36, size*0.09, size*0.06, 0.1, 0, Math.PI*2); g.fill();
+  g.fillStyle = land;
+  // Madagascar
+  g.beginPath(); g.ellipse(size*0.65, size*0.57, size*0.02, size*0.05, 0.2, 0, Math.PI*2); g.fill();
+
+  // Middle East
+  g.beginPath(); g.ellipse(size*0.61, size*0.30, size*0.05, size*0.04, 0.2, 0, Math.PI*2); g.fill();
+
+  // Asia (large landmass)
+  g.fillStyle = land;
+  g.beginPath();
+  g.moveTo(size*0.58, size*0.12); g.lineTo(size*0.90, size*0.08);
+  g.lineTo(size*0.96, size*0.20); g.lineTo(size*0.94, size*0.36);
+  g.lineTo(size*0.82, size*0.44); g.lineTo(size*0.68, size*0.44);
+  g.lineTo(size*0.60, size*0.38); g.lineTo(size*0.58, size*0.26);
+  g.closePath(); g.fill();
+  // Tibet/Himalayas
+  g.fillStyle = highland;
+  g.beginPath(); g.ellipse(size*0.72, size*0.32, size*0.10, size*0.05, 0.1, 0, Math.PI*2); g.fill();
+  // Indian subcontinent
+  g.fillStyle = land;
+  g.beginPath(); g.ellipse(size*0.68, size*0.50, size*0.05, size*0.08, 0, 0, Math.PI*2); g.fill();
+  // Southeast Asia / Indonesia
+  g.beginPath(); g.ellipse(size*0.84, size*0.50, size*0.06, size*0.04, 0.3, 0, Math.PI*2); g.fill();
+  g.beginPath(); g.ellipse(size*0.92, size*0.54, size*0.04, size*0.03, 0.2, 0, Math.PI*2); g.fill();
+  // Japan
+  g.beginPath(); g.ellipse(size*0.94, size*0.26, size*0.02, size*0.05, 0.4, 0, Math.PI*2); g.fill();
+
+  // Australia
+  g.beginPath(); g.ellipse(size*0.84, size*0.64, size*0.07, size*0.05, 0.15, 0, Math.PI*2); g.fill();
+  g.fillStyle = '#8a6a30';
+  g.beginPath(); g.ellipse(size*0.84, size*0.64, size*0.04, size*0.03, 0.1, 0, Math.PI*2); g.fill(); // outback
+
+  // North polar ice cap
+  g.fillStyle = 'rgba(220, 235, 245, 0.9)';
+  g.beginPath(); g.ellipse(size*0.5, 0, size*0.52, size*0.09, 0, 0, Math.PI*2); g.fill();
+
+  // South polar cap (Antarctica)
+  g.fillStyle = 'rgba(230, 240, 248, 0.95)';
+  g.beginPath(); g.ellipse(size*0.5, size, size*0.52, size*0.10, 0, 0, Math.PI*2); g.fill();
+
+  // Cloud layer
+  g.fillStyle = 'rgba(255,255,255,0.28)';
+  const clouds = [
+    [0.18, 0.22, 0.14, 0.03, 0.3],  [0.55, 0.18, 0.12, 0.025, -0.2],
+    [0.72, 0.55, 0.10, 0.025, 0.4], [0.38, 0.60, 0.13, 0.03, 0.1],
+    [0.08, 0.50, 0.09, 0.025, -0.1],[0.88, 0.30, 0.08, 0.02, 0.2],
+    [0.50, 0.42, 0.11, 0.02, -0.3], [0.25, 0.72, 0.09, 0.025, 0.2],
+  ];
+  for (const [cx, cy, rx, ry, a] of clouds) {
+    g.beginPath(); g.ellipse(size*cx, size*cy, size*rx, size*ry, a, 0, Math.PI*2); g.fill();
+  }
+
+  return c;
+}
+
+function buildMarsTexture(size) {
+  const c = document.createElement('canvas');
+  c.width = c.height = size;
+  const g = c.getContext('2d');
+
+  // Base rust/terracotta
+  const base = g.createLinearGradient(0, 0, size, size);
+  base.addColorStop(0,   '#b84018');
+  base.addColorStop(0.4, '#c8501e');
+  base.addColorStop(1,   '#a03210');
+  g.fillStyle = base;
+  g.fillRect(0, 0, size, size);
+
+  // Southern highlands (darker, ancient cratered terrain)
+  g.fillStyle = 'rgba(80, 20, 5, 0.45)';
+  g.beginPath(); g.ellipse(size*0.52, size*0.68, size*0.48, size*0.26, 0, 0, Math.PI*2); g.fill();
+
+  // Tharsis Plateau (large volcanic bulge, slightly lighter/more orange)
+  g.fillStyle = 'rgba(210, 90, 30, 0.4)';
+  g.beginPath(); g.ellipse(size*0.22, size*0.40, size*0.22, size*0.20, 0.15, 0, Math.PI*2); g.fill();
+
+  // Olympus Mons (volcanic peak — slightly raised, lighter centre)
+  g.fillStyle = 'rgba(190, 75, 22, 0.55)';
+  g.beginPath(); g.arc(size*0.14, size*0.37, size*0.07, 0, Math.PI*2); g.fill();
+  g.fillStyle = 'rgba(220, 130, 70, 0.35)';
+  g.beginPath(); g.arc(size*0.14, size*0.37, size*0.04, 0, Math.PI*2); g.fill();
+
+  // Valles Marineris (enormous canyon system — long dark gash)
+  g.fillStyle = 'rgba(50, 10, 2, 0.65)';
+  g.beginPath(); g.ellipse(size*0.52, size*0.48, size*0.30, size*0.035, 0.08, 0, Math.PI*2); g.fill();
+  g.fillStyle = 'rgba(70, 15, 4, 0.45)';
+  g.beginPath(); g.ellipse(size*0.52, size*0.49, size*0.28, size*0.025, 0.07, 0, Math.PI*2); g.fill();
+
+  // Hellas Planitia (giant impact basin — lighter/yellower)
+  g.fillStyle = 'rgba(190, 120, 60, 0.45)';
+  g.beginPath(); g.ellipse(size*0.72, size*0.66, size*0.11, size*0.09, 0.3, 0, Math.PI*2); g.fill();
+  g.fillStyle = 'rgba(210, 150, 80, 0.3)';
+  g.beginPath(); g.ellipse(size*0.72, size*0.66, size*0.07, size*0.06, 0.3, 0, Math.PI*2); g.fill();
+
+  // Argyre Planitia (another impact basin)
+  g.fillStyle = 'rgba(185, 115, 55, 0.35)';
+  g.beginPath(); g.ellipse(size*0.32, size*0.70, size*0.07, size*0.06, -0.2, 0, Math.PI*2); g.fill();
+
+  // Craters scattered across surface
+  const craters = [
+    [0.60, 0.22, 0.030], [0.78, 0.35, 0.024], [0.18, 0.58, 0.020],
+    [0.44, 0.72, 0.026], [0.85, 0.58, 0.018], [0.36, 0.28, 0.022],
+    [0.68, 0.50, 0.016], [0.10, 0.24, 0.015], [0.92, 0.44, 0.018],
+    [0.50, 0.82, 0.020], [0.24, 0.82, 0.018], [0.80, 0.75, 0.022],
+  ];
+  for (const [cx, cy, r] of craters) {
+    const cr = size * r;
+    g.fillStyle = 'rgba(55, 12, 3, 0.55)';
+    g.beginPath(); g.arc(size*cx, size*cy, cr, 0, Math.PI*2); g.fill();
+    g.strokeStyle = 'rgba(200, 110, 55, 0.5)';
+    g.lineWidth = cr * 0.35;
+    g.beginPath(); g.arc(size*cx, size*cy, cr * 1.25, 0, Math.PI*2); g.stroke();
+    // Central highlight on larger craters
+    if (r > 0.022) {
+      g.fillStyle = 'rgba(185, 95, 40, 0.3)';
+      g.beginPath(); g.arc(size*cx, size*cy, cr * 0.4, 0, Math.PI*2); g.fill();
+    }
+  }
+
+  // Dust storms / haze variation
+  g.fillStyle = 'rgba(210, 140, 60, 0.12)';
+  g.beginPath(); g.ellipse(size*0.60, size*0.35, size*0.18, size*0.10, 0.5, 0, Math.PI*2); g.fill();
+  g.beginPath(); g.ellipse(size*0.30, size*0.55, size*0.14, size*0.08, -0.3, 0, Math.PI*2); g.fill();
+
+  // North polar ice cap
+  g.fillStyle = 'rgba(215, 200, 195, 0.85)';
+  g.beginPath(); g.ellipse(size*0.5, 0, size*0.32, size*0.07, 0, 0, Math.PI*2); g.fill();
+  g.fillStyle = 'rgba(230, 220, 215, 0.6)';
+  g.beginPath(); g.ellipse(size*0.5, 0, size*0.20, size*0.04, 0, 0, Math.PI*2); g.fill();
+
+  // South polar cap (smaller in summer)
+  g.fillStyle = 'rgba(210, 198, 192, 0.75)';
+  g.beginPath(); g.ellipse(size*0.5, size, size*0.18, size*0.045, 0, 0, Math.PI*2); g.fill();
+
+  return c;
+}
+
 // Star Field
 function initStarField() {
   const canvas = document.getElementById('starfield');
@@ -257,14 +467,9 @@ function initStarField() {
   let planet = null;
   let time = 0;
 
-  // Preload planet images (Earth = default/dark mode, Mars = light mode)
-  // Images must be saved locally in the website folder:
-  //   earth.jpg — download from: https://eoimages.gsfc.nasa.gov/images/imagerecords/57000/57723/land_ocean_ice_cloud_2048.jpg
-  //   mars.jpg  — download from: https://upload.wikimedia.org/wikipedia/commons/0/02/OSIRIS_Mars_true_color.jpg
-  const earthImg = new Image();
-  earthImg.src = './earth.jpg';
-  const marsImg = new Image();
-  marsImg.src = './mars.jpg';
+  // Pre-render planet textures to offscreen canvases — no loading, no CORS issues
+  const earthTex = buildEarthTexture(512);
+  const marsTex  = buildMarsTexture(512);
   let animationId = null;
   let lastTime = 0;
   let bgGradient = null;  // Cache background gradient
@@ -653,7 +858,7 @@ function initStarField() {
       const cx = p.x + wobble;
       const cy = p.y + wobble * 0.5 + (p.isEarth ? slideOffset : -slideOffset);
 
-      const img = p.isEarth ? earthImg : marsImg;
+      const tex = p.isEarth ? earthTex : marsTex;
 
       ctx.save();
       ctx.globalAlpha = alpha;
@@ -661,7 +866,7 @@ function initStarField() {
       // Outer atmospheric glow
       ctx.save();
       ctx.globalCompositeOperation = 'screen';
-      const glowStop = p.isEarth ? 'rgba(70, 140, 255, 0.2)' : 'rgba(200, 80, 30, 0.18)';
+      const glowStop = p.isEarth ? 'rgba(70, 140, 255, 0.22)' : 'rgba(200, 80, 30, 0.2)';
       const outerGlow = ctx.createRadialGradient(cx, cy, p.r * 0.82, cx, cy, p.r * 1.5);
       outerGlow.addColorStop(0, glowStop);
       outerGlow.addColorStop(1, 'rgba(0,0,0,0)');
@@ -671,17 +876,12 @@ function initStarField() {
       ctx.fill();
       ctx.restore();
 
-      // Planet image clipped to circle
+      // Planet texture clipped to circle
       ctx.save();
       ctx.beginPath();
       ctx.arc(cx, cy, p.r, 0, Math.PI * 2);
       ctx.clip();
-      if (img.complete && img.naturalWidth > 0) {
-        ctx.drawImage(img, cx - p.r, cy - p.r, p.r * 2, p.r * 2);
-      } else {
-        ctx.fillStyle = p.isEarth ? '#1a4a8a' : '#7a3520';
-        ctx.fill();
-      }
+      ctx.drawImage(tex, cx - p.r, cy - p.r, p.r * 2, p.r * 2);
       ctx.restore();
 
       // Terminator shadow (dark side)
