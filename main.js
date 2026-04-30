@@ -258,11 +258,13 @@ function initStarField() {
   let time = 0;
 
   // Preload planet images (Earth = default/dark mode, Mars = light mode)
-  // No crossOrigin — canvas tainting is fine since we never call getImageData/toDataURL
+  // Images must be saved locally in the website folder:
+  //   earth.jpg — download from: https://eoimages.gsfc.nasa.gov/images/imagerecords/57000/57723/land_ocean_ice_cloud_2048.jpg
+  //   mars.jpg  — download from: https://upload.wikimedia.org/wikipedia/commons/0/02/OSIRIS_Mars_true_color.jpg
   const earthImg = new Image();
-  earthImg.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/The_Earth_seen_from_Apollo_17.jpg/600px-The_Earth_seen_from_Apollo_17.jpg';
+  earthImg.src = './earth.jpg';
   const marsImg = new Image();
-  marsImg.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/OSIRIS_Mars_true_color.jpg/600px-OSIRIS_Mars_true_color.jpg';
+  marsImg.src = './mars.jpg';
   let animationId = null;
   let lastTime = 0;
   let bgGradient = null;  // Cache background gradient
