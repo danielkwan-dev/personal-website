@@ -256,6 +256,14 @@ function initStarField() {
   let dust = [];
   let planet = null;
   let time = 0;
+
+  // Preload planet images (Earth = day/light, Mars = night/dark)
+  const earthImg = new Image();
+  earthImg.crossOrigin = 'anonymous';
+  earthImg.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/The_Earth_seen_from_Apollo_17.jpg/1024px-The_Earth_seen_from_Apollo_17.jpg';
+  const marsImg = new Image();
+  marsImg.crossOrigin = 'anonymous';
+  marsImg.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/OSIRIS_Mars_true_color.jpg/1024px-OSIRIS_Mars_true_color.jpg';
   let animationId = null;
   let lastTime = 0;
   let bgGradient = null;  // Cache background gradient
@@ -415,29 +423,22 @@ function initStarField() {
     // Create dust
     dust = Array.from({ length: config.dustCount }, () => createDust(w, h));
 
-    // Create planet or sun
+    // Create planet — Earth (day/light mode) or Mars (night/dark mode)
     if (isDayMode) {
       planet = {
         x: w * 0.82,
         y: h * 0.13,
-        r: Math.min(w, h) * 0.1,
-        tint: { ...theme.primary },
+        r: Math.min(w, h) * 0.12,
         wobblePhase: Math.random() * Math.PI * 2,
-        ring: null,
-        isSun: true
+        isEarth: true
       };
     } else {
       planet = {
         x: w * 0.12,
         y: h * 0.7,
         r: Math.min(w, h) * 0.18,
-        tint: mixLightness(theme.primary, -10),
         wobblePhase: Math.random() * Math.PI * 2,
-        ring: {
-          tilt: -0.35,
-          width: 0.35,
-          alpha: 0.18
-        }
+        isEarth: false
       };
     }
   }
@@ -641,216 +642,74 @@ function initStarField() {
     }
     ctx.globalAlpha = 1;
 
-    // Draw a planet/sun helper (extracted for reuse during transitions)
+    // Draw Earth or Mars using a photo texture
     function drawPlanetBody(p, alphaOverride) {
       const alpha = alphaOverride !== undefined ? alphaOverride : 1;
       if (alpha <= 0.01) return;
 
-      // Vertical slide offset: 0 = fully visible, slides off-screen as alpha approaches 0
       const slideOffset = (1 - alpha) * h * 0.3;
       const wobble = Math.sin(time * 0.15 + p.wobblePhase) * (p.r * 0.008);
       const cx = p.x + wobble;
-      const cy = p.y + wobble * 0.5 + (p.isSun ? -slideOffset : slideOffset);
+      const cy = p.y + wobble * 0.5 + (p.isEarth ? -slideOffset : slideOffset);
+
+      const img = p.isEarth ? earthImg : marsImg;
 
       ctx.save();
       ctx.globalAlpha = alpha;
 
-      if (p.isSun) {
-        // Outer corona glow
-        ctx.save();
-        ctx.globalCompositeOperation = 'screen';
-        ctx.globalAlpha = alpha;
-        const corona = ctx.createRadialGradient(cx, cy, p.r * 0.9, cx, cy, p.r * 1.7);
-        corona.addColorStop(0, 'hsl(45 90% 70% / 0.18)');
-        corona.addColorStop(0.3, 'hsl(38 80% 55% / 0.1)');
-        corona.addColorStop(0.6, 'hsl(25 70% 45% / 0.04)');
-        corona.addColorStop(1, 'hsl(0 0% 0% / 0)');
-        ctx.fillStyle = corona;
-        ctx.beginPath();
-        ctx.arc(cx, cy, p.r * 1.7, 0, Math.PI * 2);
-        ctx.fill();
+      // Outer atmospheric glow
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+      const glowStop = p.isEarth ? 'rgba(70, 140, 255, 0.2)' : 'rgba(200, 80, 30, 0.18)';
+      const outerGlow = ctx.createRadialGradient(cx, cy, p.r * 0.82, cx, cy, p.r * 1.5);
+      outerGlow.addColorStop(0, glowStop);
+      outerGlow.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = outerGlow;
+      ctx.beginPath();
+      ctx.arc(cx, cy, p.r * 1.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
 
-        // Pulsing haze
-        const pulse = Math.sin(time * 0.4 + p.wobblePhase) * 0.03 + 0.07;
-        const haze = ctx.createRadialGradient(cx, cy, p.r, cx, cy, p.r * 2.2);
-        haze.addColorStop(0, `hsl(42 70% 60% / ${pulse})`);
-        haze.addColorStop(0.5, `hsl(30 60% 50% / ${pulse * 0.3})`);
-        haze.addColorStop(1, 'hsl(0 0% 0% / 0)');
-        ctx.fillStyle = haze;
-        ctx.beginPath();
-        ctx.arc(cx, cy, p.r * 2.2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-
-        ctx.globalAlpha = alpha;
-
-        // Sun body
-        const sunGrad = ctx.createRadialGradient(cx - p.r * 0.2, cy - p.r * 0.2, p.r * 0.1, cx, cy, p.r);
-        sunGrad.addColorStop(0, 'hsl(55 95% 92% / 0.99)');
-        sunGrad.addColorStop(0.25, 'hsl(48 90% 75% / 0.98)');
-        sunGrad.addColorStop(0.6, 'hsl(40 85% 58% / 0.97)');
-        sunGrad.addColorStop(0.85, 'hsl(28 80% 45% / 0.96)');
-        sunGrad.addColorStop(1, 'hsl(18 75% 35% / 0.9)');
-
-        ctx.beginPath();
-        ctx.arc(cx, cy, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = sunGrad;
-        ctx.fill();
-
-        // Limb darkening
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(cx, cy, p.r, 0, Math.PI * 2);
-        ctx.clip();
-        const limb = ctx.createRadialGradient(cx, cy, p.r * 0.5, cx, cy, p.r);
-        limb.addColorStop(0, 'hsl(0 0% 0% / 0)');
-        limb.addColorStop(0.7, 'hsl(0 0% 0% / 0)');
-        limb.addColorStop(1, 'hsl(15 60% 20% / 0.3)');
-        ctx.fillStyle = limb;
-        ctx.beginPath();
-        ctx.arc(cx, cy, p.r, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
+      // Planet image clipped to circle
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, p.r, 0, Math.PI * 2);
+      ctx.clip();
+      if (img.complete && img.naturalWidth > 0) {
+        ctx.drawImage(img, cx - p.r, cy - p.r, p.r * 2, p.r * 2);
       } else {
-        // Planet: atmospheric glow
-        ctx.save();
-        ctx.globalCompositeOperation = 'screen';
-        ctx.globalAlpha = 0.15 * alpha;
-        ctx.fillStyle = hsl(mixLightness(p.tint, 20), 1);
-        ctx.beginPath();
-        ctx.arc(cx, cy, p.r * 1.2, 0, Math.PI * 2);
+        ctx.fillStyle = p.isEarth ? '#1a4a8a' : '#7a3520';
         ctx.fill();
-        ctx.restore();
-
-        ctx.globalAlpha = alpha;
-
-        // Planet body base gradient
-        const g = ctx.createRadialGradient(cx - p.r * 0.3, cy - p.r * 0.3, p.r * 0.1, cx, cy, p.r);
-        g.addColorStop(0, hsl(mixLightness(p.tint, 18), 0.95));
-        g.addColorStop(0.35, hsl(mixLightness(p.tint, 8), 0.95));
-        g.addColorStop(0.65, hsl(mixLightness(p.tint, -2), 0.95));
-        g.addColorStop(1, hsl(mixLightness(p.tint, -18), 0.95));
-
-        ctx.beginPath();
-        ctx.arc(cx, cy, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = g;
-        ctx.fill();
-
-        // Surface bands
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(cx, cy, p.r, 0, Math.PI * 2);
-        ctx.clip();
-
-        const bandCount = 6;
-        for (let b = 0; b < bandCount; b++) {
-          const bandY = cy - p.r + (p.r * 2 / bandCount) * b + p.r * 0.05;
-          const bandH = p.r * 2 / bandCount * 0.4;
-          const bandAlpha = (b % 2 === 0) ? 0.06 : 0.1;
-          ctx.fillStyle = hsl(mixLightness(p.tint, b % 2 === 0 ? -8 : 5), bandAlpha);
-          ctx.fillRect(cx - p.r, bandY, p.r * 2, bandH);
-        }
-
-        // Storm / swirl detail
-        ctx.globalAlpha = 0.07 * alpha;
-        ctx.fillStyle = hsl(mixLightness(p.tint, 15), 1);
-        ctx.beginPath();
-        ctx.ellipse(cx + p.r * 0.2, cy - p.r * 0.15, p.r * 0.18, p.r * 0.08, 0.3, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.globalAlpha = 0.05 * alpha;
-        ctx.fillStyle = hsl(mixLightness(p.tint, -10), 1);
-        ctx.beginPath();
-        ctx.ellipse(cx - p.r * 0.3, cy + p.r * 0.35, p.r * 0.14, p.r * 0.06, -0.2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.globalAlpha = alpha;
-
-        // Craters
-        const craters = [
-          { ox: 0.25, oy: -0.3, r: 0.08 },
-          { ox: -0.15, oy: 0.2, r: 0.06 },
-          { ox: 0.35, oy: 0.15, r: 0.05 },
-          { ox: -0.3, oy: -0.1, r: 0.04 },
-          { ox: 0.05, oy: 0.4, r: 0.07 }
-        ];
-        for (const cr of craters) {
-          const crx = cx + p.r * cr.ox;
-          const cry = cy + p.r * cr.oy;
-          const crr = p.r * cr.r;
-          ctx.fillStyle = hsl(mixLightness(p.tint, -20), 0.12);
-          ctx.beginPath();
-          ctx.arc(crx, cry, crr, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.strokeStyle = hsl(mixLightness(p.tint, 10), 0.08);
-          ctx.lineWidth = 0.5;
-          ctx.beginPath();
-          ctx.arc(crx - crr * 0.15, cry - crr * 0.15, crr * 0.9, Math.PI * 1.2, Math.PI * 2);
-          ctx.stroke();
-        }
-
-        ctx.restore();
-
-        // Terminator shadow
-        ctx.save();
-        ctx.globalAlpha = alpha;
-        ctx.beginPath();
-        ctx.arc(cx, cy, p.r, 0, Math.PI * 2);
-        ctx.clip();
-        const terminator = ctx.createLinearGradient(cx - p.r, cy, cx + p.r, cy);
-        terminator.addColorStop(0, 'rgba(0, 0, 0, 0)');
-        terminator.addColorStop(0.55, 'rgba(0, 0, 0, 0)');
-        terminator.addColorStop(0.85, 'rgba(0, 0, 0, 0.2)');
-        terminator.addColorStop(1, 'rgba(0, 0, 0, 0.45)');
-        ctx.fillStyle = terminator;
-        ctx.fillRect(cx - p.r, cy - p.r, p.r * 2, p.r * 2);
-        ctx.restore();
-
-        // Atmosphere rim glow
-        ctx.save();
-        ctx.globalCompositeOperation = 'screen';
-        ctx.globalAlpha = alpha;
-        const rim = ctx.createRadialGradient(cx, cy, p.r * 0.92, cx, cy, p.r * 1.05);
-        rim.addColorStop(0, 'rgba(0, 0, 0, 0)');
-        rim.addColorStop(0.5, hsl(mixLightness(p.tint, 25), 0.12));
-        rim.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        ctx.fillStyle = rim;
-        ctx.beginPath();
-        ctx.arc(cx, cy, p.r * 1.05, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-
-        // Ring system
-        if (p.ring) {
-          ctx.save();
-          ctx.globalAlpha = alpha;
-          ctx.translate(cx, cy);
-          ctx.rotate(p.ring.tilt);
-
-          const ringInner = p.r * 1.15;
-          const ringOuter = p.r * (1.15 + p.ring.width);
-          const ringMid = (ringInner + ringOuter) * 0.5;
-
-          ctx.globalCompositeOperation = 'screen';
-          ctx.strokeStyle = hsl(mixLightness(p.tint, 20), p.ring.alpha * 0.7);
-          ctx.lineWidth = (ringOuter - ringMid) * 0.8;
-          ctx.beginPath();
-          ctx.ellipse(0, 0, ringOuter * 0.95, ringOuter * 0.28, 0, 0, Math.PI * 2);
-          ctx.stroke();
-
-          ctx.strokeStyle = hsl(mixLightness(p.tint, 30), p.ring.alpha);
-          ctx.lineWidth = (ringMid - ringInner) * 0.9;
-          ctx.beginPath();
-          ctx.ellipse(0, 0, ringInner * 1.05, ringInner * 0.31, 0, 0, Math.PI * 2);
-          ctx.stroke();
-
-          ctx.strokeStyle = hsl(mixLightness(p.tint, -15), p.ring.alpha * 0.3);
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.ellipse(0, 0, ringMid, ringMid * 0.3, 0, 0, Math.PI * 2);
-          ctx.stroke();
-
-          ctx.restore();
-        }
       }
+      ctx.restore();
+
+      // Terminator shadow (dark side)
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, p.r, 0, Math.PI * 2);
+      ctx.clip();
+      const terminator = ctx.createLinearGradient(cx - p.r, cy, cx + p.r, cy);
+      terminator.addColorStop(0,    'rgba(0,0,0,0)');
+      terminator.addColorStop(0.45, 'rgba(0,0,0,0)');
+      terminator.addColorStop(0.78, 'rgba(0,0,0,0.28)');
+      terminator.addColorStop(1,    'rgba(0,0,0,0.7)');
+      ctx.fillStyle = terminator;
+      ctx.fillRect(cx - p.r, cy - p.r, p.r * 2, p.r * 2);
+      ctx.restore();
+
+      // Atmosphere rim glow
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+      const rimStop = p.isEarth ? 'rgba(100, 180, 255, 0.2)' : 'rgba(220, 110, 50, 0.18)';
+      const rim = ctx.createRadialGradient(cx, cy, p.r * 0.88, cx, cy, p.r * 1.1);
+      rim.addColorStop(0,   'rgba(0,0,0,0)');
+      rim.addColorStop(0.5, rimStop);
+      rim.addColorStop(1,   'rgba(0,0,0,0)');
+      ctx.fillStyle = rim;
+      ctx.beginPath();
+      ctx.arc(cx, cy, p.r * 1.1, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
 
       ctx.restore();
     }
@@ -1134,19 +993,16 @@ function initStarField() {
     if (isDay) {
       newPlanet = {
         x: w * 0.82, y: h * 0.13,
-        r: Math.min(w, h) * 0.1,
-        tint: { ...toTheme.primary },
+        r: Math.min(w, h) * 0.12,
         wobblePhase: Math.random() * Math.PI * 2,
-        ring: null, isSun: true, transAlpha: 0
+        isEarth: true, transAlpha: 0
       };
     } else {
       newPlanet = {
         x: w * 0.12, y: h * 0.7,
         r: Math.min(w, h) * 0.18,
-        tint: mixLightness(toTheme.primary, -10),
         wobblePhase: Math.random() * Math.PI * 2,
-        ring: { tilt: -0.35, width: 0.35, alpha: 0.18 },
-        transAlpha: 0
+        isEarth: false, transAlpha: 0
       };
     }
 
@@ -1160,15 +1016,12 @@ function initStarField() {
         visiblePlanets.push(themeTransition.newPlanet);
       }
     } else if (planet) {
-      const op = { ...planet, transAlpha: 1 };
-      if (op.ring) op.ring = { ...op.ring };
-      if (op.tint) op.tint = { ...op.tint };
-      visiblePlanets.push(op);
+      visiblePlanets.push({ ...planet, transAlpha: 1 });
     }
 
     // If a visible planet matches the type we need, reclaim it as the new planet
-    const needsSun = isDay;
-    const reclaimIdx = visiblePlanets.findIndex(p => !!p.isSun === needsSun);
+    const needsEarth = isDay;
+    const reclaimIdx = visiblePlanets.findIndex(p => !!p.isEarth === needsEarth);
     if (reclaimIdx !== -1) {
       newPlanet = visiblePlanets.splice(reclaimIdx, 1)[0];
       // Keep its current alpha — it just stays/grows visible
