@@ -649,7 +649,7 @@ img {
 }
 
 .tagline-muted {
-  color: var(--muted-foreground);
+  color: #ffffff;
 }
 
 .tagline-colored {
