@@ -65,41 +65,41 @@ function initNameScramble() {
   const el = document.querySelector('.hero-name');
   if (!el) return;
 
-  const finalText = el.textContent;
+  const finalText = el.textContent.trim().toUpperCase();
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const frameDuration = 40; // ms per frame
-  const resolveDelay = 60;  // ms between each letter resolving
+  const flipInterval = 80;   // ms between each random character flip
+  const flipsPerLetter = 10; // how many random chars each letter shows before resolving
+  const letterDelay = 180;   // ms between each letter starting to scramble
 
-  // Build per-character state
-  const letters = finalText.split('').map((ch, i) => ({
-    final: ch,
-    resolved: false,
-    resolveAt: ch === ' ' ? 0 : i * resolveDelay,
-    scrambleFrames: ch === ' ' ? 0 : Math.floor(i * resolveDelay / frameDuration) + 8
-  }));
+  // Build spans for each character
+  el.innerHTML = finalText.split('').map((ch, i) =>
+    ch === ' '
+      ? `<span class="name-letter name-letter-space"> </span>`
+      : `<span class="name-letter" data-final="${ch}">?</span>`
+  ).join('');
 
-  let frame = 0;
-  const totalFrames = Math.max(...letters.map(l => l.scrambleFrames)) + 1;
+  const spans = el.querySelectorAll('.name-letter[data-final]');
 
-  function render() {
-    el.textContent = letters.map(l => {
-      if (l.final === ' ') return ' ';
-      if (frame >= l.scrambleFrames) return l.final;
-      return chars[Math.floor(Math.random() * chars.length)];
-    }).join('');
-  }
+  spans.forEach((span, i) => {
+    const final = span.dataset.final;
+    let flips = 0;
 
-  function tick() {
-    render();
-    frame++;
-    if (frame <= totalFrames) {
-      setTimeout(tick, frameDuration);
-    } else {
-      el.textContent = finalText; // ensure clean final state
-    }
-  }
+    setTimeout(() => {
+      span.classList.add('name-letter-active');
 
-  setTimeout(tick, 300);
+      const interval = setInterval(() => {
+        if (flips < flipsPerLetter) {
+          span.textContent = chars[Math.floor(Math.random() * chars.length)];
+          flips++;
+        } else {
+          span.textContent = final;
+          span.classList.remove('name-letter-active');
+          span.classList.add('name-letter-resolved');
+          clearInterval(interval);
+        }
+      }, flipInterval);
+    }, i * letterDelay);
+  });
 }
 
 // Navigation

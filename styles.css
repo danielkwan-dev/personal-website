@@ -590,11 +590,40 @@ img {
   font-family: 'Bebas Neue', sans-serif;
   font-size: clamp(4rem, 17vw, 20rem);
   font-weight: 400;
-  letter-spacing: 0.04em;
   line-height: 0.9;
   margin-bottom: 1.5rem;
   color: #ffffff;
   text-transform: uppercase;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.06em;
+}
+
+.name-letter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.72em;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.35);
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.name-letter-space {
+  border-color: transparent;
+  width: 0.35em;
+}
+
+.name-letter-active {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.name-letter-resolved {
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
 }
 
 /* Gradient Text */
