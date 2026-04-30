@@ -8,29 +8,10 @@ document.addEventListener('DOMContentLoaded', function() {
   initNavigation();
   initMobileMenu();
   initScrollAnimations();
-  const sf = initStarField();
+  initStarField();
   initTypewriter();
   initNameScramble();
-  initThemeToggle(sf && sf.setDayMode);
 });
-
-// Day/Night theme toggle
-function initThemeToggle(setDayMode) {
-  const btn = document.getElementById('themeToggle');
-  const sunIcon = document.getElementById('iconSun');
-  const moonIcon = document.getElementById('iconMoon');
-  if (!btn) return;
-
-  let isDay = false;
-
-  btn.addEventListener('click', function() {
-    isDay = !isDay;
-    document.body.classList.toggle('day-mode', isDay);
-    sunIcon.style.display = isDay ? 'none' : 'block';
-    moonIcon.style.display = isDay ? 'block' : 'none';
-    if (setDayMode) setDayMode(isDay);
-  });
-}
 
 // Typewriter effect for "Computer Engineering @ uWaterloo"
 function initTypewriter() {
@@ -254,40 +235,17 @@ function initStarField() {
   let spaceships = [];
   let nebulae = [];
   let dust = [];
-  let planet = null;
   let time = 0;
-
-  const earthImg = new Image();
-  earthImg.src = './earth.png';
-  const marsImg = new Image();
-  marsImg.src = './mars.jpg';
   let animationId = null;
   let lastTime = 0;
   let bgGradient = null;  // Cache background gradient
   const frameInterval = 1000 / config.targetFPS;
 
-  // Theme transition state
-  let themeTransition = null; // { from, to, progress, duration, oldPlanet, newPlanet }
-
-  // Theme definitions
-  let isDayMode = false;
-  const nightTheme = {
+  const theme = {
     background: { h: 220, s: 20, l: 10 },
     foreground: { h: 210, s: 40, l: 98 },
     primary: { h: 180, s: 70, l: 50 },
     accent: { h: 280, s: 70, l: 60 }
-  };
-  const dayTheme = {
-    background: { h: 230, s: 15, l: 6 },
-    foreground: { h: 40, s: 20, l: 90 },
-    primary: { h: 38, s: 60, l: 55 },
-    accent: { h: 22, s: 45, l: 52 }
-  };
-  const theme = {
-    background: { ...nightTheme.background },
-    foreground: { ...nightTheme.foreground },
-    primary: { ...nightTheme.primary },
-    accent: { ...nightTheme.accent }
   };
 
   // Helper functions
@@ -305,31 +263,6 @@ function initStarField() {
       s: c.s,
       l: clamp(c.l + delta, 0, 100)
     };
-  }
-
-  function lerpVal(a, b, t) {
-    return a + (b - a) * t;
-  }
-
-  function lerpColor(a, b, t) {
-    // Handle hue wrapping (shortest path)
-    let dh = b.h - a.h;
-    if (dh > 180) dh -= 360;
-    if (dh < -180) dh += 360;
-    return {
-      h: (a.h + dh * t + 360) % 360,
-      s: lerpVal(a.s, b.s, t),
-      l: lerpVal(a.l, b.l, t)
-    };
-  }
-
-  function lerpTheme(from, to, t) {
-    theme.background = lerpColor(from.background, to.background, t);
-    theme.foreground = lerpColor(from.foreground, to.foreground, t);
-    theme.primary = lerpColor(from.primary, to.primary, t);
-    theme.accent = lerpColor(from.accent, to.accent, t);
-    // Invalidate cached gradient so it rebuilds
-    bgGradient = null;
   }
 
   // Initialize scene
@@ -419,25 +352,6 @@ function initStarField() {
 
     // Create dust
     dust = Array.from({ length: config.dustCount }, () => createDust(w, h));
-
-    // Create planet — Earth = dark/default (bottom-left), Mars = light (top-right)
-    if (isDayMode) {
-      planet = {
-        x: w * 0.82,
-        y: h * 0.13,
-        r: Math.min(w, h) * 0.12,
-        wobblePhase: Math.random() * Math.PI * 2,
-        isEarth: false
-      };
-    } else {
-      planet = {
-        x: w * 0.12,
-        y: h * 0.7,
-        r: Math.min(w, h) * 0.18,
-        wobblePhase: Math.random() * Math.PI * 2,
-        isEarth: true
-      };
-    }
   }
 
   function createDust(w, h) {
@@ -539,40 +453,6 @@ function initStarField() {
     const h = window.innerHeight;
     time += 0.02;
 
-    // Advance theme transition if active
-    if (themeTransition) {
-      const tt = themeTransition;
-      tt.progress += 1 / tt.duration;
-      if (tt.progress >= 1) {
-        tt.progress = 1;
-        lerpTheme(tt.from, tt.to, 1);
-        planet = tt.newPlanet;
-        planet.transAlpha = 1;
-        if (nebulae.length >= 2) {
-          nebulae[0].tint = mixLightness(theme.primary, 6);
-          nebulae[1].tint = mixLightness(theme.accent, -4);
-        }
-        themeTransition = null;
-      } else {
-        const ease = tt.progress < 0.5
-          ? 2 * tt.progress * tt.progress
-          : 1 - Math.pow(-2 * tt.progress + 2, 2) / 2;
-        lerpTheme(tt.from, tt.to, ease);
-        if (nebulae.length >= 2) {
-          nebulae[0].tint = mixLightness(theme.primary, 6);
-          nebulae[1].tint = mixLightness(theme.accent, -4);
-        }
-        // Fade out all old planets from their current alpha
-        for (const op of tt.oldPlanets) {
-          op.transAlpha = Math.max(0, op.transAlpha - 1.5 / tt.duration);
-        }
-        // Remove fully faded old planets
-        tt.oldPlanets = tt.oldPlanets.filter(op => op.transAlpha > 0.01);
-        // Fade in new planet
-        if (tt.newPlanet) tt.newPlanet.transAlpha = Math.min(1, tt.newPlanet.transAlpha + 1.2 / tt.duration);
-      }
-    }
-
     // Rebuild background gradient if invalidated
     if (!bgGradient) {
       bgGradient = ctx.createLinearGradient(0, 0, 0, h);
@@ -638,88 +518,6 @@ function initStarField() {
       ctx.fill();
     }
     ctx.globalAlpha = 1;
-
-    // Draw Earth or Mars using a photo texture
-    function drawPlanetBody(p, alphaOverride) {
-      const alpha = alphaOverride !== undefined ? alphaOverride : 1;
-      if (alpha <= 0.01) return;
-
-      const slideOffset = (1 - alpha) * h * 0.3;
-      const wobble = Math.sin(time * 0.15 + p.wobblePhase) * (p.r * 0.008);
-      const cx = p.x + wobble;
-      const cy = p.y + wobble * 0.5 + (p.isEarth ? slideOffset : -slideOffset);
-
-      const img = p.isEarth ? earthImg : marsImg;
-
-      ctx.save();
-      ctx.globalAlpha = alpha;
-
-      // Outer atmospheric glow
-      ctx.save();
-      ctx.globalCompositeOperation = 'screen';
-      const glowStop = p.isEarth ? 'rgba(70, 140, 255, 0.22)' : 'rgba(200, 80, 30, 0.2)';
-      const outerGlow = ctx.createRadialGradient(cx, cy, p.r * 0.82, cx, cy, p.r * 1.5);
-      outerGlow.addColorStop(0, glowStop);
-      outerGlow.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = outerGlow;
-      ctx.beginPath();
-      ctx.arc(cx, cy, p.r * 1.5, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-
-      // Planet image clipped to circle
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(cx, cy, p.r, 0, Math.PI * 2);
-      ctx.clip();
-      if (img.complete && img.naturalWidth > 0) {
-        ctx.drawImage(img, cx - p.r, cy - p.r, p.r * 2, p.r * 2);
-      } else {
-        ctx.fillStyle = p.isEarth ? '#1a4a8a' : '#7a3520';
-        ctx.fill();
-      }
-      ctx.restore();
-
-      // Terminator shadow (dark side)
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(cx, cy, p.r, 0, Math.PI * 2);
-      ctx.clip();
-      const terminator = ctx.createLinearGradient(cx - p.r, cy, cx + p.r, cy);
-      terminator.addColorStop(0,    'rgba(0,0,0,0)');
-      terminator.addColorStop(0.45, 'rgba(0,0,0,0)');
-      terminator.addColorStop(0.78, 'rgba(0,0,0,0.28)');
-      terminator.addColorStop(1,    'rgba(0,0,0,0.7)');
-      ctx.fillStyle = terminator;
-      ctx.fillRect(cx - p.r, cy - p.r, p.r * 2, p.r * 2);
-      ctx.restore();
-
-      // Atmosphere rim glow
-      ctx.save();
-      ctx.globalCompositeOperation = 'screen';
-      const rimStop = p.isEarth ? 'rgba(100, 180, 255, 0.2)' : 'rgba(220, 110, 50, 0.18)';
-      const rim = ctx.createRadialGradient(cx, cy, p.r * 0.88, cx, cy, p.r * 1.1);
-      rim.addColorStop(0,   'rgba(0,0,0,0)');
-      rim.addColorStop(0.5, rimStop);
-      rim.addColorStop(1,   'rgba(0,0,0,0)');
-      ctx.fillStyle = rim;
-      ctx.beginPath();
-      ctx.arc(cx, cy, p.r * 1.1, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-
-      ctx.restore();
-    }
-
-    // Draw planets (handle transition: draw all old + new)
-    if (themeTransition) {
-      for (const op of themeTransition.oldPlanets) {
-        drawPlanetBody(op, op.transAlpha);
-      }
-      if (themeTransition.newPlanet) drawPlanetBody(themeTransition.newPlanet, themeTransition.newPlanet.transAlpha);
-    } else if (planet) {
-      drawPlanetBody(planet);
-    }
 
     // Draw near stars - with simple glow
     for (const s of nearStars) {
@@ -970,70 +768,4 @@ function initStarField() {
     resizeTimeout = setTimeout(initScene, 100);
   });
 
-  function setDayMode(isDay) {
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-
-    // Snapshot current theme colors (already mid-lerp if transitioning)
-    const fromTheme = {
-      background: { ...theme.background },
-      foreground: { ...theme.foreground },
-      primary: { ...theme.primary },
-      accent: { ...theme.accent }
-    };
-    const toTheme = isDay ? dayTheme : nightTheme;
-
-    isDayMode = isDay;
-
-    // Build the new planet that will fade in
-    let newPlanet;
-    if (isDay) {
-      newPlanet = {
-        x: w * 0.82, y: h * 0.13,
-        r: Math.min(w, h) * 0.12,
-        wobblePhase: Math.random() * Math.PI * 2,
-        isEarth: false, transAlpha: 0
-      };
-    } else {
-      newPlanet = {
-        x: w * 0.12, y: h * 0.7,
-        r: Math.min(w, h) * 0.18,
-        wobblePhase: Math.random() * Math.PI * 2,
-        isEarth: true, transAlpha: 0
-      };
-    }
-
-    // Collect all currently visible planets
-    const visiblePlanets = [];
-    if (themeTransition) {
-      for (const op of themeTransition.oldPlanets) {
-        if (op.transAlpha > 0.01) visiblePlanets.push(op);
-      }
-      if (themeTransition.newPlanet && themeTransition.newPlanet.transAlpha > 0.01) {
-        visiblePlanets.push(themeTransition.newPlanet);
-      }
-    } else if (planet) {
-      visiblePlanets.push({ ...planet, transAlpha: 1 });
-    }
-
-    // If a visible planet matches the type we need, reclaim it as the new planet
-    const needsEarth = !isDay;
-    const reclaimIdx = visiblePlanets.findIndex(p => !!p.isEarth === needsEarth);
-    if (reclaimIdx !== -1) {
-      newPlanet = visiblePlanets.splice(reclaimIdx, 1)[0];
-      // Keep its current alpha — it just stays/grows visible
-    }
-
-    // Everything else fades out
-    themeTransition = {
-      from: fromTheme,
-      to: toTheme,
-      progress: 0,
-      duration: 90,
-      oldPlanets: visiblePlanets,
-      newPlanet: newPlanet
-    };
-  }
-
-  return { setDayMode };
 }
