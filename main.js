@@ -257,13 +257,12 @@ function initStarField() {
   let planet = null;
   let time = 0;
 
-  // Preload planet images (Earth = day/light, Mars = night/dark)
+  // Preload planet images (Earth = default/dark mode, Mars = light mode)
+  // No crossOrigin — canvas tainting is fine since we never call getImageData/toDataURL
   const earthImg = new Image();
-  earthImg.crossOrigin = 'anonymous';
-  earthImg.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/The_Earth_seen_from_Apollo_17.jpg/1024px-The_Earth_seen_from_Apollo_17.jpg';
+  earthImg.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/The_Earth_seen_from_Apollo_17.jpg/600px-The_Earth_seen_from_Apollo_17.jpg';
   const marsImg = new Image();
-  marsImg.crossOrigin = 'anonymous';
-  marsImg.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/OSIRIS_Mars_true_color.jpg/1024px-OSIRIS_Mars_true_color.jpg';
+  marsImg.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/OSIRIS_Mars_true_color.jpg/600px-OSIRIS_Mars_true_color.jpg';
   let animationId = null;
   let lastTime = 0;
   let bgGradient = null;  // Cache background gradient
@@ -423,14 +422,14 @@ function initStarField() {
     // Create dust
     dust = Array.from({ length: config.dustCount }, () => createDust(w, h));
 
-    // Create planet — Earth (day/light mode) or Mars (night/dark mode)
+    // Create planet — Earth = dark/default (bottom-left), Mars = light (top-right)
     if (isDayMode) {
       planet = {
         x: w * 0.82,
         y: h * 0.13,
         r: Math.min(w, h) * 0.12,
         wobblePhase: Math.random() * Math.PI * 2,
-        isEarth: true
+        isEarth: false
       };
     } else {
       planet = {
@@ -438,7 +437,7 @@ function initStarField() {
         y: h * 0.7,
         r: Math.min(w, h) * 0.18,
         wobblePhase: Math.random() * Math.PI * 2,
-        isEarth: false
+        isEarth: true
       };
     }
   }
@@ -650,7 +649,7 @@ function initStarField() {
       const slideOffset = (1 - alpha) * h * 0.3;
       const wobble = Math.sin(time * 0.15 + p.wobblePhase) * (p.r * 0.008);
       const cx = p.x + wobble;
-      const cy = p.y + wobble * 0.5 + (p.isEarth ? -slideOffset : slideOffset);
+      const cy = p.y + wobble * 0.5 + (p.isEarth ? slideOffset : -slideOffset);
 
       const img = p.isEarth ? earthImg : marsImg;
 
@@ -995,14 +994,14 @@ function initStarField() {
         x: w * 0.82, y: h * 0.13,
         r: Math.min(w, h) * 0.12,
         wobblePhase: Math.random() * Math.PI * 2,
-        isEarth: true, transAlpha: 0
+        isEarth: false, transAlpha: 0
       };
     } else {
       newPlanet = {
         x: w * 0.12, y: h * 0.7,
         r: Math.min(w, h) * 0.18,
         wobblePhase: Math.random() * Math.PI * 2,
-        isEarth: false, transAlpha: 0
+        isEarth: true, transAlpha: 0
       };
     }
 
@@ -1020,7 +1019,7 @@ function initStarField() {
     }
 
     // If a visible planet matches the type we need, reclaim it as the new planet
-    const needsEarth = isDay;
+    const needsEarth = !isDay;
     const reclaimIdx = visiblePlanets.findIndex(p => !!p.isEarth === needsEarth);
     if (reclaimIdx !== -1) {
       newPlanet = visiblePlanets.splice(reclaimIdx, 1)[0];
