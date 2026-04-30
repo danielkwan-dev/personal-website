@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
   initScrollAnimations();
   const sf = initStarField();
   initTypewriter();
+  initNameScramble();
   initThemeToggle(sf && sf.setDayMode);
 });
 
@@ -57,6 +58,48 @@ function initTypewriter() {
   }
 
   setTimeout(tick, 800);
+}
+
+// Scramble effect for hero name
+function initNameScramble() {
+  const el = document.querySelector('.hero-name');
+  if (!el) return;
+
+  const finalText = el.textContent;
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const frameDuration = 40; // ms per frame
+  const resolveDelay = 60;  // ms between each letter resolving
+
+  // Build per-character state
+  const letters = finalText.split('').map((ch, i) => ({
+    final: ch,
+    resolved: false,
+    resolveAt: ch === ' ' ? 0 : i * resolveDelay,
+    scrambleFrames: ch === ' ' ? 0 : Math.floor(i * resolveDelay / frameDuration) + 8
+  }));
+
+  let frame = 0;
+  const totalFrames = Math.max(...letters.map(l => l.scrambleFrames)) + 1;
+
+  function render() {
+    el.textContent = letters.map(l => {
+      if (l.final === ' ') return ' ';
+      if (frame >= l.scrambleFrames) return l.final;
+      return chars[Math.floor(Math.random() * chars.length)];
+    }).join('');
+  }
+
+  function tick() {
+    render();
+    frame++;
+    if (frame <= totalFrames) {
+      setTimeout(tick, frameDuration);
+    } else {
+      el.textContent = finalText; // ensure clean final state
+    }
+  }
+
+  setTimeout(tick, 300);
 }
 
 // Navigation
