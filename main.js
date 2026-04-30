@@ -467,9 +467,20 @@ function initStarField() {
   let planet = null;
   let time = 0;
 
+<<<<<<< HEAD
   // Pre-render planet textures to offscreen canvases — no loading, no CORS issues
   const earthTex = buildEarthTexture(512);
   const marsTex  = buildMarsTexture(512);
+=======
+  // Preload planet images (Earth = default/dark mode, Mars = light mode)
+  // Images must be saved locally in the website folder:
+  //   earth.jpg — download from: https://eoimages.gsfc.nasa.gov/images/imagerecords/57000/57723/land_ocean_ice_cloud_2048.jpg
+  //   mars.jpg  — download from: https://upload.wikimedia.org/wikipedia/commons/0/02/OSIRIS_Mars_true_color.jpg
+  const earthImg = new Image();
+  earthImg.src = './earth.png';
+  const marsImg = new Image();
+  marsImg.src = './mars.jpg';
+>>>>>>> af184a96655ef56269746f3f8aaab775f97117b4
   let animationId = null;
   let lastTime = 0;
   let bgGradient = null;  // Cache background gradient
