@@ -39,7 +39,6 @@ function initTypewriter() {
   const text = 'Computer Engineering @ uWaterloo';
   const splitAt = 'Computer Engineering @ '.length; // muted up to here, colored after
   let i = 0;
-  let deleting = false;
 
   function render(len) {
     if (len <= splitAt) {
@@ -50,24 +49,10 @@ function initTypewriter() {
   }
 
   function tick() {
-    if (!deleting) {
-      render(i + 1);
-      i++;
-      if (i === text.length) {
-        deleting = true;
-        setTimeout(tick, 1800);
-        return;
-      }
+    render(i + 1);
+    i++;
+    if (i < text.length) {
       setTimeout(tick, 40);
-    } else {
-      render(i - 1);
-      i--;
-      if (i === 0) {
-        deleting = false;
-        setTimeout(tick, 400);
-        return;
-      }
-      setTimeout(tick, 22);
     }
   }
 
