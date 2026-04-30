@@ -588,42 +588,119 @@ img {
 /* Hero Name */
 .hero-name {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(4rem, 17vw, 20rem);
+  font-size: clamp(2.5rem, 14vw, 17rem);
   font-weight: 400;
-  line-height: 0.9;
+  line-height: 1;
   margin-bottom: 1.5rem;
   color: #ffffff;
   text-transform: uppercase;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.06em;
+  text-align: center;
 }
 
-.name-letter {
-  display: inline-flex;
-  align-items: center;
+/* Layout only active during scramble */
+.hero-name.name-scrambling {
+  display: flex;
+  flex-wrap: nowrap;
   justify-content: center;
-  width: 0.72em;
-  border: 2px solid rgba(255, 255, 255, 0.25);
-  border-radius: 6px;
-  color: rgba(255, 255, 255, 0.35);
-  transition: color 0.15s ease, border-color 0.15s ease;
+  align-items: flex-start;
+  gap: 0.04em;
+}
+
+/* Individual letter tile */
+.name-letter {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: 0.55em;
+  height: 0.85em;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  transition: border-color 0.7s ease, background 0.7s ease;
 }
 
 .name-letter-space {
+  width: 0.28em;
   border-color: transparent;
-  width: 0.35em;
+  background: transparent;
 }
 
 .name-letter-active {
   border-color: var(--primary);
-  color: var(--primary);
+  background: rgba(0, 179, 179, 0.07);
 }
 
 .name-letter-resolved {
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.18);
+  background: transparent;
+}
+
+/* Top flap — animates the flip */
+.l-flap {
+  height: 50%;
+  overflow: hidden;
+  transform-origin: bottom center;
+  position: relative;
+}
+
+/* Bottom half — static, shows bottom portion of character */
+.l-base {
+  height: 50%;
+  overflow: hidden;
+  position: relative;
+}
+
+/* The character text inside each half */
+.l-text {
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 1em;
+  line-height: 1;
   color: #ffffff;
+}
+
+.l-flap .l-text { top: 0; }
+.l-base .l-text { top: -100%; }
+
+/* Center dividing line */
+.l-line {
+  position: absolute;
+  top: 50%;
+  left: 2px;
+  right: 2px;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.55);
+  transform: translateY(-50%);
+  z-index: 10;
+  transition: opacity 0.7s ease;
+}
+
+/* Subtle idle flutter on already-resolved letters */
+.name-letter-resolved .l-flap {
+  animation: idle-flutter 3s ease-in-out infinite;
+}
+
+@keyframes idle-flutter {
+  0%, 100% { transform: perspective(400px) rotateX(0deg); }
+  50%       { transform: perspective(400px) rotateX(-14deg); }
+}
+
+/* Fade out boxes once all letters are done */
+.hero-name.name-scramble-done .name-letter {
+  border-color: transparent !important;
+  background: transparent !important;
+}
+
+.hero-name.name-scramble-done .l-line {
+  opacity: 0;
+}
+
+.hero-name.name-scramble-done .name-letter-resolved .l-flap {
+  animation: none;
 }
 
 /* Gradient Text */

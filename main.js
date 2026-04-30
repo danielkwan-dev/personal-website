@@ -60,44 +60,85 @@ function initTypewriter() {
   setTimeout(tick, 800);
 }
 
-// Scramble effect for hero name
+// Scramble / split-flap effect for hero name
 function initNameScramble() {
   const el = document.querySelector('.hero-name');
   if (!el) return;
 
-  const finalText = el.textContent.trim().toUpperCase();
+  const originalText = el.textContent.trim();
+  const finalText = originalText.toUpperCase();
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const flipInterval = 80;   // ms between each random character flip
-  const flipsPerLetter = 10; // how many random chars each letter shows before resolving
-  const letterDelay = 180;   // ms between each letter starting to scramble
+  const flipHalf     = 90;  // ms per half-flip (fold down, then fold up)
+  const flipsPerLetter = 7; // random scramble flips before resolving
+  const letterDelay  = 210; // ms stagger between each letter starting
 
-  // Build spans for each character
-  el.innerHTML = finalText.split('').map((ch, i) =>
+  el.classList.add('name-scrambling');
+
+  el.innerHTML = finalText.split('').map(ch =>
     ch === ' '
       ? `<span class="name-letter name-letter-space"> </span>`
-      : `<span class="name-letter" data-final="${ch}">?</span>`
+      : `<span class="name-letter" data-final="${ch}">
+           <span class="l-flap"><span class="l-text">?</span></span>
+           <span class="l-base"><span class="l-text">?</span></span>
+           <span class="l-line"></span>
+         </span>`
   ).join('');
 
-  const spans = el.querySelectorAll('.name-letter[data-final]');
+  const spans = Array.from(el.querySelectorAll('.name-letter[data-final]'));
+  let resolvedCount = 0;
+
+  // Animate one flip: fold top half down, swap character, fold back up
+  function flipTo(span, newChar, done) {
+    const flap     = span.querySelector('.l-flap');
+    const flapText = flap.querySelector('.l-text');
+    const baseText = span.querySelector('.l-base .l-text');
+
+    flap.style.transition = `transform ${flipHalf}ms ease-in`;
+    flap.style.transform  = 'perspective(400px) rotateX(-90deg)';
+
+    setTimeout(() => {
+      flapText.textContent = newChar;
+      baseText.textContent = newChar;
+      flap.style.transition = `transform ${flipHalf}ms ease-out`;
+      flap.style.transform  = 'perspective(400px) rotateX(0deg)';
+      if (done) setTimeout(done, flipHalf);
+    }, flipHalf);
+  }
+
+  // Chain flipsRemaining random flips, then call onDone
+  function scramble(span, flipsRemaining, onDone) {
+    if (flipsRemaining <= 0) { onDone(); return; }
+    flipTo(span, chars[Math.floor(Math.random() * chars.length)], () =>
+      scramble(span, flipsRemaining - 1, onDone)
+    );
+  }
 
   spans.forEach((span, i) => {
-    const final = span.dataset.final;
-    let flips = 0;
-
     setTimeout(() => {
       span.classList.add('name-letter-active');
 
-      const interval = setInterval(() => {
-        if (flips < flipsPerLetter) {
-          span.textContent = chars[Math.floor(Math.random() * chars.length)];
-          flips++;
-        } else {
-          span.textContent = final;
+      scramble(span, flipsPerLetter, () => {
+        // Final flip to the real letter
+        flipTo(span, span.dataset.final, () => {
+          const flap = span.querySelector('.l-flap');
+          flap.style.transition = '';
+          flap.style.transform  = '';
           span.classList.remove('name-letter-active');
           span.classList.add('name-letter-resolved');
-          clearInterval(interval);
-        }
-      }, flipInterval);
+
+          resolvedCount++;
+          if (resolvedCount === spans.length) {
+            // All done — fade out boxes, then restore plain text
+            setTimeout(() => {
+              el.classList.add('name-scramble-done');
+              setTimeout(() => {
+                el.classList.remove('name-scrambling', 'name-scramble-done');
+                el.textContent = originalText;
+              }, 900);
+            }, 700);
+          }
+        });
+      });
     }, i * letterDelay);
   });
 }
