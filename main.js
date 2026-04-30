@@ -262,7 +262,7 @@ function initStarField() {
   //   earth.jpg — download from: https://eoimages.gsfc.nasa.gov/images/imagerecords/57000/57723/land_ocean_ice_cloud_2048.jpg
   //   mars.jpg  — download from: https://upload.wikimedia.org/wikipedia/commons/0/02/OSIRIS_Mars_true_color.jpg
   const earthImg = new Image();
-  earthImg.src = './earth.jpg';
+  earthImg.src = './earth.png';
   const marsImg = new Image();
   marsImg.src = './mars.jpg';
   let animationId = null;
