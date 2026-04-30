@@ -65,61 +65,65 @@ function initNameScramble() {
   const el = document.querySelector('.hero-name');
   if (!el) return;
 
-  const originalText = el.textContent.trim();
-  const finalText = originalText.toUpperCase();
+  const finalText = el.textContent.trim().toUpperCase();
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const flipHalf     = 90;  // ms per half-flip (fold down, then fold up)
-  const flipsPerLetter = 7; // random scramble flips before resolving
-  const letterDelay  = 210; // ms stagger between each letter starting
+  const flipHalf       = 42;  // ms per half-flip — fast, visible
+  const flipsPerLetter = 9;   // random flips before each letter locks in
+  const letterDelay    = 160; // ms between each letter appearing/starting
 
   el.classList.add('name-scrambling');
 
-  el.innerHTML = finalText.split('').map(ch =>
-    ch === ' '
-      ? `<span class="name-letter name-letter-space"> </span>`
-      : `<span class="name-letter" data-final="${ch}">
-           <span class="l-flap"><span class="l-text">?</span></span>
-           <span class="l-base"><span class="l-text">?</span></span>
+  // Build tile structure; store full-text index on each span
+  el.innerHTML = finalText.split('').map((ch, idx) => {
+    const rand = chars[Math.floor(Math.random() * chars.length)];
+    return ch === ' '
+      ? `<span class="name-letter name-letter-space" data-idx="${idx}"> </span>`
+      : `<span class="name-letter" data-final="${ch}" data-idx="${idx}">
+           <span class="l-flap"><span class="l-text">${rand}</span></span>
+           <span class="l-base"><span class="l-text">${rand}</span></span>
            <span class="l-line"></span>
-         </span>`
-  ).join('');
+         </span>`;
+  }).join('');
 
-  const spans = Array.from(el.querySelectorAll('.name-letter[data-final]'));
+  const allSpans    = Array.from(el.querySelectorAll('.name-letter'));
+  const letterSpans = Array.from(el.querySelectorAll('.name-letter[data-final]'));
   let resolvedCount = 0;
 
-  // Animate one flip: fold top half down, swap character, fold back up
+  // Fold top flap down, swap char, fold back up
   function flipTo(span, newChar, done) {
-    const flap     = span.querySelector('.l-flap');
-    const flapText = flap.querySelector('.l-text');
-    const baseText = span.querySelector('.l-base .l-text');
-
+    const flap = span.querySelector('.l-flap');
     flap.style.transition = `transform ${flipHalf}ms ease-in`;
     flap.style.transform  = 'perspective(400px) rotateX(-90deg)';
-
     setTimeout(() => {
-      flapText.textContent = newChar;
-      baseText.textContent = newChar;
+      flap.querySelector('.l-text').textContent    = newChar;
+      span.querySelector('.l-base .l-text').textContent = newChar;
       flap.style.transition = `transform ${flipHalf}ms ease-out`;
       flap.style.transform  = 'perspective(400px) rotateX(0deg)';
       if (done) setTimeout(done, flipHalf);
     }, flipHalf);
   }
 
-  // Chain flipsRemaining random flips, then call onDone
-  function scramble(span, flipsRemaining, onDone) {
-    if (flipsRemaining <= 0) { onDone(); return; }
+  function scramble(span, remaining, onDone) {
+    if (remaining <= 0) { onDone(); return; }
     flipTo(span, chars[Math.floor(Math.random() * chars.length)], () =>
-      scramble(span, flipsRemaining - 1, onDone)
+      scramble(span, remaining - 1, onDone)
     );
   }
 
-  spans.forEach((span, i) => {
+  // Fade each tile in at its natural position in the sequence
+  allSpans.forEach(span => {
+    const idx = parseInt(span.dataset.idx);
+    setTimeout(() => span.classList.add('name-letter-visible'), idx * letterDelay);
+  });
+
+  // Scramble each letter tile (delay matches its position in the word)
+  letterSpans.forEach(span => {
+    const idx = parseInt(span.dataset.idx);
     setTimeout(() => {
       span.classList.add('name-letter-active');
-
       scramble(span, flipsPerLetter, () => {
-        // Final flip to the real letter
         flipTo(span, span.dataset.final, () => {
+          // Clear inline transform so CSS idle-flutter animation can take over
           const flap = span.querySelector('.l-flap');
           flap.style.transition = '';
           flap.style.transform  = '';
@@ -127,19 +131,13 @@ function initNameScramble() {
           span.classList.add('name-letter-resolved');
 
           resolvedCount++;
-          if (resolvedCount === spans.length) {
-            // All done — fade out boxes, then restore plain text
-            setTimeout(() => {
-              el.classList.add('name-scramble-done');
-              setTimeout(() => {
-                el.classList.remove('name-scrambling', 'name-scramble-done');
-                el.textContent = originalText;
-              }, 900);
-            }, 700);
+          if (resolvedCount === letterSpans.length) {
+            // All letters locked — fade out borders/lines, keep layout in place
+            setTimeout(() => el.classList.add('name-scramble-done'), 500);
           }
         });
       });
-    }, i * letterDelay);
+    }, idx * letterDelay);
   });
 }
 
