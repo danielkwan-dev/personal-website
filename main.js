@@ -91,8 +91,6 @@ function initNameScramble() {
   const allSpans    = Array.from(el.querySelectorAll('.name-letter'));
   const letterSpans = Array.from(el.querySelectorAll('.name-letter[data-final]'));
   let resolvedCount = 0;
-  const idleTarget = 2 + Math.floor(Math.random() * 2); // 2 or 3 letters get idle flip
-  let idleAssigned = 0;
 
   // Fold top flap down, swap char, fold back up
   function flipTo(span, newChar, done) {
@@ -135,16 +133,19 @@ function initNameScramble() {
           span.classList.remove('name-letter-active');
           span.classList.add('name-letter-resolved');
 
-          // Assign idle flip to the first idleTarget letters to resolve (earliest = leftmost)
-          if (idleAssigned < idleTarget) {
-            span.classList.add('name-letter-idle');
-            flap.style.animationDelay = `${(idleAssigned * 0.6 + Math.random() * 0.3).toFixed(2)}s`;
-            idleAssigned++;
-          }
-
           resolvedCount++;
           if (resolvedCount === letterSpans.length) {
-            // All letters locked — fade out borders/lines, keep layout in place
+            // D flips first, then I, then A snaps right after I (almost in unison)
+            [
+              { final: 'D', idx: 0,  delay: 1.0 },
+              { final: 'I', idx: 3,  delay: 2.2 },
+              { final: 'A', idx: 1,  delay: 2.38 },
+            ].forEach(({ final, idx, delay }) => {
+              const s = letterSpans.find(s => s.dataset.final === final && parseInt(s.dataset.idx) === idx);
+              if (!s) return;
+              s.classList.add('name-letter-idle');
+              s.querySelector('.l-flap').style.animationDelay = `${delay}s`;
+            });
             setTimeout(() => el.classList.add('name-scramble-done'), 500);
           }
         });
