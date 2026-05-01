@@ -591,16 +591,20 @@ img {
   transition: opacity 0.8s ease;
 }
 
-/* Idle flip on select resolved letters — top half folds down then snaps back */
+/* Idle flip on select resolved letters — sharp snap flip, long pause */
 .name-letter-idle .l-flap {
-  animation: idle-flutter 3.5s linear infinite;
+  animation: idle-flutter 3s linear infinite;
 }
 
 @keyframes idle-flutter {
-  0%   { transform: perspective(400px) rotateX(0deg); animation-timing-function: ease-in; }
-  5%   { transform: perspective(400px) rotateX(-90deg); animation-timing-function: ease-out; }
-  11%  { transform: perspective(400px) rotateX(0deg); }
-  100% { transform: perspective(400px) rotateX(0deg); }
+  /* hold flat */
+  0%    { transform: perspective(400px) rotateX(0deg); animation-timing-function: cubic-bezier(0.4, 0, 1, 1); }
+  /* slam down */
+  3%    { transform: perspective(400px) rotateX(-90deg); animation-timing-function: cubic-bezier(0, 0, 0.6, 1); }
+  /* snap back up */
+  6%    { transform: perspective(400px) rotateX(0deg); }
+  /* hold flat for the rest of the cycle */
+  100%  { transform: perspective(400px) rotateX(0deg); }
 }
 
 /* All letters done — fade borders and center line, keep layout */
