@@ -133,19 +133,17 @@ function initNameScramble() {
           span.classList.remove('name-letter-active');
           span.classList.add('name-letter-resolved');
 
+          // Assign idle flip per-letter as it resolves so it fires during the scramble
+          // D(idx=0) first, then I(idx=3), then A(idx=1) almost simultaneously with I
+          const idleMap = { '0': 0.8, '3': 1.0, '1': 1.18 };
+          const spanIdx = span.dataset.idx;
+          if (idleMap[spanIdx] !== undefined) {
+            span.classList.add('name-letter-idle');
+            flap.style.animationDelay = `${idleMap[spanIdx]}s`;
+          }
+
           resolvedCount++;
           if (resolvedCount === letterSpans.length) {
-            // D flips first, then I, then A snaps right after I (almost in unison)
-            [
-              { final: 'D', idx: 0,  delay: 1.0 },
-              { final: 'I', idx: 3,  delay: 2.2 },
-              { final: 'A', idx: 1,  delay: 2.38 },
-            ].forEach(({ final, idx, delay }) => {
-              const s = letterSpans.find(s => s.dataset.final === final && parseInt(s.dataset.idx) === idx);
-              if (!s) return;
-              s.classList.add('name-letter-idle');
-              s.querySelector('.l-flap').style.animationDelay = `${delay}s`;
-            });
             setTimeout(() => el.classList.add('name-scramble-done'), 500);
           }
         });
