@@ -132,14 +132,17 @@ function initNameScramble() {
           flap.style.transform  = '';
           span.classList.remove('name-letter-active');
           span.classList.add('name-letter-resolved');
-          // ~45% of letters get the idle flip, staggered so they don't sync up
-          if (Math.random() < 0.45) {
-            span.classList.add('name-letter-idle');
-            flap.style.animationDelay = `${(Math.random() * 4).toFixed(2)}s`;
-          }
 
           resolvedCount++;
+
           if (resolvedCount === letterSpans.length) {
+            // Pick 2-3 random letters to idle-flip, staggered
+            const idleCount = 2 + Math.floor(Math.random() * 2); // 2 or 3
+            const shuffled = [...letterSpans].sort(() => Math.random() - 0.5);
+            shuffled.slice(0, idleCount).forEach((s, i) => {
+              s.classList.add('name-letter-idle');
+              s.querySelector('.l-flap').style.animationDelay = `${(i * 1.3 + Math.random() * 0.5).toFixed(2)}s`;
+            });
             // All letters locked — fade out borders/lines, keep layout in place
             setTimeout(() => el.classList.add('name-scramble-done'), 500);
           }

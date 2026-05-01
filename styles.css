@@ -593,13 +593,13 @@ img {
 
 /* Idle flip on select resolved letters — top half folds down then snaps back */
 .name-letter-idle .l-flap {
-  animation: idle-flutter 5s linear infinite;
+  animation: idle-flutter 3.5s linear infinite;
 }
 
 @keyframes idle-flutter {
   0%   { transform: perspective(400px) rotateX(0deg); animation-timing-function: ease-in; }
-  9%   { transform: perspective(400px) rotateX(-90deg); animation-timing-function: ease-out; }
-  20%  { transform: perspective(400px) rotateX(0deg); }
+  5%   { transform: perspective(400px) rotateX(-90deg); animation-timing-function: ease-out; }
+  11%  { transform: perspective(400px) rotateX(0deg); }
   100% { transform: perspective(400px) rotateX(0deg); }
 }
 
