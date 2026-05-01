@@ -591,14 +591,16 @@ img {
   transition: opacity 0.8s ease;
 }
 
-/* Idle flutter on resolved letters while others still scramble */
-.name-letter-resolved .l-flap {
-  animation: idle-flutter 2.8s ease-in-out infinite;
+/* Idle flip on select resolved letters — top half folds down then snaps back */
+.name-letter-idle .l-flap {
+  animation: idle-flutter 5s linear infinite;
 }
 
 @keyframes idle-flutter {
-  0%, 100% { transform: perspective(400px) rotateX(0deg); }
-  50%       { transform: perspective(400px) rotateX(-18deg); }
+  0%   { transform: perspective(400px) rotateX(0deg); animation-timing-function: ease-in; }
+  9%   { transform: perspective(400px) rotateX(-90deg); animation-timing-function: ease-out; }
+  20%  { transform: perspective(400px) rotateX(0deg); }
+  100% { transform: perspective(400px) rotateX(0deg); }
 }
 
 /* All letters done — fade borders and center line, keep layout */
@@ -609,6 +611,10 @@ img {
 
 .hero-name.name-scramble-done .l-line {
   opacity: 0;
+}
+
+.hero-name.name-scramble-done .name-letter-idle .l-flap {
+  animation: none;
 }
 
 /* Gradient Text */

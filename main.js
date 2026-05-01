@@ -21,8 +21,10 @@ function initTypewriter() {
   const text = 'Computer Engineering @ uWaterloo';
   const splitAt = 'Computer Engineering @ '.length; // muted up to here, colored after
   let i = 0;
+  let pass = 0; // 0 = first type, 1 = delete, 2 = second type
 
   function render(len) {
+    if (len <= 0) { el.innerHTML = ''; return; }
     if (len <= splitAt) {
       el.innerHTML = `<span class="tagline-muted">${text.slice(0, len)}</span>`;
     } else {
@@ -31,10 +33,30 @@ function initTypewriter() {
   }
 
   function tick() {
-    render(i + 1);
-    i++;
-    if (i < text.length) {
-      setTimeout(tick, 40);
+    if (pass === 0) {
+      render(i + 1);
+      i++;
+      if (i < text.length) {
+        setTimeout(tick, 40);
+      } else {
+        pass = 1;
+        setTimeout(tick, 700);
+      }
+    } else if (pass === 1) {
+      i--;
+      render(i);
+      if (i > 0) {
+        setTimeout(tick, 22);
+      } else {
+        pass = 2;
+        setTimeout(tick, 350);
+      }
+    } else {
+      render(i + 1);
+      i++;
+      if (i < text.length) {
+        setTimeout(tick, 40);
+      }
     }
   }
 
@@ -110,6 +132,11 @@ function initNameScramble() {
           flap.style.transform  = '';
           span.classList.remove('name-letter-active');
           span.classList.add('name-letter-resolved');
+          // ~45% of letters get the idle flip, staggered so they don't sync up
+          if (Math.random() < 0.45) {
+            span.classList.add('name-letter-idle');
+            flap.style.animationDelay = `${(Math.random() * 4).toFixed(2)}s`;
+          }
 
           resolvedCount++;
           if (resolvedCount === letterSpans.length) {
