@@ -133,17 +133,35 @@ function initNameScramble() {
           span.classList.remove('name-letter-active');
           span.classList.add('name-letter-resolved');
 
-          // Assign idle flip per-letter as it resolves so it fires during the scramble
-          // D(idx=0) first, then I(idx=3), then A(idx=1) almost simultaneously with I
-          const idleMap = { '0': 0.8, '3': 1.0, '1': 1.18 };
-          const spanIdx = span.dataset.idx;
-          if (idleMap[spanIdx] !== undefined) {
-            span.classList.add('name-letter-idle');
-            flap.style.animationDelay = `${idleMap[spanIdx]}s`;
-          }
-
           resolvedCount++;
           if (resolvedCount === letterSpans.length) {
+            // Build a lookup by idx for quick access
+            const byIdx = {};
+            letterSpans.forEach(s => { byIdx[s.dataset.idx] = s; });
+
+            // Play one flip cycle on a letter then stop
+            function doFlip(s, startDelay) {
+              setTimeout(() => {
+                const f = s.querySelector('.l-flap');
+                f.style.animationDelay = '0s';
+                s.classList.add('name-letter-idle');
+                setTimeout(() => {
+                  s.classList.remove('name-letter-idle');
+                  f.style.animationDelay = '';
+                }, 3000); // one full cycle
+              }, startDelay);
+            }
+
+            // Wave 1: D(0), A(1), I(3) — staggered 220ms apart
+            [[0,900],[1,1120],[3,1340]].forEach(([idx, delay]) => {
+              if (byIdx[idx]) doFlip(byIdx[idx], delay);
+            });
+
+            // Wave 2: N(2), L(5), W(8) — start after wave 1 fully done
+            [[2,5200],[5,5420],[8,5640]].forEach(([idx, delay]) => {
+              if (byIdx[idx]) doFlip(byIdx[idx], delay);
+            });
+
             setTimeout(() => el.classList.add('name-scramble-done'), 500);
           }
         });

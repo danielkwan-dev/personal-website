@@ -596,7 +596,7 @@ img {
 
 /* Idle flip on select resolved letters — sharp snap flip, long pause */
 .name-letter-idle .l-flap {
-  animation: idle-flutter 3s linear infinite;
+  animation: idle-flutter 3s linear;
 }
 
 @keyframes idle-flutter {
