@@ -52,17 +52,31 @@ const fragmentShaderSource = `
 
         float radial = length(pr);
         O = 1. - exp(
-            -exp(vec4(0.0,-0.25,-1.1,0)) / o
+            -exp(vec4(-0.1,-0.15,-0.4,0)) / o
             / (.1 + .1 * pow(length(sin(v/.3)*.2 + c*vec2(1,2)) - 1., 2.))
             / (1. * xRange + 5. * exp(.3*c.y - dot(c,c)))
             / (.03 + abs(radial - .7)) * .2
         );
 
-        // a bright, flowing ray through the centre of the glow ring — riding
-        // the same warped coordinate field as the nebula so it bends and
-        // drifts with it, splitting the ring into two arcing semicircles
-        float ray = exp(-pow(c.y * 2.6, 2.0)) * (0.5 + 0.25 * sin(iTime * 0.35));
-        O.rgb += vec3(1.05, 0.92, 0.72) * ray;
+        // radial colour grading: a blinding white-hot flash near the glow's
+        // inner edge, softening outward into a translucent, fluid blend of
+        // creamy / orange / white that fades toward the dark void
+        float innerMix = 1.0 - smoothstep(0.35, 0.95, radial);
+        vec3  cInner   = vec3(1.25, 1.18, 1.08);
+        vec3  cOuter   = vec3(1.00, 0.80, 0.58);
+        O.rgb *= mix(cOuter, cInner, innerMix);
+        O.rgb += cInner * pow(innerMix, 5.0) * 0.7;
+        O.rgb *= mix(1.0, 0.55, smoothstep(0.8, 1.7, radial));
+
+        // dark silhouette at the very centre — the ray below cuts it in two
+        float shadow = smoothstep(0.13, 0.3, radial);
+        O.rgb *= shadow;
+
+        // a prominent, flowing ray through the centre — riding the same
+        // warped coordinate field as the nebula so it bends and drifts with
+        // it, splitting the dark silhouette into two arcing semicircles
+        float ray = exp(-pow(c.y * 2.0, 2.0)) * (0.85 + 0.2 * sin(iTime * 0.35));
+        O.rgb += vec3(1.2, 1.05, 0.8) * ray;
 
         gl_FragColor = O;
     }
