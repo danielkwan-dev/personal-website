@@ -11,36 +11,31 @@
   <meta property="og:url" content="https://daniel.uwce.ca">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-  <div id="splash">
-    <h1 class="splash-name">Daniel Kwan</h1>
-    <button id="enter-btn">ENTER</button>
+  <canvas id="canvas"></canvas>
+
+  <div class="center-text">
+    DANIEL KWAN
+    <div class="subtitle">Computer Engineering @ uWaterloo</div>
   </div>
 
-  <main id="main" aria-hidden="true">
-    <canvas id="stars"></canvas>
-    <div class="nebula">
-      <div class="nebula-glow"></div>
-      <div class="nebula-ring-2"></div>
-      <div class="nebula-ring-1"></div>
-      <div class="nebula-core"></div>
-    </div>
-    <div class="content">
-      <h2 class="name">Daniel Kwan</h2>
-      <p class="subtitle">Computer Engineering @ uWaterloo</p>
-    </div>
-    <nav class="bottom-links">
-      <a href="https://www.linkedin.com/in/daniel-kwan-923071220/" target="_blank" rel="noopener noreferrer">LINKEDIN</a>
-      <a href="mailto:d35kwan@uwaterloo.ca">EMAIL</a>
-      <a href="https://github.com/danielkwan-dev" target="_blank" rel="noopener noreferrer">GITHUB</a>
-      <a href="Daniel_Kwan_Resume.pdf" download>RESUME</a>
-    </nav>
-    <iframe id="music" allow="autoplay" title="background music"></iframe>
-  </main>
+  <nav class="bottom-nav">
+    <a href="https://www.linkedin.com/in/daniel-kwan-923071220/" target="_blank" rel="noopener noreferrer">LINKEDIN</a>
+    <a href="mailto:d35kwan@uwaterloo.ca">EMAIL</a>
+    <a href="https://github.com/danielkwan-dev" target="_blank" rel="noopener noreferrer">GITHUB</a>
+    <a href="Daniel_Kwan_Resume.pdf" download>RESUME</a>
+  </nav>
+
+  <div class="curtain top"></div>
+  <div class="curtain bottom"></div>
+
+  <div id="enter-overlay">ENTER</div>
+
+  <iframe id="music" allow="autoplay" title="background music"></iframe>
 
   <script src="main.js"></script>
 </body>

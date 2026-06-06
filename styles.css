@@ -1,255 +1,139 @@
-/* === Reset & Base === */
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html, body {
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
-}
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400&display=swap');
 
 body {
-  background: #050810;
-  color: #fff;
-  font-family: 'JetBrains Mono', monospace;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #050505;
+    font-family: 'Open Sans', sans-serif;
+    color: white;
 }
 
-/* === Splash === */
-#splash {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: #050810;
-  transition: opacity 0.8s ease;
+#canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
 }
 
-#splash.fade-out {
-  opacity: 0;
-  pointer-events: none;
+.center-text {
+    color: rgb(255, 255, 255);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    font-weight: 300;
+    font-size: clamp(20px, 4.5vw, 50px);
+    letter-spacing: 0.5em;
+    text-align: center;
+    pointer-events: none;
+    white-space: nowrap;
+    text-shadow: 0 0 20px rgba(0,0,0,0.9), 0 0 40px rgba(0,0,0,0.9);
+
+    opacity: 0;
+    transition: opacity 1s ease, transform 2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition-delay: 0.1s;
 }
 
-.splash-name {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(4rem, 12vw, 10rem);
-  letter-spacing: 0.05em;
-  color: #fff;
-  margin-bottom: 2.5rem;
+.center-text .subtitle {
+    display: block;
+    font-size: clamp(10px, 1.2vw, 14px);
+    letter-spacing: 0.3em;
+    margin-top: 0.8em;
+    opacity: 0.6;
+    white-space: nowrap;
 }
 
-#enter-btn {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.85rem;
-  letter-spacing: 0.3em;
-  color: rgba(255, 255, 255, 0.65);
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 0.6rem 2.2rem;
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: color 0.3s, border-color 0.3s;
+body.revealed .center-text {
+    opacity: 1;
+    transform: translate(-50%, -50%) translateY(0);
 }
 
-#enter-btn:hover {
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.65);
+.bottom-nav {
+    position: absolute;
+    bottom: 40px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    z-index: 2;
 }
 
-/* === Main (hidden until ENTER clicked) === */
-#main {
-  position: fixed;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 1s ease 0.4s;
+.bottom-nav a {
+    color: white;
+    text-decoration: none;
+    font-size: 12px;
+    letter-spacing: 0.4em;
+    font-weight: 400;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
 }
 
-#main.visible {
-  opacity: 1;
+.bottom-nav a:hover {
+    opacity: 1;
 }
 
-/* === Star canvas === */
-#stars {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-  pointer-events: none;
+.curtain {
+    position: fixed;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background-color: #000;
+    z-index: 1000;
+    transition: transform 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+    will-change: transform;
 }
 
-/* === Nebula === */
-.nebula {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1;
-  width: 600px;
-  height: 600px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
+.curtain.top {
+    top: 0;
+    transform-origin: top;
 }
 
-.nebula-glow {
-  position: absolute;
-  width: 600px;
-  height: 600px;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(30, 60, 140, 0.25) 0%,
-    rgba(80, 20, 120, 0.12) 45%,
-    transparent 70%
-  );
-  animation: pulse-glow 4s ease-in-out infinite;
+.curtain.bottom {
+    bottom: 0;
+    transform-origin: bottom;
 }
 
-.nebula-ring-2 {
-  position: absolute;
-  width: 420px;
-  height: 420px;
-  border-radius: 50%;
-  background: conic-gradient(
-    from 0deg,
-    transparent 0%,
-    rgba(60, 20, 100, 0.25) 25%,
-    rgba(100, 50, 180, 0.18) 50%,
-    rgba(20, 60, 140, 0.12) 75%,
-    transparent 100%
-  );
-  filter: blur(18px);
-  opacity: 0.55;
-  animation: rotate-ccw 90s linear infinite;
+body.revealed .curtain.top {
+    transform: translateY(-100%);
 }
 
-.nebula-ring-1 {
-  position: absolute;
-  width: 280px;
-  height: 280px;
-  border-radius: 50%;
-  background: conic-gradient(
-    from 90deg,
-    transparent 0%,
-    rgba(80, 30, 160, 0.35) 25%,
-    rgba(140, 60, 220, 0.25) 50%,
-    rgba(40, 90, 200, 0.18) 75%,
-    transparent 100%
-  );
-  filter: blur(10px);
-  opacity: 0.65;
-  animation: rotate-cw 60s linear infinite;
+body.revealed .curtain.bottom {
+    transform: translateY(100%);
 }
 
-.nebula-core {
-  position: absolute;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(210, 225, 255, 0.95) 0%,
-    rgba(130, 165, 255, 0.6) 40%,
-    rgba(60, 80, 200, 0.2) 70%,
-    transparent 100%
-  );
-  box-shadow:
-    0 0 40px 10px rgba(120, 160, 255, 0.45),
-    0 0 80px 25px rgba(80, 100, 200, 0.2);
-  animation: pulse-core 3s ease-in-out infinite;
+#enter-overlay {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2000;
+    color: white;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 300;
+    font-size: 24px;
+    letter-spacing: 0.5em;
+    cursor: pointer;
+    transition: opacity 0.5s ease;
+    text-shadow: 0 0 10px rgba(255,255,255,0.5);
 }
 
-@keyframes pulse-glow {
-  0%, 100% { opacity: 0.6; transform: scale(1); }
-  50%       { opacity: 1;   transform: scale(1.06); }
+#enter-overlay:hover {
+    text-shadow: 0 0 20px rgba(255,255,255,0.8);
 }
 
-@keyframes rotate-cw {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
+#enter-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
 }
 
-@keyframes rotate-ccw {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(-360deg); }
-}
-
-@keyframes pulse-core {
-  0%, 100% {
-    transform: scale(0.95);
-    box-shadow: 0 0 40px 10px rgba(120,160,255,0.45), 0 0 80px 25px rgba(80,100,200,0.2);
-  }
-  50% {
-    transform: scale(1.05);
-    box-shadow: 0 0 60px 16px rgba(150,190,255,0.65), 0 0 110px 35px rgba(80,100,200,0.3);
-  }
-}
-
-/* === Main content (name + subtitle) === */
-.content {
-  position: fixed;
-  top: 35%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 2;
-  text-align: center;
-  pointer-events: none;
-}
-
-.name {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(3.5rem, 9vw, 8rem);
-  letter-spacing: 0.05em;
-  color: #fff;
-  line-height: 1;
-  margin-bottom: 0.75rem;
-}
-
-.subtitle {
-  font-size: clamp(0.65rem, 1.4vw, 0.85rem);
-  letter-spacing: 0.15em;
-  color: rgba(255, 255, 255, 0.4);
-  text-transform: uppercase;
-}
-
-/* === Bottom links === */
-.bottom-links {
-  position: fixed;
-  bottom: 2.5rem;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
-  display: flex;
-  gap: 2.5rem;
-  white-space: nowrap;
-}
-
-.bottom-links a {
-  font-size: 0.72rem;
-  letter-spacing: 0.2em;
-  color: rgba(255, 255, 255, 0.45);
-  text-decoration: none;
-  text-transform: uppercase;
-  transition: color 0.25s;
-}
-
-.bottom-links a:hover {
-  color: #fff;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-/* === Music iframe (invisible) === */
 #music {
-  display: none;
-  width: 0;
-  height: 0;
-  border: none;
+    display: none;
+    width: 0;
+    height: 0;
+    border: none;
 }
