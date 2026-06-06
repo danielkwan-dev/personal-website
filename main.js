@@ -113,53 +113,30 @@ canvas.addEventListener('mouseleave', () => {
     mouse[2] = 0;
 });
 
-// --- Music (Interstellar Main Theme via YouTube IFrame API) ---
+// --- Music (Interstellar Main Theme via YouTube) ---
 
 const VIDEO_ID = 'vPA6T0la6uI';
-let ytPlayer = null;
+const iframe = document.getElementById('music');
 let musicStarted = false;
-
-// Load the YouTube IFrame API script once
-function loadYouTubeAPI() {
-    const tag = document.createElement('script');
-    tag.src = 'https://www.youtube.com/iframe_api';
-    document.head.appendChild(tag);
-}
-
-// Called automatically by the YouTube API when ready
-window.onYouTubeIframeAPIReady = function () {
-    ytPlayer = new YT.Player('music', {
-        videoId: VIDEO_ID,
-        playerVars: {
-            autoplay: 0,
-            controls: 0,
-            loop: 1,
-            playlist: VIDEO_ID,
-            rel: 0,
-        },
-        events: {
-            onReady: () => {
-                if (musicStarted) {
-                    ytPlayer.playVideo();
-                }
-            },
-        },
-    });
-};
 
 function startMusic() {
     if (musicStarted) return;
     musicStarted = true;
-    loadYouTubeAPI();
+    // Setting src inside a click handler satisfies browser autoplay policy
+    iframe.src = `https://www.youtube.com/embed/${VIDEO_ID}?autoplay=1&controls=0&loop=1&playlist=${VIDEO_ID}&rel=0&enablejsapi=1`;
+}
+
+function sendCommand(func) {
+    if (!iframe.contentWindow) return;
+    iframe.contentWindow.postMessage(
+        JSON.stringify({ event: 'command', func, args: [] }),
+        '*'
+    );
 }
 
 document.addEventListener('visibilitychange', () => {
-    if (!ytPlayer || !musicStarted) return;
-    if (document.hidden) {
-        ytPlayer.pauseVideo();
-    } else {
-        ytPlayer.playVideo();
-    }
+    if (!musicStarted) return;
+    sendCommand(document.hidden ? 'pauseVideo' : 'playVideo');
 });
 
 // --- Interaction ---
