@@ -58,24 +58,31 @@ const fragmentShaderSource = `
             / (.03 + abs(radial - .7)) * .2
         );
 
-        // radial colour grading: a blinding white-hot flash near the glow's
-        // inner edge, softening outward into a translucent, fluid blend of
-        // creamy / orange / white that fades toward the dark void
+        // Collapse the procedural glow to luminance and rebuild its colour
+        // from a controlled warm ramp — this keeps the flowing structure but
+        // removes the stray green/red the raw per-channel output produced.
+        // Blinding white-hot near the glow's inner edge, softening outward
+        // into a translucent, fluid blend of creamy / orange / white.
+        float lum      = dot(O.rgb, vec3(0.299, 0.587, 0.114));
         float innerMix = 1.0 - smoothstep(0.35, 0.95, radial);
-        vec3  cInner   = vec3(1.25, 1.18, 1.08);
-        vec3  cOuter   = vec3(1.00, 0.80, 0.58);
-        O.rgb *= mix(cOuter, cInner, innerMix);
-        O.rgb += cInner * pow(innerMix, 5.0) * 0.7;
-        O.rgb *= mix(1.0, 0.55, smoothstep(0.8, 1.7, radial));
+        vec3  cInner   = vec3(1.25, 1.18, 1.05);
+        vec3  cOuter   = vec3(1.00, 0.78, 0.55);
+        O.rgb = mix(cOuter, cInner, innerMix) * lum
+              + cInner * pow(innerMix, 6.0) * 0.8;
+        O.rgb *= mix(1.0, 0.5, smoothstep(0.8, 1.7, radial));
 
-        // dark silhouette at the very centre — the ray below cuts it in two
-        float shadow = smoothstep(0.13, 0.3, radial);
+        // dark silhouette at the very centre
+        float shadow = smoothstep(0.15, 0.34, radial);
         O.rgb *= shadow;
 
-        // a prominent, flowing ray through the centre — riding the same
-        // warped coordinate field as the nebula so it bends and drifts with
-        // it, splitting the dark silhouette into two arcing semicircles
-        float ray = exp(-pow(c.y * 2.0, 2.0)) * (0.85 + 0.2 * sin(iTime * 0.35));
+        // a flowing ray through the centre: confined to a finite stretch so
+        // it ends well short of the screen edges, and narrow enough that the
+        // silhouette's upper and lower portions stay dark — reading as two
+        // separate glowing semicircles either side of the bright band
+        float yPos   = mix(pr.y, c.y, 0.25);
+        float band   = exp(-pow(yPos * 5.0, 2.0));
+        float extent = exp(-pow(pr.x * 0.95, 2.0));
+        float ray    = band * extent * (0.9 + 0.15 * sin(iTime * 0.35));
         O.rgb += vec3(1.2, 1.05, 0.8) * ray;
 
         gl_FragColor = O;
