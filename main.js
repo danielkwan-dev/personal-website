@@ -136,14 +136,20 @@ const fragmentShaderSource = `
             pos   = npos;
         }
 
-        if (absorbed) {
-            col = vec3(0.0);
-        } else {
-            // photon-ring glow: light grazing the photon sphere piles up into
-            // a thin, brilliant rim tracing the silhouette
-            float ringDist = abs(minR - rs * 1.5);
-            col += vec3(1.0, 0.92, 0.72) * exp(-ringDist * ringDist * 14.0) * 1.4;
+        // soft aura: glow tied to how close each ray's closest approach came
+        // to the photon sphere. It peaks just outside the silhouette and fades
+        // smoothly on both sides, so the boundary reads as radiance bleeding
+        // outward and inward — an aura — rather than a crisp geometric ring.
+        float edgeDist = abs(minR - rs * 1.45);
+        float auraCore = exp(-edgeDist * edgeDist * 9.0);
+        float auraHalo = exp(-edgeDist * edgeDist * 1.8) * 0.55;
+        vec3  aura     = vec3(1.0, 0.9, 0.7) * (auraCore * 1.3 + auraHalo);
 
+        if (absorbed) {
+            // glow bleeds softly into the shadow, fading to true black at its core
+            col = aura * 0.7;
+        } else {
+            col += aura;
             // plain deep-space void — keeps focus on the black hole itself
             col += vec3(0.004, 0.005, 0.012);
         }
