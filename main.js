@@ -86,10 +86,10 @@ const fragmentShaderSource = `
         // top and bottom stay dark — reading as two clear semicircles
         // separated cleanly by the band
         float yPos   = mix(pr.y, c.y, 0.25);
-        float band   = exp(-pow(yPos * 5.0, 2.0));
+        float band   = exp(-pow(yPos * 4.4, 2.0));
         float extent = exp(-pow(pr.x * 0.95, 2.0));
-        float ray    = band * extent * (0.55 + 0.12 * sin(iTime * 0.35));
-        O.rgb += vec3(1.0, 0.9, 0.78) * ray;
+        float ray    = band * extent * (0.85 + 0.18 * sin(iTime * 0.35));
+        O.rgb += vec3(1.1, 0.98, 0.84) * ray;
 
         gl_FragColor = O;
     }

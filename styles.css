@@ -38,18 +38,31 @@ body {
     transition-delay: 0.1s;
 }
 
-.center-text .subtitle {
-    display: block;
-    font-size: clamp(10px, 1.2vw, 14px);
-    letter-spacing: 0.3em;
-    margin-top: 0.8em;
-    opacity: 0.6;
-    white-space: nowrap;
-}
-
 body.revealed .center-text {
     opacity: 1;
     transform: translate(-50%, -50%) translateY(0);
+}
+
+.subtitle {
+    position: absolute;
+    bottom: 92px;
+    left: 0;
+    width: 100%;
+    z-index: 2;
+    text-align: center;
+    color: white;
+    font-size: clamp(10px, 1.2vw, 14px);
+    letter-spacing: 0.3em;
+    white-space: nowrap;
+    pointer-events: none;
+
+    opacity: 0;
+    transition: opacity 1s ease;
+    transition-delay: 0.3s;
+}
+
+body.revealed .subtitle {
+    opacity: 0.6;
 }
 
 .bottom-nav {
