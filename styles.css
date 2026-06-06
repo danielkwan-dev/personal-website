@@ -150,3 +150,30 @@ body.revealed .curtain.bottom {
     height: 0;
     border: none;
 }
+
+@media (max-width: 600px) {
+    .center-text {
+        letter-spacing: 0.32em;
+    }
+
+    .subtitle {
+        bottom: 108px;
+        font-size: clamp(9px, 2.6vw, 12px);
+        letter-spacing: 0.2em;
+    }
+
+    .bottom-nav {
+        bottom: 26px;
+        gap: clamp(14px, 4vw, 32px);
+    }
+
+    .bottom-nav a {
+        font-size: clamp(9px, 2.6vw, 11px);
+        letter-spacing: 0.22em;
+    }
+
+    #enter-overlay {
+        font-size: 18px;
+        letter-spacing: 0.4em;
+    }
+}
