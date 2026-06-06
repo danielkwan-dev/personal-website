@@ -113,17 +113,54 @@ canvas.addEventListener('mouseleave', () => {
     mouse[2] = 0;
 });
 
-// --- Music (Interstellar Main Theme via YouTube) ---
+// --- Music (Interstellar Main Theme via YouTube IFrame API) ---
 
-const iframe = document.getElementById('music');
+const VIDEO_ID = 'vPA6T0la6uI';
+let ytPlayer = null;
 let musicStarted = false;
+
+// Load the YouTube IFrame API script once
+function loadYouTubeAPI() {
+    const tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(tag);
+}
+
+// Called automatically by the YouTube API when ready
+window.onYouTubeIframeAPIReady = function () {
+    ytPlayer = new YT.Player('music', {
+        videoId: VIDEO_ID,
+        playerVars: {
+            autoplay: 0,
+            controls: 0,
+            loop: 1,
+            playlist: VIDEO_ID,
+            rel: 0,
+        },
+        events: {
+            onReady: () => {
+                if (musicStarted) {
+                    ytPlayer.playVideo();
+                }
+            },
+        },
+    });
+};
 
 function startMusic() {
     if (musicStarted) return;
     musicStarted = true;
-    const id = 'vPA6T0la6uI';
-    iframe.src = `https://www.youtube.com/embed/${id}?autoplay=1&controls=0&loop=1&playlist=${id}&rel=0`;
+    loadYouTubeAPI();
 }
+
+document.addEventListener('visibilitychange', () => {
+    if (!ytPlayer || !musicStarted) return;
+    if (document.hidden) {
+        ytPlayer.pauseVideo();
+    } else {
+        ytPlayer.playVideo();
+    }
+});
 
 // --- Interaction ---
 
