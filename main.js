@@ -20,7 +20,6 @@ const fragmentShaderSource = `
     precision highp float;
     uniform vec2  iResolution;
     uniform float iTime;
-    uniform vec4  iMouse;
 
     // ---- noise ----
     float hash(vec2 p) {
@@ -38,6 +37,15 @@ const fragmentShaderSource = `
         return v;
     }
 
+    // domain-warped fbm: feeds noise through noise so the result reads as
+    // continuously flowing plasma rather than a static speckled texture
+    float flow(vec2 p, float t) {
+        vec2 q = vec2(fbm(p - 0.6 * t), fbm(p + vec2(5.2, 1.3) + 0.5 * t));
+        vec2 r = vec2(fbm(p + 3.5 * q + vec2(1.7, 9.2) + 0.35 * t),
+                      fbm(p + 3.5 * q + vec2(8.3, 2.8) - 0.28 * t));
+        return fbm(p + 3.0 * r);
+    }
+
     // ---- accretion disk colour ----
     vec3 diskColor(float r, float phi, float t) {
         float rn = clamp((r - 1.5) / 4.5, 0.0, 1.0);
@@ -47,26 +55,26 @@ const fragmentShaderSource = `
         float omega    = 1.4 / pow(r, 1.5);
         float flowPhi  = phi - omega * t * 6.0;
 
-        float n1 = fbm(vec2(r * 1.6 - t * 0.3, flowPhi * 1.4));
-        float n2 = noise(vec2(r * 10.0, flowPhi * 5.0 + t * 0.8));
-        float n3 = fbm(vec2(r * 0.6 + flowPhi * 0.5, t * 0.05));
+        // smooth, continuously-flowing plasma turbulence (two scales)
+        float fl  = flow(vec2(r * 0.9,        flowPhi * 1.1), t);
+        float fl2 = flow(vec2(r * 2.4 - t * 0.2, flowPhi * 2.6), t * 0.6);
 
-        // blinding white-hot inner edge -> fiery copper -> deep ember -> void
-        vec3 cWhite  = vec3(1.05, 1.02, 0.96);
-        vec3 cCopper = vec3(1.00, 0.52, 0.20);
-        vec3 cEmber  = vec3(0.55, 0.12, 0.02);
-        vec3 cVoid   = vec3(0.05, 0.01, 0.01);
+        // whitish-yellow core -> golden orange -> deep amber -> void
+        vec3 cCore  = vec3(1.05, 1.00, 0.80);
+        vec3 cGold  = vec3(1.00, 0.74, 0.32);
+        vec3 cAmber = vec3(0.65, 0.30, 0.07);
+        vec3 cVoid  = vec3(0.04, 0.02, 0.01);
 
         vec3 c;
-        if (rn < 0.22)      c = mix(cWhite,  cCopper, rn / 0.22);
-        else if (rn < 0.6)  c = mix(cCopper, cEmber,  (rn - 0.22) / 0.38);
-        else                c = mix(cEmber,  cVoid,   (rn - 0.6) / 0.4);
+        if (rn < 0.25)      c = mix(cCore,  cGold,  rn / 0.25);
+        else if (rn < 0.65) c = mix(cGold,  cAmber, (rn - 0.25) / 0.4);
+        else                c = mix(cAmber, cVoid,  (rn - 0.65) / 0.35);
 
-        c *= 0.5 + 0.85 * n1 + 0.35 * n2 + 0.25 * n3;
+        c *= 0.55 + 0.7 * fl + 0.35 * fl2;
 
-        float bright = exp(-rn * 2.2) * 4.5;
+        float bright = exp(-rn * 2.2) * 3.0;
         // relativistic beaming: side rotating toward viewer glows brighter
-        float beam   = 1.0 + 0.85 * cos(phi - t * 0.05);
+        float beam   = 1.0 + 0.6 * cos(phi - t * 0.05);
         return max(c * bright * beam, vec3(0.0));
     }
 
@@ -74,12 +82,8 @@ const fragmentShaderSource = `
         vec2 uv = (gl_FragCoord.xy * 2.0 - iResolution.xy) / iResolution.y;
         float t  = iTime * 0.4;
 
-        // mouse: correct for the /2 applied in JS
-        float mx = iMouse.z > 0.0 ? clamp(iMouse.x * 2.0 / iResolution.x, 0.0, 1.0) : 0.5;
-        float my = iMouse.z > 0.0 ? clamp(iMouse.y * 2.0 / iResolution.y, 0.0, 1.0) : 0.5;
-
-        // camera slightly above equatorial plane; mouse tilts view
-        vec3 ro = vec3(0.0, 0.9 + (my - 0.5) * 1.0, 7.0);
+        // fixed camera, slightly above the equatorial plane
+        vec3 ro = vec3(0.0, 0.9, 7.0);
         vec3 ta = vec3(0.0, 0.05, 0.0);
         vec3 fw = normalize(ta - ro);
         vec3 rt = normalize(cross(fw, vec3(0, 1, 0)));
@@ -97,6 +101,7 @@ const fragmentShaderSource = `
         vec3  col      = vec3(0.0);
         float prevY    = pos.y;
         float minR     = 22.0;
+        int   hits     = 0;
         bool  absorbed = false;
 
         for (int i = 0; i < 200; i++) {
@@ -112,15 +117,19 @@ const fragmentShaderSource = `
             vec3  npos = pos + vel * dt;
             float rXZ  = length(npos.xz);
 
-            // detect crossing of equatorial disk plane (y = 0)
-            if (prevY * npos.y < 0.0 && rXZ > diskIn && rXZ < diskOut) {
+            // detect crossing of the equatorial disk plane (y = 0). Cap at two
+            // hits — the direct near-side image and the lensed far-side image —
+            // so rays that spiral near the photon sphere don't cross the plane
+            // repeatedly and blow the picture out to white/pink.
+            if (hits < 2 && prevY * npos.y < 0.0 && rXZ > diskIn && rXZ < diskOut) {
                 float frac = prevY / (prevY - npos.y);
                 vec3  hit  = pos + vel * dt * frac;
                 float phi  = atan(hit.z, hit.x);
                 float hitR = length(hit.xz);
-                // back side of disk (lensed over the top) is slightly dimmer
-                float vis  = (i < 60) ? 1.0 : 0.5;
+                // the lensed far-side image (reached later in the march) is dimmer
+                float vis  = (hits == 0) ? 1.0 : 0.55;
                 col += diskColor(hitR, phi, t) * vis;
+                hits++;
             }
 
             prevY = npos.y;
@@ -133,22 +142,10 @@ const fragmentShaderSource = `
             // photon-ring glow: light grazing the photon sphere piles up into
             // a thin, brilliant rim tracing the silhouette
             float ringDist = abs(minR - rs * 1.5);
-            col += vec3(1.0, 0.85, 0.65) * exp(-ringDist * ringDist * 14.0) * 1.4;
+            col += vec3(1.0, 0.92, 0.72) * exp(-ringDist * ringDist * 14.0) * 1.4;
 
-            // deep-space background: faint nebula + stars
-            vec2 bg = vec2(atan(rd.z, rd.x), asin(clamp(rd.y, -1.0, 1.0)));
-            float n  = fbm(bg * 2.5 + 0.015 * t);
-            float n2 = fbm(bg * 7.0 - 0.025 * t);
-            vec3 sky = vec3(0.004, 0.008, 0.035)
-                     + vec3(0.03,  0.01,  0.08 ) * n
-                     + vec3(0.06,  0.02,  0.14 ) * n2;
-
-            // sparse stars
-            vec2  sc = floor(bg * 280.0);
-            float s  = hash(sc);
-            if (s > 0.995) sky += vec3(0.85, 0.9, 1.0) * (s - 0.995) * 200.0;
-
-            col += sky;
+            // plain deep-space void — keeps focus on the black hole itself
+            col += vec3(0.004, 0.005, 0.012);
         }
 
         // tone map + gamma
@@ -186,7 +183,6 @@ if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
 const positionLocation = gl.getAttribLocation(program, 'position');
 const resolutionLocation = gl.getUniformLocation(program, 'iResolution');
 const timeLocation = gl.getUniformLocation(program, 'iTime');
-const mouseLocation = gl.getUniformLocation(program, 'iMouse');
 
 const positionBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -198,17 +194,6 @@ gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
 ]), gl.STATIC_DRAW);
 
 let startTime = Date.now();
-let mouse = [0, 0, 0, 0];
-
-canvas.addEventListener('mousemove', (e) => {
-    mouse[0] = e.clientX / 2;
-    mouse[1] = (canvas.height - e.clientY) / 2;
-    mouse[2] = 1;
-});
-
-canvas.addEventListener('mouseleave', () => {
-    mouse[2] = 0;
-});
 
 // --- Music (Interstellar Main Theme via YouTube) ---
 
@@ -262,7 +247,6 @@ function render() {
 
     gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
     gl.uniform1f(timeLocation, time);
-    gl.uniform4f(mouseLocation, mouse[0], mouse[1], mouse[2], mouse[3]);
 
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
