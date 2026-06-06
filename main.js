@@ -93,9 +93,9 @@ const fragmentShaderSource = `
         // separated cleanly by the band
         float yPos   = mix(pr.y, c.y, 0.25);
         float band   = exp(-pow(yPos * 4.4, 2.0));
-        float extent = exp(-pow(pr.x * 0.95, 2.0));
-        float ray    = band * extent * (0.85 + 0.18 * sin(iTime * 0.35));
-        O.rgb += vec3(1.1, 0.98, 0.84) * ray;
+        float extent = exp(-pow(pr.x * 0.7, 2.0));
+        float ray    = band * extent * (1.05 + 0.2 * sin(iTime * 0.35));
+        O.rgb += vec3(1.2, 1.06, 0.9) * ray;
 
         gl_FragColor = O;
     }
