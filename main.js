@@ -61,29 +61,35 @@ const fragmentShaderSource = `
         // Collapse the procedural glow to luminance and rebuild its colour
         // from a controlled warm ramp — this keeps the flowing structure but
         // removes the stray green/red the raw per-channel output produced.
-        // Blinding white-hot near the glow's inner edge, softening outward
-        // into a translucent, fluid blend of creamy / orange / white.
-        float lum      = dot(O.rgb, vec3(0.299, 0.587, 0.114));
-        float innerMix = 1.0 - smoothstep(0.35, 0.95, radial);
-        vec3  cInner   = vec3(1.25, 1.18, 1.05);
-        vec3  cOuter   = vec3(1.00, 0.78, 0.55);
-        O.rgb = mix(cOuter, cInner, innerMix) * lum
-              + cInner * pow(innerMix, 6.0) * 0.8;
+        // The blinding white-hot flash now belongs to the glowing ring itself
+        // (around radial ≈ 0.7, where the base shader already concentrates
+        // its brightness); elsewhere it settles into a soft creamy orange.
+        float lum     = dot(O.rgb, vec3(0.299, 0.587, 0.114));
+        float ringMix = exp(-pow((radial - 0.7) * 3.2, 2.0));
+        vec3  cBlind  = vec3(1.30, 1.27, 1.18);
+        vec3  cWarm   = vec3(1.00, 0.78, 0.55);
+        O.rgb = mix(cWarm, cBlind, ringMix) * lum
+              + cBlind * pow(ringMix, 3.0) * 0.9;
         O.rgb *= mix(1.0, 0.5, smoothstep(0.8, 1.7, radial));
+
+        // soft rays drifting slowly around the bright ring
+        float spokes = pow(abs(sin(atan(pr.y, pr.x) * 14.0 + iTime * 0.12)), 6.0);
+        O.rgb += cBlind * spokes * ringMix * 0.16;
 
         // dark silhouette at the very centre
         float shadow = smoothstep(0.15, 0.34, radial);
         O.rgb *= shadow;
 
-        // a flowing ray through the centre: confined to a finite stretch so
-        // it ends well short of the screen edges, and narrow enough that the
-        // silhouette's upper and lower portions stay dark — reading as two
-        // separate glowing semicircles either side of the bright band
+        // a flowing ray through the centre — noticeably dimmer than the
+        // ring's blinding glow, confined to a finite stretch so it ends
+        // short of the screen edges, and narrow enough that the silhouette's
+        // top and bottom stay dark — reading as two clear semicircles
+        // separated cleanly by the band
         float yPos   = mix(pr.y, c.y, 0.25);
         float band   = exp(-pow(yPos * 5.0, 2.0));
         float extent = exp(-pow(pr.x * 0.95, 2.0));
-        float ray    = band * extent * (0.9 + 0.15 * sin(iTime * 0.35));
-        O.rgb += vec3(1.2, 1.05, 0.8) * ray;
+        float ray    = band * extent * (0.55 + 0.12 * sin(iTime * 0.35));
+        O.rgb += vec3(1.0, 0.9, 0.78) * ray;
 
         gl_FragColor = O;
     }
