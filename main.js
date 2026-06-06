@@ -18,47 +18,127 @@ const vertexShaderSource = `
 
 const fragmentShaderSource = `
     precision highp float;
-    uniform vec2 iResolution;
+    uniform vec2  iResolution;
     uniform float iTime;
-    uniform vec4 iMouse;
+    uniform vec4  iMouse;
+
+    // ---- noise ----
+    float hash(vec2 p) {
+        return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+    }
+    float noise(vec2 p) {
+        vec2 i = floor(p), f = fract(p);
+        f = f * f * (3.0 - 2.0 * f);
+        return mix(mix(hash(i), hash(i+vec2(1,0)), f.x),
+                   mix(hash(i+vec2(0,1)), hash(i+vec2(1,1)), f.x), f.y);
+    }
+    float fbm(vec2 p) {
+        float v = 0.0, a = 0.5;
+        for (int i = 0; i < 3; i++) { v += a * noise(p); p *= 2.1; a *= 0.5; }
+        return v;
+    }
+
+    // ---- accretion disk colour ----
+    vec3 diskColor(float r, float phi, float t) {
+        float rn = clamp((r - 1.5) / 4.5, 0.0, 1.0);
+
+        float n1 = fbm(vec2(r * 2.0 - t * 0.35, phi * 0.8 + t * 0.08));
+        float n2 = noise(vec2(r * 9.0 + t * 0.6,  phi * 3.0 - t * 0.2));
+
+        // hot white-gold -> orange -> dark red
+        vec3 cA = vec3(1.00, 0.92, 0.78);
+        vec3 cB = vec3(1.00, 0.46, 0.05);
+        vec3 cC = vec3(0.50, 0.06, 0.01);
+        vec3 c  = rn < 0.35
+            ? mix(cA, cB, rn / 0.35)
+            : mix(cB, cC, (rn - 0.35) / 0.65);
+
+        c *= 0.55 + 0.75 * n1 + 0.3 * n2;
+
+        float bright = exp(-rn * 1.8) * 3.5;
+        // relativistic beaming: side rotating toward viewer glows brighter
+        float beam   = 1.0 + 0.75 * cos(phi - t * 0.04);
+        return max(c * bright * beam, vec3(0.0));
+    }
 
     void main() {
-        vec2 F = gl_FragCoord.xy;
-        vec4 O;
+        vec2 uv = (gl_FragCoord.xy * 2.0 - iResolution.xy) / iResolution.y;
+        float t  = iTime * 0.4;
 
-        vec2 p = (F*2. - iResolution.xy) / (iResolution.x * 0.4);
+        // mouse: correct for the /2 applied in JS
+        float mx = iMouse.z > 0.0 ? clamp(iMouse.x * 2.0 / iResolution.x, 0.0, 1.0) : 0.5;
+        float my = iMouse.z > 0.0 ? clamp(iMouse.y * 2.0 / iResolution.y, 0.0, 1.0) : 0.5;
 
-        float mx = iMouse.z > 0.0 ? (iMouse.x / iResolution.x) : 0.5;
-        float my = iMouse.z > 0.0 ? (iMouse.y / iResolution.y) : 0.5;
-        float yRange = mix(0.9, 1.1, my);
-        float xRange = mix(0.9, 1.1, mx);
+        // camera slightly above equatorial plane; mouse tilts view
+        vec3 ro = vec3(0.0, 0.9 + (my - 0.5) * 1.0, 7.0);
+        vec3 ta = vec3(0.0, 0.05, 0.0);
+        vec3 fw = normalize(ta - ro);
+        vec3 rt = normalize(cross(fw, vec3(0, 1, 0)));
+        vec3 up = cross(rt, fw);
+        vec3 rd = normalize(fw + uv.x * rt + uv.y * up);
 
-        float angle = mix(-0.05, 0.05, mx);
-        float ca = cos(angle);
-        float sa = sin(angle);
-        mat2 R = mat2(ca, -sa, sa, ca);
+        // ---- ray march through curved spacetime ----
+        vec3  pos      = ro;
+        vec3  vel      = rd;
+        float dt       = 0.07;
+        float rs       = 1.0;   // Schwarzschild radius
+        float diskIn   = 1.5;
+        float diskOut  = 6.0;
 
-        vec2 pr = p;
-        vec2 d = vec2(0.0, 1.0);
-        vec2 c = pr * mat2(1., 1., d / (.1 + 5. / dot(5.*pr - d, 5.*pr - d)));
-        vec2 v = c;
-        v *= mat2(cos(log(length(v)) + iTime*.2 + vec4(0,33,11,0))) * 5.;
+        vec3  col      = vec3(0.0);
+        float prevY    = pos.y;
+        bool  absorbed = false;
 
-        vec4 o = vec4(0.0);
-        for (float i = 1.0; i < 10.0; i++) {
-            o += sin(v.xyyx) + yRange;
-            v += .7 * sin(v.yx * i + iTime) / i + .5;
+        for (int i = 0; i < 200; i++) {
+            float r = length(pos);
+            if (r < rs)    { absorbed = true; break; }
+            if (r > 22.0)  { break; }
+
+            // gravity bends the ray toward the black hole
+            vel += -normalize(pos) * (1.5 * rs / (r * r)) * dt;
+
+            vec3  npos = pos + vel * dt;
+            float rXZ  = length(npos.xz);
+
+            // detect crossing of equatorial disk plane (y = 0)
+            if (prevY * npos.y < 0.0 && rXZ > diskIn && rXZ < diskOut) {
+                float frac = prevY / (prevY - npos.y);
+                vec3  hit  = pos + vel * dt * frac;
+                float phi  = atan(hit.z, hit.x);
+                float hitR = length(hit.xz);
+                // back side of disk (lensed over the top) is slightly dimmer
+                float vis  = (i < 60) ? 1.0 : 0.5;
+                col += diskColor(hitR, phi, t) * vis;
+            }
+
+            prevY = npos.y;
+            pos   = npos;
         }
 
-        float radial = length(pr);
-        O = 1. - exp(
-            -exp(vec4(-.6,-.4,0.5,0)) / o
-            / (.1 + .1 * pow(length(sin(v/.3)*.2 + c*vec2(1,2)) - 1., 2.))
-            / (1. * xRange + 5. * exp(.3*c.y - dot(c,c)))
-            / (.03 + abs(radial - .7)) * .2
-        );
+        if (absorbed) {
+            col = vec3(0.0);
+        } else {
+            // deep-space background: faint nebula + stars
+            vec2 bg = vec2(atan(rd.z, rd.x), asin(clamp(rd.y, -1.0, 1.0)));
+            float n  = fbm(bg * 2.5 + 0.015 * t);
+            float n2 = fbm(bg * 7.0 - 0.025 * t);
+            vec3 sky = vec3(0.004, 0.008, 0.035)
+                     + vec3(0.03,  0.01,  0.08 ) * n
+                     + vec3(0.06,  0.02,  0.14 ) * n2;
 
-        gl_FragColor = O;
+            // sparse stars
+            vec2  sc = floor(bg * 280.0);
+            float s  = hash(sc);
+            if (s > 0.995) sky += vec3(0.85, 0.9, 1.0) * (s - 0.995) * 200.0;
+
+            col += sky;
+        }
+
+        // tone map + gamma
+        col = 1.0 - exp(-col * 0.85);
+        col = pow(max(col, 0.0), vec3(1.0 / 2.2));
+
+        gl_FragColor = vec4(col, 1.0);
     }
 `;
 
