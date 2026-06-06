@@ -64,13 +64,8 @@ const fragmentShaderSource = `
         // The blinding white-hot flash now belongs to the glowing ring itself
         // (around radial ≈ 0.7, where the base shader already concentrates
         // its brightness); elsewhere it settles into a soft creamy orange.
-        float lum        = dot(O.rgb, vec3(0.299, 0.587, 0.114));
-        // the ring isn't a perfect circle — its left and right sides draw
-        // outward into points reaching toward the central ray
-        float ringAngle  = atan(pr.y, pr.x);
-        float horizPoint = pow(abs(cos(ringAngle)), 8.0);
-        float ringRadius = 0.7 + horizPoint * 0.16;
-        float ringMix    = exp(-pow((radial - ringRadius) * 3.2, 2.0));
+        float lum     = dot(O.rgb, vec3(0.299, 0.587, 0.114));
+        float ringMix = exp(-pow((radial - 0.7) * 3.2, 2.0));
         vec3  cBlind  = vec3(1.30, 1.27, 1.18);
         vec3  cWarm   = vec3(1.00, 0.78, 0.55);
         O.rgb = mix(cWarm, cBlind, ringMix) * lum
@@ -99,8 +94,8 @@ const fragmentShaderSource = `
         float yPos   = mix(pr.y, c.y, 0.25);
         float band   = exp(-pow(yPos * 4.4, 2.0));
         float extent = exp(-pow(pr.x * 0.95, 2.0));
-        float ray    = band * extent * (0.78 + 0.16 * sin(iTime * 0.35));
-        O.rgb += vec3(1.08, 0.96, 0.82) * ray;
+        float ray    = band * extent * (0.85 + 0.18 * sin(iTime * 0.35));
+        O.rgb += vec3(1.1, 0.98, 0.84) * ray;
 
         gl_FragColor = O;
     }
