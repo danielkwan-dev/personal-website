@@ -72,8 +72,14 @@ const fragmentShaderSource = `
               + cBlind * pow(ringMix, 3.0) * 0.9;
         O.rgb *= mix(1.0, 0.5, smoothstep(0.8, 1.7, radial));
 
-        // soft rays drifting slowly around the bright ring
-        float spokes = pow(abs(sin(atan(pr.y, pr.x) * 14.0 + iTime * 0.12)), 6.0);
+        // soft rays around the bright ring — angle is taken from the same
+        // warped coordinate field (and nudged by the turbulence already
+        // driving the nebula) so the rays bend, swirl and drift with the
+        // flow instead of sitting as a rigid, rotating overlay
+        float ang     = atan(c.y, c.x);
+        float spokesA = pow(abs(sin(ang * 9.0  + v.x * 0.35 + iTime * 0.22)), 5.0);
+        float spokesB = pow(abs(sin(ang * 16.0 - v.y * 0.30 - iTime * 0.15)), 7.0);
+        float spokes  = spokesA * 0.65 + spokesB * 0.45;
         O.rgb += cBlind * spokes * ringMix * 0.16;
 
         // dark silhouette at the very centre
@@ -157,12 +163,16 @@ function startMusic() {
     musicStarted = true;
     // Setting src inside a click handler satisfies browser autoplay policy
     iframe.src = `https://www.youtube.com/embed/${VIDEO_ID}?autoplay=1&controls=0&loop=1&playlist=${VIDEO_ID}&rel=0&enablejsapi=1`;
+    // push the player to full volume once it's ready to accept commands
+    // (sent twice — the embedded player can take a moment to spin up)
+    setTimeout(() => sendCommand('setVolume', [100]), 1000);
+    setTimeout(() => sendCommand('setVolume', [100]), 3000);
 }
 
-function sendCommand(func) {
+function sendCommand(func, args = []) {
     if (!iframe.contentWindow) return;
     iframe.contentWindow.postMessage(
-        JSON.stringify({ event: 'command', func, args: [] }),
+        JSON.stringify({ event: 'command', func, args }),
         '*'
     );
 }
