@@ -18,147 +18,53 @@ const vertexShaderSource = `
 
 const fragmentShaderSource = `
     precision highp float;
-    uniform vec2  iResolution;
+    uniform vec2 iResolution;
     uniform float iTime;
-
-    // ---- noise ----
-    float hash(vec2 p) {
-        return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
-    }
-    float noise(vec2 p) {
-        vec2 i = floor(p), f = fract(p);
-        f = f * f * (3.0 - 2.0 * f);
-        return mix(mix(hash(i), hash(i+vec2(1,0)), f.x),
-                   mix(hash(i+vec2(0,1)), hash(i+vec2(1,1)), f.x), f.y);
-    }
-    float fbm(vec2 p) {
-        float v = 0.0, a = 0.5;
-        for (int i = 0; i < 3; i++) { v += a * noise(p); p *= 2.1; a *= 0.5; }
-        return v;
-    }
-
-    // domain-warped fbm: feeds noise through noise so the result reads as
-    // continuously flowing plasma rather than a static speckled texture
-    float flow(vec2 p, float t) {
-        vec2 q = vec2(fbm(p - 0.6 * t), fbm(p + vec2(5.2, 1.3) + 0.5 * t));
-        vec2 r = vec2(fbm(p + 3.5 * q + vec2(1.7, 9.2) + 0.35 * t),
-                      fbm(p + 3.5 * q + vec2(8.3, 2.8) - 0.28 * t));
-        return fbm(p + 3.0 * r);
-    }
-
-    // ---- accretion disk colour ----
-    vec3 diskColor(float r, float phi, float t) {
-        float rn = clamp((r - 1.5) / 4.5, 0.0, 1.0);
-
-        // Keplerian shear: inner gas swirls faster than outer gas, giving the
-        // turbulence an organic, advected flow rather than a rigid spin
-        float omega    = 1.4 / pow(r, 1.5);
-        float flowPhi  = phi - omega * t * 6.0;
-
-        // smooth, continuously-flowing plasma turbulence (two scales)
-        float fl  = flow(vec2(r * 0.9,        flowPhi * 1.1), t);
-        float fl2 = flow(vec2(r * 2.4 - t * 0.2, flowPhi * 2.6), t * 0.6);
-
-        // whitish-yellow core -> golden orange -> deep amber -> void
-        vec3 cCore  = vec3(1.05, 1.00, 0.80);
-        vec3 cGold  = vec3(1.00, 0.74, 0.32);
-        vec3 cAmber = vec3(0.65, 0.30, 0.07);
-        vec3 cVoid  = vec3(0.04, 0.02, 0.01);
-
-        vec3 c;
-        if (rn < 0.25)      c = mix(cCore,  cGold,  rn / 0.25);
-        else if (rn < 0.65) c = mix(cGold,  cAmber, (rn - 0.25) / 0.4);
-        else                c = mix(cAmber, cVoid,  (rn - 0.65) / 0.35);
-
-        c *= 0.55 + 0.7 * fl + 0.35 * fl2;
-
-        float bright = exp(-rn * 2.2) * 3.0;
-        // relativistic beaming: side rotating toward viewer glows brighter
-        float beam   = 1.0 + 0.6 * cos(phi - t * 0.05);
-        return max(c * bright * beam, vec3(0.0));
-    }
+    uniform vec4 iMouse;
 
     void main() {
-        vec2 uv = (gl_FragCoord.xy * 2.0 - iResolution.xy) / iResolution.y;
-        float t  = iTime * 0.4;
+        vec2 F = gl_FragCoord.xy;
+        vec4 O;
 
-        // fixed camera, slightly above the equatorial plane
-        vec3 ro = vec3(0.0, 0.9, 7.0);
-        vec3 ta = vec3(0.0, 0.05, 0.0);
-        vec3 fw = normalize(ta - ro);
-        vec3 rt = normalize(cross(fw, vec3(0, 1, 0)));
-        vec3 up = cross(rt, fw);
-        vec3 rd = normalize(fw + uv.x * rt + uv.y * up);
+        vec2 p = (F*2. - iResolution.xy) / (iResolution.x * 0.4);
 
-        // ---- ray march through curved spacetime ----
-        vec3  pos      = ro;
-        vec3  vel      = rd;
-        float dt       = 0.07;
-        float rs       = 1.0;   // Schwarzschild radius
-        float diskIn   = 1.5;
-        float diskOut  = 6.0;
+        float mx = iMouse.z > 0.0 ? (iMouse.x / iResolution.x) : 0.5;
+        float my = iMouse.z > 0.0 ? (iMouse.y / iResolution.y) : 0.5;
+        float yRange = mix(0.9, 1.1, my);
+        float xRange = mix(0.9, 1.1, mx);
 
-        vec3  col      = vec3(0.0);
-        float prevY    = pos.y;
-        float minR     = 22.0;
-        int   hits     = 0;
-        bool  absorbed = false;
+        float angle = mix(-0.05, 0.05, mx);
+        float ca = cos(angle);
+        float sa = sin(angle);
+        mat2 R = mat2(ca, -sa, sa, ca);
 
-        for (int i = 0; i < 200; i++) {
-            float r = length(pos);
-            minR = min(minR, r);
-            if (r < rs)    { absorbed = true; break; }
-            if (r > 22.0)  { break; }
+        vec2 pr = p;
+        vec2 d = vec2(0.0, 1.0);
+        vec2 c = pr * mat2(1., 1., d / (.1 + 5. / dot(5.*pr - d, 5.*pr - d)));
+        vec2 v = c;
+        v *= mat2(cos(log(length(v)) + iTime*.2 + vec4(0,33,11,0))) * 5.;
 
-            // gravity bends the ray toward the black hole — strong enough that
-            // light from the far side of the disk wraps up and over the shadow
-            vel += -normalize(pos) * (2.2 * rs / (r * r)) * dt;
-
-            vec3  npos = pos + vel * dt;
-            float rXZ  = length(npos.xz);
-
-            // detect crossing of the equatorial disk plane (y = 0). Cap at two
-            // hits — the direct near-side image and the lensed far-side image —
-            // so rays that spiral near the photon sphere don't cross the plane
-            // repeatedly and blow the picture out to white/pink.
-            if (hits < 2 && prevY * npos.y < 0.0 && rXZ > diskIn && rXZ < diskOut) {
-                float frac = prevY / (prevY - npos.y);
-                vec3  hit  = pos + vel * dt * frac;
-                float phi  = atan(hit.z, hit.x);
-                float hitR = length(hit.xz);
-                // the lensed far-side image (reached later in the march) is dimmer
-                float vis  = (hits == 0) ? 1.0 : 0.55;
-                col += diskColor(hitR, phi, t) * vis;
-                hits++;
-            }
-
-            prevY = npos.y;
-            pos   = npos;
+        vec4 o = vec4(0.0);
+        for (float i = 1.0; i < 10.0; i++) {
+            o += sin(v.xyyx) + yRange;
+            v += .7 * sin(v.yx * i + iTime) / i + .5;
         }
 
-        // soft aura: glow tied to how close each ray's closest approach came
-        // to the photon sphere. It peaks just outside the silhouette and fades
-        // smoothly on both sides, so the boundary reads as radiance bleeding
-        // outward and inward — an aura — rather than a crisp geometric ring.
-        float edgeDist = abs(minR - rs * 1.45);
-        float auraCore = exp(-edgeDist * edgeDist * 9.0);
-        float auraHalo = exp(-edgeDist * edgeDist * 1.8) * 0.55;
-        vec3  aura     = vec3(1.0, 0.9, 0.7) * (auraCore * 1.3 + auraHalo);
+        float radial = length(pr);
+        O = 1. - exp(
+            -exp(vec4(0.0,-0.25,-1.1,0)) / o
+            / (.1 + .1 * pow(length(sin(v/.3)*.2 + c*vec2(1,2)) - 1., 2.))
+            / (1. * xRange + 5. * exp(.3*c.y - dot(c,c)))
+            / (.03 + abs(radial - .7)) * .2
+        );
 
-        if (absorbed) {
-            // glow bleeds softly into the shadow, fading to true black at its core
-            col = aura * 0.7;
-        } else {
-            col += aura;
-            // plain deep-space void — keeps focus on the black hole itself
-            col += vec3(0.004, 0.005, 0.012);
-        }
+        // a bright, flowing ray through the centre of the glow ring — riding
+        // the same warped coordinate field as the nebula so it bends and
+        // drifts with it, splitting the ring into two arcing semicircles
+        float ray = exp(-pow(c.y * 2.6, 2.0)) * (0.5 + 0.25 * sin(iTime * 0.35));
+        O.rgb += vec3(1.05, 0.92, 0.72) * ray;
 
-        // tone map + gamma
-        col = 1.0 - exp(-col * 0.85);
-        col = pow(max(col, 0.0), vec3(1.0 / 2.2));
-
-        gl_FragColor = vec4(col, 1.0);
+        gl_FragColor = O;
     }
 `;
 
@@ -189,6 +95,7 @@ if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
 const positionLocation = gl.getAttribLocation(program, 'position');
 const resolutionLocation = gl.getUniformLocation(program, 'iResolution');
 const timeLocation = gl.getUniformLocation(program, 'iTime');
+const mouseLocation = gl.getUniformLocation(program, 'iMouse');
 
 const positionBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -200,6 +107,17 @@ gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
 ]), gl.STATIC_DRAW);
 
 let startTime = Date.now();
+let mouse = [0, 0, 0, 0];
+
+canvas.addEventListener('mousemove', (e) => {
+    mouse[0] = e.clientX / 2;
+    mouse[1] = (canvas.height - e.clientY) / 2;
+    mouse[2] = 1;
+});
+
+canvas.addEventListener('mouseleave', () => {
+    mouse[2] = 0;
+});
 
 // --- Music (Interstellar Main Theme via YouTube) ---
 
@@ -253,6 +171,7 @@ function render() {
 
     gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
     gl.uniform1f(timeLocation, time);
+    gl.uniform4f(mouseLocation, mouse[0], mouse[1], mouse[2], mouse[3]);
 
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
