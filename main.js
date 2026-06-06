@@ -42,22 +42,31 @@ const fragmentShaderSource = `
     vec3 diskColor(float r, float phi, float t) {
         float rn = clamp((r - 1.5) / 4.5, 0.0, 1.0);
 
-        float n1 = fbm(vec2(r * 2.0 - t * 0.35, phi * 0.8 + t * 0.08));
-        float n2 = noise(vec2(r * 9.0 + t * 0.6,  phi * 3.0 - t * 0.2));
+        // Keplerian shear: inner gas swirls faster than outer gas, giving the
+        // turbulence an organic, advected flow rather than a rigid spin
+        float omega    = 1.4 / pow(r, 1.5);
+        float flowPhi  = phi - omega * t * 6.0;
 
-        // hot white-gold -> orange -> dark red
-        vec3 cA = vec3(1.00, 0.92, 0.78);
-        vec3 cB = vec3(1.00, 0.46, 0.05);
-        vec3 cC = vec3(0.50, 0.06, 0.01);
-        vec3 c  = rn < 0.35
-            ? mix(cA, cB, rn / 0.35)
-            : mix(cB, cC, (rn - 0.35) / 0.65);
+        float n1 = fbm(vec2(r * 1.6 - t * 0.3, flowPhi * 1.4));
+        float n2 = noise(vec2(r * 10.0, flowPhi * 5.0 + t * 0.8));
+        float n3 = fbm(vec2(r * 0.6 + flowPhi * 0.5, t * 0.05));
 
-        c *= 0.55 + 0.75 * n1 + 0.3 * n2;
+        // blinding white-hot inner edge -> fiery copper -> deep ember -> void
+        vec3 cWhite  = vec3(1.05, 1.02, 0.96);
+        vec3 cCopper = vec3(1.00, 0.52, 0.20);
+        vec3 cEmber  = vec3(0.55, 0.12, 0.02);
+        vec3 cVoid   = vec3(0.05, 0.01, 0.01);
 
-        float bright = exp(-rn * 1.8) * 3.5;
+        vec3 c;
+        if (rn < 0.22)      c = mix(cWhite,  cCopper, rn / 0.22);
+        else if (rn < 0.6)  c = mix(cCopper, cEmber,  (rn - 0.22) / 0.38);
+        else                c = mix(cEmber,  cVoid,   (rn - 0.6) / 0.4);
+
+        c *= 0.5 + 0.85 * n1 + 0.35 * n2 + 0.25 * n3;
+
+        float bright = exp(-rn * 2.2) * 4.5;
         // relativistic beaming: side rotating toward viewer glows brighter
-        float beam   = 1.0 + 0.75 * cos(phi - t * 0.04);
+        float beam   = 1.0 + 0.85 * cos(phi - t * 0.05);
         return max(c * bright * beam, vec3(0.0));
     }
 
@@ -87,15 +96,18 @@ const fragmentShaderSource = `
 
         vec3  col      = vec3(0.0);
         float prevY    = pos.y;
+        float minR     = 22.0;
         bool  absorbed = false;
 
         for (int i = 0; i < 200; i++) {
             float r = length(pos);
+            minR = min(minR, r);
             if (r < rs)    { absorbed = true; break; }
             if (r > 22.0)  { break; }
 
-            // gravity bends the ray toward the black hole
-            vel += -normalize(pos) * (1.5 * rs / (r * r)) * dt;
+            // gravity bends the ray toward the black hole — strong enough that
+            // light from the far side of the disk wraps up and over the shadow
+            vel += -normalize(pos) * (2.2 * rs / (r * r)) * dt;
 
             vec3  npos = pos + vel * dt;
             float rXZ  = length(npos.xz);
@@ -118,6 +130,11 @@ const fragmentShaderSource = `
         if (absorbed) {
             col = vec3(0.0);
         } else {
+            // photon-ring glow: light grazing the photon sphere piles up into
+            // a thin, brilliant rim tracing the silhouette
+            float ringDist = abs(minR - rs * 1.5);
+            col += vec3(1.0, 0.85, 0.65) * exp(-ringDist * ringDist * 14.0) * 1.4;
+
             // deep-space background: faint nebula + stars
             vec2 bg = vec2(atan(rd.z, rd.x), asin(clamp(rd.y, -1.0, 1.0)));
             float n  = fbm(bg * 2.5 + 0.015 * t);
