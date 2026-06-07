@@ -187,11 +187,19 @@ document.addEventListener('visibilitychange', () => {
 const enterOverlay = document.getElementById('enter-overlay');
 
 enterOverlay.addEventListener('click', () => {
-    enterOverlay.classList.add('hidden');
+    if (enterOverlay.classList.contains('entering')) return;
+    enterOverlay.classList.add('entering');
     startMusic();
+
+    // the door's void rushes forward and fills the screen with black —
+    // once it has, reveal the scene behind it, then let the door fade away
     setTimeout(() => {
         document.body.classList.add('revealed');
-    }, 200);
+    }, 1300);
+
+    setTimeout(() => {
+        enterOverlay.classList.add('hidden');
+    }, 1700);
 });
 
 // --- Render loop ---
