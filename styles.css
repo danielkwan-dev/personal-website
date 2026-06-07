@@ -51,7 +51,7 @@ body.revealed .center-text {
     z-index: 2;
     text-align: center;
     color: white;
-    font-size: clamp(15px, 1.7vw, 18px);
+    font-size: 12px;
     letter-spacing: 0.3em;
     white-space: nowrap;
     pointer-events: none;
@@ -79,7 +79,7 @@ body.revealed .subtitle {
 .bottom-nav a {
     color: white;
     text-decoration: none;
-    font-size: 18px;
+    font-size: 12px;
     letter-spacing: 0.4em;
     font-weight: 400;
     opacity: 0.8;
@@ -307,7 +307,7 @@ body.revealed .curtain.bottom {
 
     .subtitle {
         bottom: 108px;
-        font-size: clamp(11px, 3vw, 14px);
+        font-size: clamp(9px, 2.6vw, 12px);
         letter-spacing: 0.2em;
     }
 
@@ -317,7 +317,7 @@ body.revealed .curtain.bottom {
     }
 
     .bottom-nav a {
-        font-size: clamp(11px, 3vw, 13px);
+        font-size: clamp(9px, 2.6vw, 11px);
         letter-spacing: 0.22em;
     }
 
