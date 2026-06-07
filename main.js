@@ -161,12 +161,28 @@ let musicStarted = false;
 function startMusic() {
     if (musicStarted) return;
     musicStarted = true;
-    // Setting src inside a click handler satisfies browser autoplay policy
-    iframe.src = `https://www.youtube.com/embed/${VIDEO_ID}?autoplay=1&controls=0&loop=1&playlist=${VIDEO_ID}&rel=0&enablejsapi=1`;
-    // push the player to full volume once it's ready to accept commands
-    // (sent twice — the embedded player can take a moment to spin up)
-    setTimeout(() => sendCommand('setVolume', [100]), 1000);
-    setTimeout(() => sendCommand('setVolume', [100]), 3000);
+    // Mobile browsers block autoplay with sound outright, but allow muted
+    // autoplay — so we start muted (which always succeeds) and then unmute
+    // a moment later, still riding on the same click gesture that began this.
+    // playsinline keeps iOS from hijacking the (hidden) player into fullscreen.
+    iframe.src = `https://www.youtube.com/embed/${VIDEO_ID}?autoplay=1&mute=1&playsinline=1&controls=0&loop=1&playlist=${VIDEO_ID}&rel=0&enablejsapi=1`;
+
+    const unlock = () => {
+        sendCommand('unMute');
+        sendCommand('setVolume', [100]);
+        sendCommand('playVideo');
+    };
+    // fire as soon as the player reports it's ready, with timed retries as
+    // a fallback for slower mobile connections where onReady arrives late
+    window.addEventListener('message', (e) => {
+        if (e.source !== iframe.contentWindow) return;
+        let data;
+        try { data = JSON.parse(e.data); } catch { return; }
+        if (data.event === 'onReady') unlock();
+    });
+    setTimeout(unlock, 800);
+    setTimeout(unlock, 2000);
+    setTimeout(unlock, 4000);
 }
 
 function sendCommand(func, args = []) {
