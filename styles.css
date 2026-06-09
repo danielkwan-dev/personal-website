@@ -295,9 +295,6 @@ body.revealed .curtain.bottom {
 
 #music {
     display: none;
-    width: 0;
-    height: 0;
-    border: none;
 }
 
 @media (max-width: 600px) {

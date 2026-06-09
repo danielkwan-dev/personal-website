@@ -152,46 +152,34 @@ canvas.addEventListener('mouseleave', () => {
     mouse[2] = 0;
 });
 
-// --- Music (Interstellar Main Theme via YouTube) ---
+// --- Music ---
 
-const VIDEO_ID = 'vPA6T0la6uI';
-const iframe = document.getElementById('music');
-let musicStarted = false;
+const audio = document.getElementById('music');
+audio.volume = 1;
 
-function startMusic() {
-    if (musicStarted) return;
-    musicStarted = true;
-    // playsinline keeps iOS from hijacking the hidden player into fullscreen
-    iframe.src = `https://www.youtube.com/embed/${VIDEO_ID}?autoplay=1&playsinline=1&controls=0&loop=1&playlist=${VIDEO_ID}&rel=0&enablejsapi=1`;
+// Try to play with sound immediately — works if the browser allows it
+// (returning visitors, high media engagement, or lenient browser).
+audio.play().catch(() => {
+    // Blocked (most common on first visit). Start muted so buffering
+    // begins, then unmute on the very first interaction — this feels
+    // instant since no explicit "click play" prompt is shown.
+    audio.muted = true;
+    audio.play().catch(() => {});
 
-    const ready = () => {
-        sendCommand('playVideo');
-        sendCommand('setVolume', [100]);
+    const unlock = () => {
+        audio.muted = false;
+        audio.play().catch(() => {});
+        ['click','touchstart','keydown','scroll','mousemove'].forEach(evt =>
+            document.removeEventListener(evt, unlock)
+        );
     };
-    // trigger on the player's own onReady signal, with timed retries as
-    // a fallback for slower connections where the signal arrives late
-    window.addEventListener('message', (e) => {
-        if (e.source !== iframe.contentWindow) return;
-        let data;
-        try { data = JSON.parse(e.data); } catch (err) { return; }
-        if (data.event === 'onReady') ready();
-    });
-    setTimeout(ready, 800);
-    setTimeout(ready, 2500);
-    setTimeout(ready, 5000);
-}
-
-function sendCommand(func, args = []) {
-    if (!iframe.contentWindow) return;
-    iframe.contentWindow.postMessage(
-        JSON.stringify({ event: 'command', func, args }),
-        '*'
+    ['click','touchstart','keydown','scroll','mousemove'].forEach(evt =>
+        document.addEventListener(evt, unlock, { once: true, passive: true })
     );
-}
+});
 
 document.addEventListener('visibilitychange', () => {
-    if (!musicStarted) return;
-    sendCommand(document.hidden ? 'pauseVideo' : 'playVideo');
+    document.hidden ? audio.pause() : audio.play().catch(() => {});
 });
 
 // --- Interaction ---
@@ -201,7 +189,6 @@ const enterOverlay = document.getElementById('enter-overlay');
 enterOverlay.addEventListener('click', () => {
     if (enterOverlay.classList.contains('entering')) return;
     enterOverlay.classList.add('entering');
-    startMusic();
 
     // the door's void rushes forward and fills the screen with black —
     // once it has, reveal the scene behind it, then let the door fade away
