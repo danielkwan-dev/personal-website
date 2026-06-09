@@ -161,28 +161,24 @@ let musicStarted = false;
 function startMusic() {
     if (musicStarted) return;
     musicStarted = true;
-    // Mobile browsers block autoplay with sound outright, but allow muted
-    // autoplay — so we start muted (which always succeeds) and then unmute
-    // a moment later, still riding on the same click gesture that began this.
-    // playsinline keeps iOS from hijacking the (hidden) player into fullscreen.
-    iframe.src = `https://www.youtube.com/embed/${VIDEO_ID}?autoplay=1&mute=1&playsinline=1&controls=0&loop=1&playlist=${VIDEO_ID}&rel=0&enablejsapi=1`;
+    // playsinline keeps iOS from hijacking the hidden player into fullscreen
+    iframe.src = `https://www.youtube.com/embed/${VIDEO_ID}?autoplay=1&playsinline=1&controls=0&loop=1&playlist=${VIDEO_ID}&rel=0&enablejsapi=1`;
 
-    const unlock = () => {
-        sendCommand('unMute');
-        sendCommand('setVolume', [100]);
+    const ready = () => {
         sendCommand('playVideo');
+        sendCommand('setVolume', [100]);
     };
-    // fire as soon as the player reports it's ready, with timed retries as
-    // a fallback for slower mobile connections where onReady arrives late
+    // trigger on the player's own onReady signal, with timed retries as
+    // a fallback for slower connections where the signal arrives late
     window.addEventListener('message', (e) => {
         if (e.source !== iframe.contentWindow) return;
         let data;
-        try { data = JSON.parse(e.data); } catch { return; }
-        if (data.event === 'onReady') unlock();
+        try { data = JSON.parse(e.data); } catch (err) { return; }
+        if (data.event === 'onReady') ready();
     });
-    setTimeout(unlock, 800);
-    setTimeout(unlock, 2000);
-    setTimeout(unlock, 4000);
+    setTimeout(ready, 800);
+    setTimeout(ready, 2500);
+    setTimeout(ready, 5000);
 }
 
 function sendCommand(func, args = []) {
