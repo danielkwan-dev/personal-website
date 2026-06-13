@@ -159,23 +159,11 @@ audio.volume = 1;
 
 // Try to play with sound immediately — works if the browser allows it
 // (returning visitors, high media engagement, or lenient browser).
+// If blocked (most common on first visit), start muted so buffering
+// begins, then unmute when the visitor clicks "enter".
 audio.play().catch(() => {
-    // Blocked (most common on first visit). Start muted so buffering
-    // begins, then unmute on the very first interaction — this feels
-    // instant since no explicit "click play" prompt is shown.
     audio.muted = true;
     audio.play().catch(() => {});
-
-    const unlock = () => {
-        audio.muted = false;
-        audio.play().catch(() => {});
-        ['click','touchstart','keydown','scroll','mousemove'].forEach(evt =>
-            document.removeEventListener(evt, unlock)
-        );
-    };
-    ['click','touchstart','keydown','scroll','mousemove'].forEach(evt =>
-        document.addEventListener(evt, unlock, { once: true, passive: true })
-    );
 });
 
 document.addEventListener('visibilitychange', () => {
@@ -187,6 +175,11 @@ document.addEventListener('visibilitychange', () => {
 const enterOverlay = document.getElementById('enter-overlay');
 
 enterOverlay.addEventListener('click', () => {
+    if (audio.muted) {
+        audio.muted = false;
+        audio.play().catch(() => {});
+    }
+
     if (enterOverlay.classList.contains('entering')) return;
     enterOverlay.classList.add('entering');
 
