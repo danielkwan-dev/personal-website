@@ -299,23 +299,25 @@ body.revealed .curtain.bottom {
 
 @media (max-width: 600px) {
     .center-text {
+        font-size: clamp(28px, 8vw, 50px);
         letter-spacing: 0.32em;
+        margin-left: 0.16em;
     }
 
     .subtitle {
-        bottom: 108px;
-        font-size: clamp(9px, 2.6vw, 12px);
+        bottom: 100px;
+        font-size: clamp(11px, 3vw, 13px);
         letter-spacing: 0.2em;
     }
 
     .bottom-nav {
-        bottom: 26px;
-        gap: clamp(14px, 4vw, 32px);
+        bottom: 32px;
+        gap: clamp(18px, 5.5vw, 40px);
     }
 
     .bottom-nav a {
-        font-size: clamp(9px, 2.6vw, 11px);
-        letter-spacing: 0.22em;
+        font-size: clamp(11px, 3vw, 13px);
+        letter-spacing: 0.25em;
     }
 
     .door {
