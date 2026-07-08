@@ -1,5 +1,4 @@
-# Daniel Kwan - Personal Website 
-[daniel.uwce.ca](https://daniel.uwce.ca)
+https://daniel.uwce.ca
 
 ## Contact
 - GitHub: [danielkwan-dev](https://github.com/danielkwan-dev)
