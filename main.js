@@ -187,12 +187,47 @@ enterOverlay.addEventListener('click', () => {
     // once it has, reveal the scene behind it, then let the door fade away
     setTimeout(() => {
         document.body.classList.add('revealed');
+        setTimeout(startTyping, 1400);
     }, 1300);
 
     setTimeout(() => {
         enterOverlay.classList.add('hidden');
     }, 1700);
 });
+
+// --- Subtitle typing effect ---
+
+function startTyping() {
+    const subtitle = document.querySelector('.subtitle');
+    const text = 'Computer Engineering @ uWaterloo';
+    const typeDelay = 65;
+    const eraseDelay = 35;
+    const pauseAfterType = 2000;
+    const pauseBeforeRetype = 400;
+    let i = 0;
+    let erasing = false;
+
+    function tick() {
+        if (!erasing) {
+            subtitle.textContent = text.slice(0, ++i);
+            if (i === text.length) {
+                setTimeout(() => { erasing = true; tick(); }, pauseAfterType);
+            } else {
+                setTimeout(tick, typeDelay);
+            }
+        } else {
+            subtitle.textContent = text.slice(0, --i);
+            if (i === 0) {
+                erasing = false;
+                setTimeout(tick, pauseBeforeRetype);
+            } else {
+                setTimeout(tick, eraseDelay);
+            }
+        }
+    }
+
+    tick();
+}
 
 // --- Render loop ---
 
