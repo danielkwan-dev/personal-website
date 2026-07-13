@@ -16,7 +16,7 @@ resize();
 window.addEventListener('resize', () => {
     resize();
     resizeStarfield();
-    drawStarfield(window.scrollY);
+    drawStarfield();
 });
 
 const vertexShaderSource = `
@@ -152,7 +152,7 @@ gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
 let startTime = Date.now();
 let mouse = [0, 0, 0, 0];
 
-// listen on window (content sections sit above the canvas, so the canvas
+// listen on window (the hero content sits above the canvas, so the canvas
 // itself no longer receives most pointer events); the /2 preserves the
 // original halved-influence range the shader was tuned against
 window.addEventListener('mousemove', (e) => {
@@ -165,7 +165,7 @@ document.addEventListener('mouseleave', () => {
     mouse[2] = 0;
 });
 
-// --- Starfield: sparse, static, two parallax depths ---
+// --- Starfield: sparse static backdrop, revealed while a view is open ---
 
 const starfield = document.getElementById('starfield');
 const sfCtx = starfield.getContext('2d');
@@ -178,58 +178,34 @@ function resizeStarfield() {
     sfCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     stars = [];
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 70; i++) {
         stars.push({
             x: Math.random() * window.innerWidth,
             y: Math.random() * window.innerHeight,
-            depth: 0.05,
-            size: 0.6 + Math.random() * 0.4,
-            alpha: 0.18 + Math.random() * 0.22
+            size: 0.6 + Math.random() * 0.5,
+            alpha: 0.18 + Math.random() * 0.25
         });
     }
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 25; i++) {
         stars.push({
             x: Math.random() * window.innerWidth,
             y: Math.random() * window.innerHeight,
-            depth: 0.12,
-            size: 1.0 + Math.random() * 0.6,
-            alpha: 0.32 + Math.random() * 0.3
+            size: 1.1 + Math.random() * 0.6,
+            alpha: 0.35 + Math.random() * 0.3
         });
     }
 }
 
-function drawStarfield(scrollY) {
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-    sfCtx.clearRect(0, 0, w, h);
+function drawStarfield() {
+    sfCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
     for (const s of stars) {
-        const y = ((s.y - scrollY * s.depth) % h + h) % h;
         sfCtx.fillStyle = 'rgba(232, 234, 242, ' + s.alpha + ')';
-        sfCtx.fillRect(s.x, y, s.size, s.size);
+        sfCtx.fillRect(s.x, s.y, s.size, s.size);
     }
 }
 
 resizeStarfield();
-drawStarfield(0);
-
-// --- Scroll: fade the black hole out as the visitor descends ---
-
-let shaderOpacity = 1;
-let scrollTicking = false;
-
-function onScroll() {
-    if (scrollTicking) return;
-    scrollTicking = true;
-    requestAnimationFrame(() => {
-        scrollTicking = false;
-        const y = window.scrollY;
-        shaderOpacity = Math.max(0, 1 - y / (window.innerHeight * 0.85));
-        canvas.style.opacity = shaderOpacity;
-        drawStarfield(y);
-    });
-}
-
-window.addEventListener('scroll', onScroll, { passive: true });
+drawStarfield();
 
 // --- Music ---
 
@@ -361,25 +337,89 @@ function startTyping() {
     tick();
 }
 
-// --- Scroll reveals: sections drift in like passing objects ---
+// --- Views: earth opens About, rocket opens Projects ---
 
-const observer = new IntersectionObserver((entries) => {
-    for (const entry of entries) {
-        if (entry.isIntersecting) {
-            entry.target.classList.add('in-view');
-            observer.unobserve(entry.target);
-        }
+const earthBtn = document.getElementById('earth-btn');
+const rocketBtn = document.getElementById('rocket-btn');
+
+const views = {
+    about: { view: document.getElementById('about-view'), button: earthBtn },
+    projects: { view: document.getElementById('projects-view'), button: rocketBtn }
+};
+
+let activeView = null;
+let shaderIdle = false;
+let shaderIdleTimer = null;
+
+function openView(name) {
+    if (activeView === name) return;
+
+    if (activeView) {
+        const prev = views[activeView];
+        prev.view.classList.remove('open');
+        prev.view.setAttribute('aria-hidden', 'true');
+        prev.button.classList.remove('active');
+        prev.button.setAttribute('aria-expanded', 'false');
     }
-}, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
 
-document.querySelectorAll('.drift-in').forEach((el) => observer.observe(el));
+    const next = views[name];
+    next.view.classList.add('open');
+    next.view.setAttribute('aria-hidden', 'false');
+    next.view.scrollTop = 0;
+    next.button.classList.add('active');
+    next.button.setAttribute('aria-expanded', 'true');
+    document.body.classList.add('view-open');
+    activeView = name;
+
+    next.view.querySelector('.view-inner').focus({ preventScroll: true });
+
+    // once the black hole has fully faded behind the view, stop drawing it
+    clearTimeout(shaderIdleTimer);
+    shaderIdle = false;
+    shaderIdleTimer = setTimeout(() => { shaderIdle = true; }, 900);
+}
+
+function closeView() {
+    if (!activeView) return;
+    const current = views[activeView];
+    current.view.classList.remove('open');
+    current.view.setAttribute('aria-hidden', 'true');
+    current.button.classList.remove('active');
+    current.button.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('view-open');
+
+    clearTimeout(shaderIdleTimer);
+    shaderIdle = false;
+
+    current.button.focus({ preventScroll: true });
+    activeView = null;
+}
+
+function toggleView(name) {
+    if (activeView === name) {
+        closeView();
+    } else {
+        openView(name);
+    }
+}
+
+earthBtn.addEventListener('click', () => toggleView('about'));
+rocketBtn.addEventListener('click', () => toggleView('projects'));
+
+document.querySelectorAll('[data-close]').forEach((btn) => {
+    btn.addEventListener('click', closeView);
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeView();
+});
 
 // --- Render loop ---
 
 function render() {
-    // skip the draw when the hero is scrolled away or the tab is hidden —
+    // skip the draw while a view hides the hero or the tab is hidden —
     // the shader is by far the most expensive thing on the page
-    if (shaderOpacity > 0.02 && !document.hidden) {
+    if (!shaderIdle && !document.hidden) {
         const time = (Date.now() - startTime) / 1000;
 
         gl.clear(gl.COLOR_BUFFER_BIT);
