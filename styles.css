@@ -341,10 +341,51 @@ body.revealed .corner-object {
 }
 
 .view-inner {
+    position: relative;
+    z-index: 1;
     max-width: 640px;
     margin: 0 auto;
     padding: 16vh 24px 12vh;
     outline: none;
+}
+
+/* a faint nebula wash gives the about view depth without clutter */
+#about-view::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 60% 45% at 72% 35%, rgba(27, 31, 58, 0.55), transparent 70%),
+        radial-gradient(ellipse 45% 38% at 18% 78%, rgba(27, 31, 58, 0.38), transparent 70%);
+    pointer-events: none;
+}
+
+/* a quiet orbital system turning behind the text */
+.about-bg {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.orbital {
+    position: absolute;
+    top: 50%;
+    right: -14vmin;
+    width: 74vmin;
+    height: 74vmin;
+    transform: translateY(-50%);
+    opacity: 0.55;
+}
+
+.orbital-spin {
+    transform-origin: 300px 300px;
+    animation: orbital-rotate 90s linear infinite;
+}
+
+@keyframes orbital-rotate {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
 }
 
 .section-label {
@@ -373,16 +414,63 @@ body.revealed .corner-object {
 .view.open .projects li:nth-child(4) { transition-delay: 0.3s; }
 .view.open .projects li:nth-child(5) { transition-delay: 0.4s; }
 
-.about-text {
-    margin: 0 0 24px;
+.view.open .view-inner > .drift-in:nth-child(2) { transition-delay: 0.08s; }
+.view.open .view-inner > .drift-in:nth-child(3) { transition-delay: 0.16s; }
+.view.open .view-inner > .drift-in:nth-child(4) { transition-delay: 0.24s; }
+.view.open .view-inner > .drift-in:nth-child(5) { transition-delay: 0.32s; }
+.view.open .view-inner > .drift-in:nth-child(6) { transition-delay: 0.4s; }
+
+.about-lead {
+    margin: 0 0 20px;
     font-weight: 300;
-    font-size: 15px;
-    line-height: 1.8;
+    font-size: clamp(19px, 2.4vw, 23px);
+    line-height: 1.5;
+    letter-spacing: 0.02em;
     color: var(--starlight);
 }
 
-.about-text + .about-text {
+.about-text {
+    margin: 0 0 36px;
+    font-weight: 300;
+    font-size: 15px;
+    line-height: 1.8;
     color: var(--dust);
+}
+
+.about-card {
+    margin: 0 0 40px;
+    padding: 6px 28px;
+    background: rgba(11, 14, 26, 0.8);
+    border: 1px solid var(--edge);
+    border-radius: 3px;
+}
+
+.about-row {
+    display: flex;
+    align-items: baseline;
+    gap: 24px;
+    padding: 18px 0;
+}
+
+.about-row + .about-row {
+    border-top: 1px solid var(--edge);
+}
+
+.about-row dt {
+    flex-shrink: 0;
+    width: 110px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    color: var(--dust);
+}
+
+.about-row dd {
+    margin: 0;
+    font-weight: 300;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--starlight);
 }
 
 .view-link {
@@ -776,7 +864,8 @@ button:focus-visible {
     .corner-object svg,
     #earth-btn .icon-wrap,
     #rocket-btn .icon-wrap,
-    .orbit {
+    .orbit,
+    .orbital-spin {
         animation: none;
     }
 
@@ -844,6 +933,27 @@ button:focus-visible {
 
     .view-inner {
         padding: 12vh 20px 10vh;
+    }
+
+    .orbital {
+        right: -34vmin;
+        width: 88vmin;
+        height: 88vmin;
+        opacity: 0.4;
+    }
+
+    .about-card {
+        padding: 2px 20px;
+    }
+
+    .about-row {
+        flex-direction: column;
+        gap: 6px;
+        padding: 14px 0;
+    }
+
+    .about-row dt {
+        width: auto;
     }
 
     .project-head {

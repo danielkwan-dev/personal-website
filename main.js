@@ -214,7 +214,6 @@ const soundToggle = document.getElementById('sound-toggle');
 const soundLabel = soundToggle.querySelector('.sound-label');
 const TARGET_VOLUME = 0.35;
 
-let userMuted = false;
 let fadeFrame = null;
 
 audio.volume = TARGET_VOLUME;
@@ -250,23 +249,13 @@ function updateSoundUI(on) {
 soundToggle.addEventListener('click', () => {
     if (document.body.classList.contains('sound-on')) {
         audio.muted = true;
-        userMuted = true;
         updateSoundUI(false);
     } else {
-        userMuted = false;
         audio.muted = false;
         audio.volume = 0;
         audio.play().catch(() => {});
         fadeVolumeTo(TARGET_VOLUME, 800);
         updateSoundUI(true);
-    }
-});
-
-document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-        audio.pause();
-    } else if (!userMuted) {
-        audio.play().catch(() => {});
     }
 });
 
