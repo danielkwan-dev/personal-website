@@ -69,44 +69,85 @@
   </button>
 
   <section class="view" id="about-view" aria-hidden="true">
-    <div class="about-bg" aria-hidden="true">
-      <svg class="orbital" viewBox="0 0 600 600" fill="none">
-        <g class="orbital-spin">
-          <circle cx="300" cy="300" r="110" stroke="rgba(138, 144, 168, 0.30)" stroke-width="1" />
-          <circle cx="300" cy="300" r="180" stroke="rgba(138, 144, 168, 0.20)" stroke-width="1" />
-          <circle cx="300" cy="300" r="255" stroke="rgba(138, 144, 168, 0.13)" stroke-width="1" />
-          <circle cx="300" cy="190" r="4" fill="rgba(232, 168, 92, 0.85)" />
-          <circle cx="480" cy="300" r="3" fill="rgba(232, 234, 242, 0.7)" />
-          <circle cx="64" cy="396" r="2.5" fill="rgba(232, 234, 242, 0.5)" />
-          <circle cx="300" cy="300" r="5" fill="rgba(232, 234, 242, 0.9)" />
-        </g>
-      </svg>
+
+    <div class="moon-stage" tabindex="-1">
+      <span class="sky-earth" aria-hidden="true"></span>
+
+      <div class="moon-stage-text">
+        <h2 class="section-label drift-in">01 &mdash; ABOUT</h2>
+        <p class="moon-hint drift-in">A small outpost on the near side. The lights are on.</p>
+      </div>
+
+      <div class="moon-ground" aria-hidden="true"></div>
+      <span class="crater crater-1" aria-hidden="true"></span>
+      <span class="crater crater-2" aria-hidden="true"></span>
+      <span class="crater crater-3" aria-hidden="true"></span>
+
+      <button class="station" id="station-btn" aria-label="Enter the station">
+        <svg class="station-art" viewBox="0 0 120 64" aria-hidden="true" fill="none" stroke="currentColor"
+          stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 56 A26 26 0 0 1 72 56" />
+          <path d="M40 56 A6.5 8 0 0 1 52 56" />
+          <circle class="glow-win" cx="33" cy="45" r="3" />
+          <rect x="76" y="40" width="34" height="16" rx="2" />
+          <path d="M72 49 L76 49" />
+          <rect class="glow-win" x="82" y="45" width="5" height="5" rx="1" />
+          <rect class="glow-win" x="93" y="45" width="5" height="5" rx="1" />
+          <path d="M46 30 L42 14" />
+          <circle class="glow-win" cx="41.4" cy="12" r="1.8" />
+        </svg>
+        <span class="station-label">ENTER STATION</span>
+      </button>
+
+      <button class="view-return moon-return" data-close>&larr; RETURN</button>
     </div>
-    <div class="view-inner" tabindex="-1">
-      <h2 class="section-label drift-in">01 &mdash; ABOUT</h2>
-      <p class="about-lead drift-in">I'm Daniel &mdash; a Computer Engineering student at the University of Waterloo.
-      </p>
-      <p class="about-text drift-in">I like building things fast: an exoplanet classifier for NASA Space Apps, AR-guided
-        repairs at QHacks, a privacy intelligence shield at YHack, and a computer-vision ASL engine at uOttaHacks. Most
-        of it orbits machine learning, computer vision, or space.</p>
-      <dl class="about-card drift-in">
-        <div class="about-row">
-          <dt>PROGRAM</dt>
-          <dd>Computer Engineering &mdash; University of Waterloo</dd>
+
+    <div class="station-room">
+      <div class="room-inner" tabindex="-1">
+        <div class="porthole" aria-hidden="true">
+          <span class="ph-star ph-s1"></span>
+          <span class="ph-star ph-s2"></span>
+          <span class="ph-star ph-s3"></span>
+          <span class="ph-earth"></span>
         </div>
-        <div class="about-row">
-          <dt>FOCUS</dt>
-          <dd>Machine Learning &middot; Computer Vision &middot; Space</dd>
+
+        <div class="board">
+          <p class="board-title">CREW BULLETIN &mdash; D. KWAN</p>
+          <div class="notes">
+            <div class="note note-wide" style="--rot: -1.1deg">
+              <span class="pin"></span>
+              <h3>HELLO</h3>
+              <p>I'm Daniel. Computer Engineering @ UWaterloo &mdash; but mostly I just like making cool things.</p>
+            </div>
+            <a class="note" style="--rot: 1.4deg" href="https://open.spotify.com/user/k4gkg1b5z1kstabel4f2iln2w"
+              target="_blank" rel="noopener noreferrer">
+              <span class="pin pin-gold"></span>
+              <h3>NOW PLAYING &#9834;</h3>
+              <p>The soundtrack never stops. Follow along on Spotify &rarr;</p>
+            </a>
+            <div class="note" style="--rot: -1.6deg">
+              <span class="pin"></span>
+              <h3>MISSION LOG</h3>
+              <p>YHack winner &middot; NASA Space Apps finalist &middot; QHacks &middot; uOttaHacks</p>
+            </div>
+            <div class="note" style="--rot: 1.2deg">
+              <span class="pin"></span>
+              <h3>CURRENTLY INTO</h3>
+              <p>Machine learning &middot; computer vision &middot; anything that flies or orbits</p>
+            </div>
+            <a class="note" style="--rot: -0.9deg" href="Daniel_Kwan_Resume.pdf" target="_blank"
+              rel="noopener noreferrer">
+              <span class="pin"></span>
+              <h3>THE FORMAL VERSION</h3>
+              <p>Resume &mdash; for recruiters and other ground control &rarr;</p>
+            </a>
+          </div>
         </div>
-        <div class="about-row">
-          <dt>HACKATHONS</dt>
-          <dd>NASA Space Apps &middot; QHacks &middot; YHack &middot; uOttaHacks</dd>
-        </div>
-      </dl>
-      <a class="view-link drift-in" href="Daniel_Kwan_Resume.pdf" target="_blank" rel="noopener noreferrer">VIEW RESUME
-        &rarr;</a>
-      <div class="drift-in"><button class="view-return" data-close>&larr; RETURN</button></div>
+
+        <button class="view-return" id="step-outside">&larr; STEP OUTSIDE</button>
+      </div>
     </div>
+
   </section>
 
   <section class="view" id="projects-view" aria-hidden="true">
@@ -122,7 +163,7 @@
             <p>A real-time OSINT tool that flags identity links &mdash; recurring time, location, and activity patterns
               that let an adversary reconstruct your routine from public posts alone. NER, OCR, and EXIF extraction feed
               three TF-IDF vector spaces, scored by cosine similarity into a weighted breach probability. YHack 2026
-              finalist at Yale.</p>
+              winner at Yale.</p>
           </a>
         </li>
         <li class="project-card drift-in">

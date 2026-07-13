@@ -360,32 +360,317 @@ body.revealed .corner-object {
     pointer-events: none;
 }
 
-/* a quiet orbital system turning behind the text */
-.about-bg {
+/* --- The moon stage: a lunar horizon with an outpost on the crest --- */
+
+.moon-stage {
     position: absolute;
     inset: 0;
     overflow: hidden;
+    outline: none;
+    transition: opacity 0.6s ease, transform 0.8s var(--ease-float);
+}
+
+#about-view.inside .moon-stage {
+    opacity: 0;
+    transform: scale(1.05);
     pointer-events: none;
 }
 
-.orbital {
+/* home, seen from the outpost */
+.sky-earth {
     position: absolute;
-    top: 50%;
-    right: -14vmin;
-    width: 74vmin;
-    height: 74vmin;
-    transform: translateY(-50%);
-    opacity: 0.55;
+    top: 16vh;
+    right: 18vw;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 32%, #AEBBE8, #5E6FB8 55%, #39457E);
+    box-shadow: 0 0 14px rgba(122, 138, 210, 0.45);
 }
 
-.orbital-spin {
-    transform-origin: 300px 300px;
-    animation: orbital-rotate 90s linear infinite;
+.moon-stage-text {
+    position: relative;
+    padding-top: 15vh;
+    text-align: center;
 }
 
-@keyframes orbital-rotate {
-    from { transform: rotate(0deg); }
-    to   { transform: rotate(360deg); }
+.moon-stage-text .section-label {
+    margin-bottom: 20px;
+}
+
+.moon-hint {
+    margin: 0;
+    font-weight: 300;
+    font-size: 14px;
+    letter-spacing: 0.06em;
+    color: var(--dust);
+}
+
+/* the lunar disc — a huge circle whose crest forms the horizon */
+.moon-ground {
+    position: absolute;
+    left: 50%;
+    top: 66vh;
+    width: 280vw;
+    height: 280vw;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    border: 1px solid rgba(138, 144, 168, 0.35);
+    background: radial-gradient(circle at 50% 12%,
+        rgba(27, 31, 58, 0.55),
+        rgba(11, 14, 26, 0.92) 38%,
+        #05060D 72%);
+    box-shadow: 0 -40px 90px rgba(27, 31, 58, 0.4);
+}
+
+.crater {
+    position: absolute;
+    border: 1px solid rgba(138, 144, 168, 0.26);
+    border-radius: 50%;
+}
+
+.crater-1 { left: 24%; top: 79vh; width: 88px;  height: 24px; }
+.crater-2 { left: 63%; top: 74vh; width: 44px;  height: 13px; }
+.crater-3 { left: 72%; top: 86vh; width: 130px; height: 36px; }
+
+/* the outpost itself — glowing, inviting the click */
+.station {
+    position: absolute;
+    left: 50%;
+    top: 66.5vh;
+    transform: translate(-50%, -100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: rgba(232, 234, 242, 0.9);
+    z-index: 2;
+}
+
+.station-art {
+    width: 150px;
+    height: auto;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.25));
+    animation: obj-glow 3.4s ease-in-out infinite;
+}
+
+.glow-win {
+    fill: var(--gold);
+    stroke: none;
+    animation: win-flicker 4s ease-in-out infinite;
+}
+
+@keyframes win-flicker {
+    0%, 100% { opacity: 0.65; }
+    50%      { opacity: 1; }
+}
+
+.station-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    color: var(--dust);
+    transition: color 0.4s var(--ease-float);
+}
+
+.station:hover,
+.station:focus-visible {
+    color: var(--gold);
+}
+
+.station:hover .station-art,
+.station:focus-visible .station-art {
+    filter: drop-shadow(0 0 14px rgba(232, 168, 92, 0.6));
+    animation-play-state: paused;
+}
+
+.station:hover .station-label,
+.station:focus-visible .station-label {
+    color: var(--gold);
+}
+
+.moon-return {
+    position: absolute;
+    left: 50%;
+    bottom: 4vh;
+    transform: translateX(-50%);
+    z-index: 2;
+}
+
+/* --- Inside the station --- */
+
+.station-room {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    background: linear-gradient(180deg, #0C0F1D 0%, var(--void) 75%);
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.97);
+    pointer-events: none;
+    transition: opacity 0.7s var(--ease-float),
+                transform 0.7s var(--ease-float),
+                visibility 0s linear 0.7s;
+}
+
+#about-view.inside .station-room {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    pointer-events: auto;
+    transition: opacity 0.7s var(--ease-float) 0.15s,
+                transform 0.7s var(--ease-float) 0.15s;
+}
+
+.room-inner {
+    position: relative;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 12vh 24px 10vh;
+    outline: none;
+}
+
+/* a porthole looking back out at the stars */
+.porthole {
+    position: absolute;
+    top: 9vh;
+    right: 28px;
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(138, 144, 168, 0.45);
+    box-shadow: inset 0 0 26px rgba(0, 0, 0, 0.85),
+                0 0 0 6px rgba(11, 14, 26, 0.9),
+                0 0 0 7px rgba(138, 144, 168, 0.22);
+    background: radial-gradient(circle at 50% 45%, #0A0D18, #04050B 75%);
+    overflow: hidden;
+}
+
+.ph-star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background: rgba(232, 234, 242, 0.8);
+}
+
+.ph-s1 { top: 26%; left: 30%; }
+.ph-s2 { top: 58%; left: 68%; opacity: 0.6; }
+.ph-s3 { top: 44%; left: 48%; opacity: 0.4; }
+
+.ph-earth {
+    position: absolute;
+    top: 22%;
+    right: 22%;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 32%, #AEBBE8, #5E6FB8 55%, #39457E);
+    box-shadow: 0 0 8px rgba(122, 138, 210, 0.5);
+}
+
+/* the crew bulletin board */
+.board {
+    margin-top: 4vh;
+    padding: 26px 28px 30px;
+    background: rgba(11, 14, 26, 0.85);
+    border: 1px solid var(--edge);
+    border-radius: 3px;
+}
+
+.board-title {
+    margin: 0 0 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--edge);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    color: var(--dust);
+}
+
+.notes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.note-wide {
+    grid-column: span 2;
+}
+
+.note {
+    position: relative;
+    display: block;
+    padding: 24px 20px 20px;
+    background: rgba(16, 20, 38, 0.9);
+    border: 1px solid var(--edge);
+    border-radius: 2px;
+    text-decoration: none;
+    color: inherit;
+    transform: rotate(var(--rot, 0deg));
+    opacity: 0;
+    transition: transform 0.5s var(--ease-float),
+                border-color 0.5s var(--ease-float),
+                opacity 0.6s var(--ease-float);
+}
+
+#about-view.inside .note {
+    opacity: 1;
+}
+
+#about-view.inside .notes .note:nth-child(2) { transition-delay: 0.08s; }
+#about-view.inside .notes .note:nth-child(3) { transition-delay: 0.16s; }
+#about-view.inside .notes .note:nth-child(4) { transition-delay: 0.24s; }
+#about-view.inside .notes .note:nth-child(5) { transition-delay: 0.32s; }
+
+/* pinned paper straightens when you look at it */
+#about-view.inside .note:hover,
+#about-view.inside .note:focus-visible {
+    transform: rotate(0deg);
+    border-color: rgba(232, 168, 92, 0.4);
+    transition-delay: 0s;
+}
+
+.pin {
+    position: absolute;
+    top: 9px;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    margin-left: -3px;
+    border-radius: 50%;
+    background: rgba(232, 234, 242, 0.6);
+    box-shadow: 0 0 6px rgba(232, 234, 242, 0.35);
+}
+
+.pin-gold {
+    background: var(--gold);
+    box-shadow: 0 0 8px rgba(232, 168, 92, 0.55);
+}
+
+.note h3 {
+    margin: 0 0 10px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.26em;
+    color: var(--dust);
+}
+
+.note p {
+    margin: 0;
+    font-weight: 300;
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--starlight);
+}
+
+.room-inner .view-return {
+    margin-top: 36px;
 }
 
 .section-label {
@@ -420,58 +705,6 @@ body.revealed .corner-object {
 .view.open .view-inner > .drift-in:nth-child(5) { transition-delay: 0.32s; }
 .view.open .view-inner > .drift-in:nth-child(6) { transition-delay: 0.4s; }
 
-.about-lead {
-    margin: 0 0 20px;
-    font-weight: 300;
-    font-size: clamp(19px, 2.4vw, 23px);
-    line-height: 1.5;
-    letter-spacing: 0.02em;
-    color: var(--starlight);
-}
-
-.about-text {
-    margin: 0 0 36px;
-    font-weight: 300;
-    font-size: 15px;
-    line-height: 1.8;
-    color: var(--dust);
-}
-
-.about-card {
-    margin: 0 0 40px;
-    padding: 6px 28px;
-    background: rgba(11, 14, 26, 0.8);
-    border: 1px solid var(--edge);
-    border-radius: 3px;
-}
-
-.about-row {
-    display: flex;
-    align-items: baseline;
-    gap: 24px;
-    padding: 18px 0;
-}
-
-.about-row + .about-row {
-    border-top: 1px solid var(--edge);
-}
-
-.about-row dt {
-    flex-shrink: 0;
-    width: 110px;
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.28em;
-    color: var(--dust);
-}
-
-.about-row dd {
-    margin: 0;
-    font-weight: 300;
-    font-size: 14px;
-    line-height: 1.6;
-    color: var(--starlight);
-}
 
 .view-link {
     display: inline-block;
@@ -865,8 +1098,20 @@ button:focus-visible {
     #earth-btn .icon-wrap,
     #rocket-btn .icon-wrap,
     .orbit,
-    .orbital-spin {
+    .station-art,
+    .glow-win {
         animation: none;
+    }
+
+    .moon-stage,
+    .station-room,
+    .note {
+        transform: none;
+    }
+
+    .note {
+        opacity: 1;
+        transition: none;
     }
 
     .corner-object svg {
@@ -935,25 +1180,36 @@ button:focus-visible {
         padding: 12vh 20px 10vh;
     }
 
-    .orbital {
-        right: -34vmin;
-        width: 88vmin;
-        height: 88vmin;
-        opacity: 0.4;
+    .moon-ground {
+        width: 420vw;
+        height: 420vw;
     }
 
-    .about-card {
-        padding: 2px 20px;
+    .station-art {
+        width: 120px;
     }
 
-    .about-row {
-        flex-direction: column;
-        gap: 6px;
-        padding: 14px 0;
+    .crater-1 { left: 12%; top: 80vh; }
+    .crater-2 { left: 70%; top: 76vh; }
+    .crater-3 { left: 64%; top: 88vh; }
+
+    .porthole {
+        position: static;
+        margin: 0 auto;
+        width: 80px;
+        height: 80px;
     }
 
-    .about-row dt {
-        width: auto;
+    .room-inner {
+        padding: 8vh 20px 10vh;
+    }
+
+    .notes {
+        grid-template-columns: 1fr;
+    }
+
+    .note-wide {
+        grid-column: auto;
     }
 
     .project-head {

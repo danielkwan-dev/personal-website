@@ -232,7 +232,9 @@ function fadeVolumeTo(target, ms) {
     const from = audio.volume;
     const start = performance.now();
     function step(now) {
-        const t = Math.min(1, (now - start) / ms);
+        // rAF timestamps can land a hair before the captured start time —
+        // clamp both ends or volume goes fractionally negative and throws
+        const t = Math.max(0, Math.min(1, (now - start) / ms));
         audio.volume = from + (target - from) * t;
         if (t < 1) fadeFrame = requestAnimationFrame(step);
     }
@@ -360,7 +362,8 @@ function openView(name) {
     document.body.classList.add('view-open');
     activeView = name;
 
-    next.view.querySelector('.view-inner').focus({ preventScroll: true });
+    const focusTarget = next.view.querySelector('[tabindex="-1"]');
+    if (focusTarget) focusTarget.focus({ preventScroll: true });
 
     // once the black hole has fully faded behind the view, stop drawing it
     clearTimeout(shaderIdleTimer);
@@ -376,6 +379,7 @@ function closeView() {
     current.button.classList.remove('active');
     current.button.setAttribute('aria-expanded', 'false');
     document.body.classList.remove('view-open');
+    aboutView.classList.remove('inside');
 
     clearTimeout(shaderIdleTimer);
     shaderIdle = false;
@@ -399,8 +403,34 @@ document.querySelectorAll('[data-close]').forEach((btn) => {
     btn.addEventListener('click', closeView);
 });
 
+// --- The moon outpost: click the station to step inside ---
+
+const aboutView = document.getElementById('about-view');
+const stationBtn = document.getElementById('station-btn');
+const stepOutsideBtn = document.getElementById('step-outside');
+
+function enterStation() {
+    aboutView.classList.add('inside');
+    aboutView.querySelector('.station-room').scrollTop = 0;
+    aboutView.querySelector('.room-inner').focus({ preventScroll: true });
+}
+
+function exitStation() {
+    aboutView.classList.remove('inside');
+    stationBtn.focus({ preventScroll: true });
+}
+
+stationBtn.addEventListener('click', enterStation);
+stepOutsideBtn.addEventListener('click', exitStation);
+
+// escape peels back one layer at a time: room, then view
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeView();
+    if (e.key !== 'Escape') return;
+    if (activeView === 'about' && aboutView.classList.contains('inside')) {
+        exitStation();
+    } else {
+        closeView();
+    }
 });
 
 // --- Render loop ---
