@@ -1,13 +1,23 @@
 const canvas = document.getElementById('canvas');
 const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
 
+// the nebula is soft — rendering at 70% resolution and letting CSS
+// upscale is invisible to the eye but cuts fragment work in half
+const RES_SCALE = 0.7;
+
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth * RES_SCALE;
+    canvas.height = window.innerHeight * RES_SCALE;
     gl.viewport(0, 0, canvas.width, canvas.height);
 }
 resize();
-window.addEventListener('resize', resize);
+window.addEventListener('resize', () => {
+    resize();
+    resizeStarfield();
+    drawStarfield(window.scrollY);
+});
 
 const vertexShaderSource = `
     attribute vec2 position;
@@ -142,20 +152,96 @@ gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
 let startTime = Date.now();
 let mouse = [0, 0, 0, 0];
 
-canvas.addEventListener('mousemove', (e) => {
-    mouse[0] = e.clientX / 2;
-    mouse[1] = (canvas.height - e.clientY) / 2;
+// listen on window (content sections sit above the canvas, so the canvas
+// itself no longer receives most pointer events); the /2 preserves the
+// original halved-influence range the shader was tuned against
+window.addEventListener('mousemove', (e) => {
+    mouse[0] = e.clientX * RES_SCALE / 2;
+    mouse[1] = (window.innerHeight - e.clientY) * RES_SCALE / 2;
     mouse[2] = 1;
 });
 
-canvas.addEventListener('mouseleave', () => {
+document.addEventListener('mouseleave', () => {
     mouse[2] = 0;
 });
+
+// --- Starfield: sparse, static, two parallax depths ---
+
+const starfield = document.getElementById('starfield');
+const sfCtx = starfield.getContext('2d');
+let stars = [];
+
+function resizeStarfield() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    starfield.width = window.innerWidth * dpr;
+    starfield.height = window.innerHeight * dpr;
+    sfCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    stars = [];
+    for (let i = 0; i < 60; i++) {
+        stars.push({
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight,
+            depth: 0.05,
+            size: 0.6 + Math.random() * 0.4,
+            alpha: 0.18 + Math.random() * 0.22
+        });
+    }
+    for (let i = 0; i < 30; i++) {
+        stars.push({
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight,
+            depth: 0.12,
+            size: 1.0 + Math.random() * 0.6,
+            alpha: 0.32 + Math.random() * 0.3
+        });
+    }
+}
+
+function drawStarfield(scrollY) {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    sfCtx.clearRect(0, 0, w, h);
+    for (const s of stars) {
+        const y = ((s.y - scrollY * s.depth) % h + h) % h;
+        sfCtx.fillStyle = 'rgba(232, 234, 242, ' + s.alpha + ')';
+        sfCtx.fillRect(s.x, y, s.size, s.size);
+    }
+}
+
+resizeStarfield();
+drawStarfield(0);
+
+// --- Scroll: fade the black hole out as the visitor descends ---
+
+let shaderOpacity = 1;
+let scrollTicking = false;
+
+function onScroll() {
+    if (scrollTicking) return;
+    scrollTicking = true;
+    requestAnimationFrame(() => {
+        scrollTicking = false;
+        const y = window.scrollY;
+        shaderOpacity = Math.max(0, 1 - y / (window.innerHeight * 0.85));
+        canvas.style.opacity = shaderOpacity;
+        drawStarfield(y);
+    });
+}
+
+window.addEventListener('scroll', onScroll, { passive: true });
 
 // --- Music ---
 
 const audio = document.getElementById('music');
-audio.volume = 1;
+const soundToggle = document.getElementById('sound-toggle');
+const soundLabel = soundToggle.querySelector('.sound-label');
+const TARGET_VOLUME = 0.35;
+
+let userMuted = false;
+let fadeFrame = null;
+
+audio.volume = TARGET_VOLUME;
 
 // Try to play with sound immediately — works if the browser allows it
 // (returning visitors, high media engagement, or lenient browser).
@@ -166,86 +252,149 @@ audio.play().catch(() => {
     audio.play().catch(() => {});
 });
 
-document.addEventListener('visibilitychange', () => {
-    document.hidden ? audio.pause() : audio.play().catch(() => {});
+function fadeVolumeTo(target, ms) {
+    cancelAnimationFrame(fadeFrame);
+    const from = audio.volume;
+    const start = performance.now();
+    function step(now) {
+        const t = Math.min(1, (now - start) / ms);
+        audio.volume = from + (target - from) * t;
+        if (t < 1) fadeFrame = requestAnimationFrame(step);
+    }
+    fadeFrame = requestAnimationFrame(step);
+}
+
+function updateSoundUI(on) {
+    document.body.classList.toggle('sound-on', on);
+    soundLabel.textContent = on ? 'SOUND ON' : 'SOUND OFF';
+    soundToggle.setAttribute('aria-pressed', on ? 'true' : 'false');
+    soundToggle.setAttribute('aria-label', on ? 'Turn sound off' : 'Turn sound on');
+}
+
+soundToggle.addEventListener('click', () => {
+    if (document.body.classList.contains('sound-on')) {
+        audio.muted = true;
+        userMuted = true;
+        updateSoundUI(false);
+    } else {
+        userMuted = false;
+        audio.muted = false;
+        audio.volume = 0;
+        audio.play().catch(() => {});
+        fadeVolumeTo(TARGET_VOLUME, 800);
+        updateSoundUI(true);
+    }
 });
 
-// --- Interaction ---
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        audio.pause();
+    } else if (!userMuted) {
+        audio.play().catch(() => {});
+    }
+});
+
+// --- Interaction: entering ---
 
 const enterOverlay = document.getElementById('enter-overlay');
 
-enterOverlay.addEventListener('click', () => {
-    if (audio.muted) {
-        audio.muted = false;
-        audio.play().catch(() => {});
-    }
-
+function enterSite() {
     if (enterOverlay.classList.contains('entering')) return;
     enterOverlay.classList.add('entering');
+
+    // the score swells in as the void expands — never slamming to full
+    if (audio.muted) {
+        audio.muted = false;
+        audio.volume = 0;
+        audio.play().catch(() => {});
+        fadeVolumeTo(TARGET_VOLUME, 2000);
+    }
 
     // the door's void rushes forward and fills the screen with black —
     // once it has, reveal the scene behind it, then let the door fade away
     setTimeout(() => {
         document.body.classList.add('revealed');
+        updateSoundUI(!audio.muted && !audio.paused);
         setTimeout(startTyping, 1400);
     }, 1300);
 
     setTimeout(() => {
         enterOverlay.classList.add('hidden');
     }, 1700);
+}
+
+enterOverlay.addEventListener('click', enterSite);
+
+enterOverlay.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        enterSite();
+    }
 });
 
-// --- Subtitle typing effect ---
+// --- Subtitle: types once, then the caret rests and fades ---
 
 function startTyping() {
-    const subtitle = document.querySelector('.subtitle');
+    const subtitleText = document.querySelector('.subtitle-text');
+    const caret = document.querySelector('.caret');
     const text = 'Computer Engineering @ uWaterloo';
-    const typeDelay = 65;
-    const eraseDelay = 35;
-    const pauseAfterType = 2000;
-    const pauseBeforeRetype = 400;
-    let i = 0;
-    let erasing = false;
 
-    function tick() {
-        if (!erasing) {
-            subtitle.textContent = text.slice(0, ++i);
-            if (i === text.length) {
-                setTimeout(() => { erasing = true; tick(); }, pauseAfterType);
-            } else {
-                setTimeout(tick, typeDelay);
-            }
-        } else {
-            subtitle.textContent = text.slice(0, --i);
-            if (i === 0) {
-                erasing = false;
-                setTimeout(tick, pauseBeforeRetype);
-            } else {
-                setTimeout(tick, eraseDelay);
-            }
-        }
+    function finish() {
+        setTimeout(() => caret.classList.add('caret-done'), 3000);
     }
 
+    if (reducedMotion) {
+        subtitleText.textContent = text;
+        finish();
+        return;
+    }
+
+    let i = 0;
+    function tick() {
+        subtitleText.textContent = text.slice(0, ++i);
+        if (i < text.length) {
+            setTimeout(tick, 65);
+        } else {
+            finish();
+        }
+    }
     tick();
 }
+
+// --- Scroll reveals: sections drift in like passing objects ---
+
+const observer = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('in-view');
+            observer.unobserve(entry.target);
+        }
+    }
+}, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.drift-in').forEach((el) => observer.observe(el));
 
 // --- Render loop ---
 
 function render() {
-    const time = (Date.now() - startTime) / 1000;
+    // skip the draw when the hero is scrolled away or the tab is hidden —
+    // the shader is by far the most expensive thing on the page
+    if (shaderOpacity > 0.02 && !document.hidden) {
+        const time = (Date.now() - startTime) / 1000;
 
-    gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.useProgram(program);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.useProgram(program);
 
-    gl.enableVertexAttribArray(positionLocation);
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(positionLocation);
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
-    gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
-    gl.uniform1f(timeLocation, time);
-    gl.uniform4f(mouseLocation, mouse[0], mouse[1], mouse[2], mouse[3]);
+        gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+        gl.uniform1f(timeLocation, time);
+        gl.uniform4f(mouseLocation, mouse[0], mouse[1], mouse[2], mouse[3]);
 
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
 
     requestAnimationFrame(render);
 }

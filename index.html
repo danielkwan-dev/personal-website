@@ -4,38 +4,104 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Daniel Kwan</title>
+  <meta name="description" content="Daniel Kwan — Computer Engineering at the University of Waterloo.">
   <link rel="canonical" href="https://daniel.uwce.ca">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
   <link rel="apple-touch-icon" href="favicon.jpg">
   <meta property="og:title" content="Daniel Kwan">
+  <meta property="og:description" content="Daniel Kwan — Computer Engineering at the University of Waterloo.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://daniel.uwce.ca">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500&family=Space+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-  <canvas id="canvas"></canvas>
+  <canvas id="starfield" aria-hidden="true"></canvas>
+  <canvas id="canvas" aria-hidden="true"></canvas>
 
-  <div class="center-text">
-    DANIEL KWAN
-  </div>
+  <main>
+    <section class="hero" id="hero">
+      <div class="hero-scrim" aria-hidden="true"></div>
+      <h1 class="center-text">DANIEL KWAN</h1>
+      <p class="subtitle"><span class="subtitle-text"></span><span class="caret" aria-hidden="true"></span></p>
+      <a class="scroll-cue" href="#transmissions" aria-label="Scroll down to projects">&darr;</a>
+    </section>
 
-  <div class="subtitle"></div>
+    <section class="section" id="transmissions">
+      <h2 class="section-label drift-in">01 &mdash; TRANSMISSIONS</h2>
+      <ul class="projects">
+        <li class="project-card drift-in">
+          <a href="https://github.com/danielkwan-dev/exodiscover" target="_blank" rel="noopener noreferrer">
+            <div class="project-head">
+              <h3>ExoDiscover</h3>
+              <span class="project-tags">TYPESCRIPT &middot; ML &middot; NASA SPACE APPS</span>
+            </div>
+            <p>An exoplanet identifier built for the NASA Space Apps Challenge &mdash; searching starlight for worlds outside the solar system.</p>
+          </a>
+        </li>
+        <li class="project-card drift-in">
+          <a href="https://github.com/danielkwan-dev/midas" target="_blank" rel="noopener noreferrer">
+            <div class="project-head">
+              <h3>Midas</h3>
+              <span class="project-tags">JAVASCRIPT &middot; AR &middot; QHACKS 2026</span>
+            </div>
+            <p>AI-assisted augmented-reality repair guidance, built at QHacks 2026.</p>
+          </a>
+        </li>
+        <li class="project-card drift-in">
+          <a href="https://github.com/danielkwan-dev/aegis" target="_blank" rel="noopener noreferrer">
+            <div class="project-head">
+              <h3>Aegis</h3>
+              <span class="project-tags">PYTHON &middot; PRIVACY &middot; YHACK 2026</span>
+            </div>
+            <p>A personal privacy intelligence shield, built at YHack 2026.</p>
+          </a>
+        </li>
+        <li class="project-card drift-in">
+          <a href="https://github.com/danielkwan-dev/sign-cli" target="_blank" rel="noopener noreferrer">
+            <div class="project-head">
+              <h3>Sign CLI</h3>
+              <span class="project-tags">PYTHON &middot; COMPUTER VISION &middot; UOTTAHACKS 2026</span>
+            </div>
+            <p>A computer-vision ASL recognition engine, built at uOttaHacks 2026.</p>
+          </a>
+        </li>
+        <li class="project-card drift-in">
+          <a href="https://github.com/danielkwan-dev/forecast-fm" target="_blank" rel="noopener noreferrer">
+            <div class="project-head">
+              <h3>Forecast FM</h3>
+              <span class="project-tags">TYPESCRIPT &middot; ML &middot; AUDIO</span>
+            </div>
+            <p>Classifying songs into weather categories with machine-learning models.</p>
+          </a>
+        </li>
+      </ul>
+    </section>
 
-  <nav class="bottom-nav">
-    <a href="https://www.linkedin.com/in/daniel-kwan-923071220/" target="_blank" rel="noopener noreferrer">LINKEDIN</a>
-    <a href="https://github.com/danielkwan-dev" target="_blank" rel="noopener noreferrer">GITHUB</a>
-    <a href="Daniel_Kwan_Resume.pdf" target="_blank" rel="noopener noreferrer">RESUME</a>
-  </nav>
+    <section class="section" id="ground-control">
+      <h2 class="section-label drift-in">02 &mdash; GROUND CONTROL</h2>
+      <nav class="contact-links drift-in" aria-label="Contact">
+        <a href="mailto:d35kwan@uwaterloo.ca">EMAIL</a>
+        <a href="https://www.linkedin.com/in/daniel-kwan-923071220/" target="_blank" rel="noopener noreferrer">LINKEDIN</a>
+        <a href="https://github.com/danielkwan-dev" target="_blank" rel="noopener noreferrer">GITHUB</a>
+        <a href="Daniel_Kwan_Resume.pdf" target="_blank" rel="noopener noreferrer">RESUME</a>
+      </nav>
+    </section>
+  </main>
 
-  <div class="curtain top"></div>
-  <div class="curtain bottom"></div>
+  <button id="sound-toggle" aria-pressed="false">
+    <span class="bars" aria-hidden="true"><span></span><span></span><span></span></span>
+    <span class="sound-label">SOUND OFF</span>
+  </button>
 
-  <div id="enter-overlay">
+  <div class="curtain top" aria-hidden="true"></div>
+  <div class="curtain bottom" aria-hidden="true"></div>
+
+  <div id="enter-overlay" role="button" tabindex="0" aria-label="Enter site">
     <div class="door">
       <span class="enter-label">ENTER</span>
       <span class="door-void"></span>
