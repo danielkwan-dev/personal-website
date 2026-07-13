@@ -376,16 +376,20 @@ body.revealed .corner-object {
     pointer-events: none;
 }
 
-/* home, seen from the outpost */
-.sky-earth {
+/* a transport ship drifting across the sky */
+.sky-ship {
     position: absolute;
-    top: 16vh;
-    right: 18vw;
-    width: 13px;
-    height: 13px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 35% 32%, #AEBBE8, #5E6FB8 55%, #39457E);
-    box-shadow: 0 0 14px rgba(122, 138, 210, 0.45);
+    top: 14vh;
+    left: -90px;
+    width: 58px;
+    height: auto;
+    color: rgba(232, 234, 242, 0.55);
+    animation: ship-drift 75s linear infinite;
+}
+
+@keyframes ship-drift {
+    from { transform: translateX(0) translateY(0); }
+    to   { transform: translateX(calc(100vw + 180px)) translateY(4vh); }
 }
 
 .moon-stage-text {
@@ -433,7 +437,8 @@ body.revealed .corner-object {
 .crater-2 { left: 63%; top: 74vh; width: 44px;  height: 13px; }
 .crater-3 { left: 72%; top: 86vh; width: 130px; height: 36px; }
 
-/* the outpost itself — glowing, inviting the click */
+/* the outpost itself — glowing, inviting the click; the label floats
+   above so the dome sits flush on the lunar surface */
 .station {
     position: absolute;
     left: 50%;
@@ -442,8 +447,8 @@ body.revealed .corner-object {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
-    padding: 12px;
+    gap: 14px;
+    padding: 12px 12px 0;
     background: none;
     border: none;
     cursor: pointer;
@@ -537,7 +542,7 @@ body.revealed .corner-object {
 /* a porthole looking back out at the stars */
 .porthole {
     position: absolute;
-    top: 9vh;
+    top: 2.5vh;
     right: 28px;
     width: 96px;
     height: 96px;
@@ -573,66 +578,82 @@ body.revealed .corner-object {
     box-shadow: 0 0 8px rgba(122, 138, 210, 0.5);
 }
 
-/* the crew bulletin board */
-.board {
-    margin-top: 4vh;
-    padding: 26px 28px 30px;
+/* the personnel file — a report pinned to the station wall */
+.dossier {
+    margin-top: 9vh;
     background: rgba(11, 14, 26, 0.85);
     border: 1px solid var(--edge);
     border-radius: 3px;
 }
 
-.board-title {
-    margin: 0 0 24px;
-    padding-bottom: 16px;
+.dossier-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 28px;
     border-bottom: 1px solid var(--edge);
+}
+
+.dossier-title {
+    margin: 0;
     font-family: 'Space Mono', monospace;
     font-size: 11px;
     letter-spacing: 0.4em;
     color: var(--dust);
 }
 
-.notes {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 18px;
-}
-
-.note-wide {
-    grid-column: span 2;
-}
-
-.note {
-    position: relative;
-    display: block;
-    padding: 24px 20px 20px;
-    background: rgba(16, 20, 38, 0.9);
-    border: 1px solid var(--edge);
+.dossier-status {
+    padding: 4px 10px;
+    border: 1px solid rgba(232, 168, 92, 0.5);
     border-radius: 2px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+}
+
+.dossier-rows {
+    margin: 0;
+    padding: 4px 28px;
+}
+
+.dossier-row {
+    display: flex;
+    align-items: baseline;
+    gap: 24px;
+    padding: 15px 0;
+}
+
+.dossier-row + .dossier-row {
+    border-top: 1px solid rgba(27, 31, 58, 0.6);
+}
+
+.dossier-row dt {
+    flex-shrink: 0;
+    width: 128px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.26em;
+    color: var(--dust);
+}
+
+.dossier-row dd {
+    margin: 0;
+    font-weight: 300;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--starlight);
+}
+
+.dossier-row dd a {
+    color: var(--starlight);
     text-decoration: none;
-    color: inherit;
-    transform: rotate(var(--rot, 0deg));
-    opacity: 0;
-    transition: transform 0.5s var(--ease-float),
-                border-color 0.5s var(--ease-float),
-                opacity 0.6s var(--ease-float);
+    transition: color 0.4s var(--ease-float);
 }
 
-#about-view.inside .note {
-    opacity: 1;
-}
-
-#about-view.inside .notes .note:nth-child(2) { transition-delay: 0.08s; }
-#about-view.inside .notes .note:nth-child(3) { transition-delay: 0.16s; }
-#about-view.inside .notes .note:nth-child(4) { transition-delay: 0.24s; }
-#about-view.inside .notes .note:nth-child(5) { transition-delay: 0.32s; }
-
-/* pinned paper straightens when you look at it */
-#about-view.inside .note:hover,
-#about-view.inside .note:focus-visible {
-    transform: rotate(0deg);
-    border-color: rgba(232, 168, 92, 0.4);
-    transition-delay: 0s;
+.dossier-row dd a:hover,
+.dossier-row dd a:focus-visible {
+    color: var(--gold);
 }
 
 .pin {
@@ -650,23 +671,6 @@ body.revealed .corner-object {
 .pin-gold {
     background: var(--gold);
     box-shadow: 0 0 8px rgba(232, 168, 92, 0.55);
-}
-
-.note h3 {
-    margin: 0 0 10px;
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    font-weight: 400;
-    letter-spacing: 0.26em;
-    color: var(--dust);
-}
-
-.note p {
-    margin: 0;
-    font-weight: 300;
-    font-size: 13px;
-    line-height: 1.65;
-    color: var(--starlight);
 }
 
 .room-inner .view-return {
@@ -742,64 +746,111 @@ body.revealed .corner-object {
     color: var(--gold);
 }
 
-.projects {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+/* --- The case board: scattered papers joined by string --- */
+
+.case-inner {
+    max-width: 1160px;
 }
 
-.project-card {
-    margin-bottom: 20px;
+.case-board {
+    position: relative;
+    height: 780px;
+    margin-top: 8px;
 }
 
-.project-card a {
+.strings {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1s ease 0.5s;
+}
+
+.view.open .strings {
+    opacity: 1;
+}
+
+.strings path {
+    stroke: rgba(232, 168, 92, 0.35);
+    stroke-width: 1.2;
+    fill: none;
+}
+
+.paper {
+    position: absolute;
     display: block;
-    padding: 26px 28px;
-    background: rgba(11, 14, 26, 0.8);
+    padding: 26px 18px 16px;
+    background: rgba(16, 20, 38, 0.92);
     border: 1px solid var(--edge);
-    border-radius: 3px;
+    border-radius: 2px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
     text-decoration: none;
     color: inherit;
-    transition: transform 0.5s var(--ease-float), border-color 0.5s var(--ease-float);
+    transform: rotate(var(--rot, 0deg));
+    opacity: 0;
+    transition: transform 0.5s var(--ease-float),
+                border-color 0.5s var(--ease-float),
+                opacity 0.6s var(--ease-float);
 }
 
-.project-card a:hover,
-.project-card a:focus-visible {
-    transform: translateY(-3px);
+.view.open .paper {
+    opacity: 1;
+}
+
+.view.open .paper-2 { transition-delay: 0.1s; }
+.view.open .paper-3 { transition-delay: 0.2s; }
+.view.open .paper-4 { transition-delay: 0.3s; }
+.view.open .paper-5 { transition-delay: 0.4s; }
+
+/* a paper straightens and lifts when inspected */
+.paper:hover,
+.paper:focus-visible {
+    transform: rotate(0deg) translateY(-4px);
     border-color: rgba(232, 168, 92, 0.45);
+    z-index: 5;
+    transition-delay: 0s;
 }
 
-.project-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 16px;
-}
-
-.project-head h3 {
-    margin: 0;
-    font-size: 15px;
+.paper h3 {
+    margin: 0 0 6px;
+    font-size: 13px;
     font-weight: 400;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--starlight);
 }
 
-.project-tags {
+.paper-tags {
+    display: block;
+    margin-bottom: 12px;
     font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.18em;
+    font-size: 8.5px;
+    letter-spacing: 0.16em;
     color: var(--dust);
-    text-align: right;
-    flex-shrink: 0;
 }
 
-.project-card p {
-    margin: 14px 0 0;
+.paper p {
+    margin: 0 0 14px;
     font-weight: 300;
-    font-size: 14px;
-    line-height: 1.7;
-    color: var(--dust);
+    font-size: 12px;
+    line-height: 1.6;
+    color: rgba(232, 234, 242, 0.82);
+}
+
+.paper-open {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.28em;
+    color: var(--gold);
+    opacity: 0.75;
+    transition: opacity 0.3s ease;
+}
+
+.paper:hover .paper-open,
+.paper:focus-visible .paper-open {
+    opacity: 1;
 }
 
 /* --- Sound toggle --- */
@@ -1099,17 +1150,27 @@ button:focus-visible {
     #rocket-btn .icon-wrap,
     .orbit,
     .station-art,
-    .glow-win {
+    .glow-win,
+    .sky-ship {
         animation: none;
     }
 
+    .sky-ship {
+        left: auto;
+        right: 16vw;
+    }
+
     .moon-stage,
-    .station-room,
-    .note {
+    .station-room {
         transform: none;
     }
 
-    .note {
+    .paper {
+        opacity: 1;
+        transition: none;
+    }
+
+    .strings {
         opacity: 1;
         transition: none;
     }
@@ -1125,6 +1186,24 @@ button:focus-visible {
     .drift-in {
         transition: none;
         transform: none;
+    }
+}
+
+/* --- Narrow screens: the case board stacks into a neat pile --- */
+
+@media (max-width: 960px) {
+    .case-board {
+        height: auto;
+    }
+
+    .strings {
+        display: none;
+    }
+
+    .paper {
+        position: static;
+        width: auto !important;
+        margin-bottom: 18px;
     }
 }
 
@@ -1204,26 +1283,24 @@ button:focus-visible {
         padding: 8vh 20px 10vh;
     }
 
-    .notes {
-        grid-template-columns: 1fr;
+    .dossier-head {
+        padding: 16px 20px;
     }
 
-    .note-wide {
-        grid-column: auto;
+    .dossier-rows {
+        padding: 2px 20px;
     }
 
-    .project-head {
+    .dossier-row {
         flex-direction: column;
-        gap: 8px;
+        gap: 5px;
+        padding: 13px 0;
     }
 
-    .project-tags {
-        text-align: left;
+    .dossier-row dt {
+        width: auto;
     }
 
-    .project-card a {
-        padding: 22px 20px;
-    }
 
     #sound-toggle {
         right: 16px;

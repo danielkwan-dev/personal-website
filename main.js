@@ -227,6 +227,44 @@ audio.play().catch(() => {
     audio.play().catch(() => {});
 });
 
+// Gapless-ish looping: decode the track once to find where the audio
+// actually starts and stops being audible, then loop between those
+// points — skipping the encoder padding and silent tails that make
+// the native loop attribute pause between repeats.
+let loopStart = 0;
+let loopEnd = 0;
+
+(function analyseLoopPoints() {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC || !window.fetch) return;
+    fetch('interstellar.mp3')
+        .then((r) => r.arrayBuffer())
+        .then((buf) => {
+            const ctx = new AC();
+            return ctx.decodeAudioData(buf).then((decoded) => {
+                const data = decoded.getChannelData(0);
+                const rate = decoded.sampleRate;
+                const threshold = 0.01;
+                let s = 0;
+                let e = data.length - 1;
+                while (s < e && Math.abs(data[s]) < threshold) s++;
+                while (e > s && Math.abs(data[e]) < threshold) e--;
+                loopStart = Math.max(0, s / rate - 0.05);
+                loopEnd = e / rate;
+                ctx.close();
+            });
+        })
+        .catch(() => {});
+})();
+
+audio.addEventListener('timeupdate', () => {
+    // jump back just before the silence at the end; the 0.3s margin
+    // covers the coarse rate at which timeupdate fires
+    if (loopEnd && audio.currentTime >= loopEnd - 0.3) {
+        audio.currentTime = loopStart;
+    }
+});
+
 function fadeVolumeTo(target, ms) {
     cancelAnimationFrame(fadeFrame);
     const from = audio.volume;
