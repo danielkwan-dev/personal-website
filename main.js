@@ -255,6 +255,14 @@ let loopEnd = 0;
         .catch(() => {});
 })();
 
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        audio.pause();
+    } else if (document.body.classList.contains('revealed')) {
+        audio.play().catch(() => {});
+    }
+});
+
 audio.addEventListener('timeupdate', () => {
     // jump back just before the silence at the end; the 0.3s margin
     // covers the coarse rate at which timeupdate fires
