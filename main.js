@@ -511,8 +511,8 @@ document.addEventListener('keydown', (e) => {
             // a whisper of the cursor's velocity plus its own slow drift
             vx: vx * 0.06 + Math.cos(a) * drift,
             vy: vy * 0.06 + Math.sin(a) * drift,
-            size: 5 + Math.random() * 9,
-            life: 0.6 + Math.random() * 0.6,
+            size: 9 + Math.random() * 13,
+            life: 0.8 + Math.random() * 0.7,
             age: 0,
             phase: Math.random() * Math.PI * 2,
             twinkle: 5 + Math.random() * 7
@@ -531,7 +531,7 @@ document.addEventListener('keydown', (e) => {
 
         // seed grains along the travelled segment so fast flicks leave a
         // continuous streak instead of scattered clumps
-        const steps = Math.min(Math.ceil(dist / 4), 24);
+        const steps = Math.min(Math.ceil(dist / 3), 36);
         for (let i = 1; i <= steps; i++) {
             spawn(px + dx * (i / steps), py + dy * (i / steps), dx, dy);
         }
@@ -548,8 +548,9 @@ document.addEventListener('keydown', (e) => {
         const t = now / 1000;
 
         ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-        ctx.globalCompositeOperation = 'lighter';
 
+        // pass 1 — physics plus the soft additive halo around each grain
+        ctx.globalCompositeOperation = 'lighter';
         for (let i = grains.length - 1; i >= 0; i--) {
             const g = grains[i];
             g.age += dt;
@@ -563,23 +564,38 @@ document.addEventListener('keydown', (e) => {
             g.vy *= Math.exp(-2.5 * dt);
 
             const frac = 1 - g.age / g.life;                       // 1 → 0 over life
-            const glow = frac * frac * (0.75 + 0.25 * Math.sin(t * g.twinkle + g.phase));
+            const glow = Math.pow(frac, 1.5) * (0.8 + 0.2 * Math.sin(t * g.twinkle + g.phase));
             const d = g.size * (0.35 + 0.65 * frac);
             const warm = frac;                                     // gold young, pale old
 
             ctx.globalAlpha = glow * warm;
             ctx.drawImage(goldSprite, g.x - d / 2, g.y - d / 2, d, d);
-            ctx.globalAlpha = glow * (1 - warm) + glow * 0.15;
+            ctx.globalAlpha = glow * (1 - warm) + glow * 0.2;
             ctx.drawImage(starSprite, g.x - d / 2, g.y - d / 2, d, d);
+        }
+
+        // pass 2 — a small solid core with normal blending; the additive halo
+        // vanishes over the shader's white-hot ring, the core does not
+        ctx.globalCompositeOperation = 'source-over';
+        for (let i = 0; i < grains.length; i++) {
+            const g = grains[i];
+            const frac = 1 - g.age / g.life;
+            const glow = Math.pow(frac, 1.5) * (0.8 + 0.2 * Math.sin(t * g.twinkle + g.phase));
+            const d = g.size * (0.35 + 0.65 * frac) * 0.4;
+
+            ctx.globalAlpha = glow * 0.9;
+            ctx.drawImage(frac > 0.5 ? goldSprite : starSprite, g.x - d / 2, g.y - d / 2, d, d);
         }
 
         // at rest the comet settles into a soft ember breathing under the cursor
         if (onPage) {
-            const pulse = 0.22 + 0.08 * Math.sin(t * 2.2);
+            const pulse = 0.3 + 0.1 * Math.sin(t * 2.2);
+            ctx.globalCompositeOperation = 'lighter';
             ctx.globalAlpha = pulse;
-            ctx.drawImage(goldSprite, curX - 11, curY - 11, 22, 22);
-            ctx.globalAlpha = pulse * 0.5;
-            ctx.drawImage(starSprite, curX - 5, curY - 5, 10, 10);
+            ctx.drawImage(goldSprite, curX - 14, curY - 14, 28, 28);
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.globalAlpha = pulse * 0.8;
+            ctx.drawImage(goldSprite, curX - 6, curY - 6, 12, 12);
         }
 
         ctx.globalAlpha = 1;
