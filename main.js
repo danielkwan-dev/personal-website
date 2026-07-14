@@ -210,8 +210,6 @@ drawStarfield();
 // --- Music ---
 
 const audio = document.getElementById('music');
-const soundToggle = document.getElementById('sound-toggle');
-const soundLabel = soundToggle.querySelector('.sound-label');
 const TARGET_VOLUME = 0.35;
 
 let fadeFrame = null;
@@ -279,26 +277,6 @@ function fadeVolumeTo(target, ms) {
     fadeFrame = requestAnimationFrame(step);
 }
 
-function updateSoundUI(on) {
-    document.body.classList.toggle('sound-on', on);
-    soundLabel.textContent = on ? 'SOUND ON' : 'SOUND OFF';
-    soundToggle.setAttribute('aria-pressed', on ? 'true' : 'false');
-    soundToggle.setAttribute('aria-label', on ? 'Turn sound off' : 'Turn sound on');
-}
-
-soundToggle.addEventListener('click', () => {
-    if (document.body.classList.contains('sound-on')) {
-        audio.muted = true;
-        updateSoundUI(false);
-    } else {
-        audio.muted = false;
-        audio.volume = 0;
-        audio.play().catch(() => {});
-        fadeVolumeTo(TARGET_VOLUME, 800);
-        updateSoundUI(true);
-    }
-});
-
 // --- Interaction: entering ---
 
 const enterOverlay = document.getElementById('enter-overlay');
@@ -319,7 +297,6 @@ function enterSite() {
     // once it has, reveal the scene behind it, then let the door fade away
     setTimeout(() => {
         document.body.classList.add('revealed');
-        updateSoundUI(!audio.muted && !audio.paused);
         setTimeout(startTyping, 1400);
     }, 1300);
 
