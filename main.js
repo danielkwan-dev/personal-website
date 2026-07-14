@@ -456,6 +456,140 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+// --- Cursor trail: comet stardust ---
+//
+// The cursor sheds dust along its path — born warm gold, cooling to faint
+// starlight as each grain twinkles, drifts and dies. Additive blending over
+// pre-rendered sprites keeps the whole thing to a few drawImage calls per
+// grain. Skipped on touch devices and for reduced-motion visitors.
+
+(function cursorTrail() {
+    const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    if (!finePointer || reducedMotion) return;
+
+    const trail = document.getElementById('cursor-trail');
+    const ctx = trail.getContext('2d');
+    let trailDpr = 1;
+
+    function resizeTrail() {
+        trailDpr = Math.min(window.devicePixelRatio || 1, 2);
+        trail.width = window.innerWidth * trailDpr;
+        trail.height = window.innerHeight * trailDpr;
+        ctx.setTransform(trailDpr, 0, 0, trailDpr, 0, 0);
+    }
+    resizeTrail();
+    window.addEventListener('resize', resizeTrail);
+
+    function makeSprite(r, g, b) {
+        const s = document.createElement('canvas');
+        s.width = s.height = 64;
+        const c = s.getContext('2d');
+        const grad = c.createRadialGradient(32, 32, 0, 32, 32, 32);
+        grad.addColorStop(0, 'rgba(' + r + ',' + g + ',' + b + ',1)');
+        grad.addColorStop(0.35, 'rgba(' + r + ',' + g + ',' + b + ',0.5)');
+        grad.addColorStop(1, 'rgba(' + r + ',' + g + ',' + b + ',0)');
+        c.fillStyle = grad;
+        c.fillRect(0, 0, 64, 64);
+        return s;
+    }
+    const goldSprite = makeSprite(232, 168, 92);   // --gold
+    const starSprite = makeSprite(232, 234, 242);  // --starlight
+
+    const MAX_GRAINS = 400;
+    const grains = [];
+    let curX = -100;
+    let curY = -100;
+    let onPage = false;
+
+    function spawn(x, y, vx, vy) {
+        if (grains.length >= MAX_GRAINS) grains.shift();
+        const a = Math.random() * Math.PI * 2;
+        const drift = 6 + Math.random() * 18;
+        grains.push({
+            x: x + (Math.random() - 0.5) * 3,
+            y: y + (Math.random() - 0.5) * 3,
+            // a whisper of the cursor's velocity plus its own slow drift
+            vx: vx * 0.06 + Math.cos(a) * drift,
+            vy: vy * 0.06 + Math.sin(a) * drift,
+            size: 5 + Math.random() * 9,
+            life: 0.6 + Math.random() * 0.6,
+            age: 0,
+            phase: Math.random() * Math.PI * 2,
+            twinkle: 5 + Math.random() * 7
+        });
+    }
+
+    window.addEventListener('mousemove', (e) => {
+        const px = onPage ? curX : e.clientX;
+        const py = onPage ? curY : e.clientY;
+        const dx = e.clientX - px;
+        const dy = e.clientY - py;
+        const dist = Math.hypot(dx, dy);
+        onPage = true;
+        curX = e.clientX;
+        curY = e.clientY;
+
+        // seed grains along the travelled segment so fast flicks leave a
+        // continuous streak instead of scattered clumps
+        const steps = Math.min(Math.ceil(dist / 4), 24);
+        for (let i = 1; i <= steps; i++) {
+            spawn(px + dx * (i / steps), py + dy * (i / steps), dx, dy);
+        }
+    });
+
+    document.addEventListener('mouseleave', () => { onPage = false; });
+
+    let prev = performance.now();
+
+    function drawTrail(now) {
+        // clamped so a background-tab pause doesn't age everything at once
+        const dt = Math.min((now - prev) / 1000, 0.05);
+        prev = now;
+        const t = now / 1000;
+
+        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        ctx.globalCompositeOperation = 'lighter';
+
+        for (let i = grains.length - 1; i >= 0; i--) {
+            const g = grains[i];
+            g.age += dt;
+            if (g.age >= g.life) {
+                grains.splice(i, 1);
+                continue;
+            }
+            g.x += g.vx * dt;
+            g.y += g.vy * dt;
+            g.vx *= Math.exp(-2.5 * dt);
+            g.vy *= Math.exp(-2.5 * dt);
+
+            const frac = 1 - g.age / g.life;                       // 1 → 0 over life
+            const glow = frac * frac * (0.75 + 0.25 * Math.sin(t * g.twinkle + g.phase));
+            const d = g.size * (0.35 + 0.65 * frac);
+            const warm = frac;                                     // gold young, pale old
+
+            ctx.globalAlpha = glow * warm;
+            ctx.drawImage(goldSprite, g.x - d / 2, g.y - d / 2, d, d);
+            ctx.globalAlpha = glow * (1 - warm) + glow * 0.15;
+            ctx.drawImage(starSprite, g.x - d / 2, g.y - d / 2, d, d);
+        }
+
+        // at rest the comet settles into a soft ember breathing under the cursor
+        if (onPage) {
+            const pulse = 0.22 + 0.08 * Math.sin(t * 2.2);
+            ctx.globalAlpha = pulse;
+            ctx.drawImage(goldSprite, curX - 11, curY - 11, 22, 22);
+            ctx.globalAlpha = pulse * 0.5;
+            ctx.drawImage(starSprite, curX - 5, curY - 5, 10, 10);
+        }
+
+        ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = 'source-over';
+        requestAnimationFrame(drawTrail);
+    }
+
+    requestAnimationFrame(drawTrail);
+})();
+
 // --- Render loop ---
 
 function render() {
