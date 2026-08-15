@@ -5,13 +5,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Daniel Kwan</title>
-  <meta name="description" content="Daniel Kwan — Computer Engineering at the University of Waterloo.">
+  <meta name="description" content="Daniel Kwan. Computer Engineering at the University of Waterloo.">
   <link rel="canonical" href="https://daniel.uwce.ca">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
   <link rel="apple-touch-icon" href="favicon.jpg">
   <meta property="og:title" content="Daniel Kwan">
-  <meta property="og:description" content="Daniel Kwan — Computer Engineering at the University of Waterloo.">
+  <meta property="og:description" content="Daniel Kwan. Computer Engineering at the University of Waterloo.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://daniel.uwce.ca">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,7 +25,6 @@
 
   <canvas id="starfield" aria-hidden="true"></canvas>
   <canvas id="canvas" aria-hidden="true"></canvas>
-  <canvas id="cursor-trail" aria-hidden="true"></canvas>
 
   <div class="hero">
     <div class="hero-scrim" aria-hidden="true"></div>
@@ -82,7 +81,7 @@
       </svg>
 
       <div class="moon-stage-text">
-        <h2 class="section-label drift-in">01 &mdash; ABOUT</h2>
+        <h2 class="section-label drift-in">01 &middot; ABOUT</h2>
         <p class="moon-hint drift-in">A small outpost on the near side. The lights are on.</p>
       </div>
 
@@ -121,7 +120,7 @@
 
         <div class="dossier">
           <div class="dossier-head">
-            <p class="dossier-title">PERSONNEL FILE &mdash; DK-01</p>
+            <p class="dossier-title">PERSONNEL FILE &middot; DK-01</p>
             <span class="dossier-status">ACTIVE</span>
           </div>
           <dl class="dossier-rows">
@@ -131,7 +130,7 @@
             </div>
             <div class="dossier-row">
               <dt>EDUCATION</dt>
-              <dd>Computer Engineering &mdash; University of Waterloo</dd>
+              <dd>Computer Engineering @ University of Waterloo</dd>
             </div>
             <div class="dossier-row">
               <dt>CURRENT POST</dt>
@@ -148,7 +147,7 @@
             <div class="dossier-row">
               <dt>NOW PLAYING</dt>
               <dd><a href="https://open.spotify.com/user/k4gkg1b5z1kstabel4f2iln2w" target="_blank"
-                  rel="noopener noreferrer">Spotify &mdash; the soundtrack never stops &rarr;</a></dd>
+                  rel="noopener noreferrer">Spotify &middot; the soundtrack never stops &rarr;</a></dd>
             </div>
             <div class="dossier-row">
               <dt>ATTACHMENT</dt>
@@ -166,7 +165,7 @@
 
   <section class="view" id="projects-view" aria-hidden="true">
     <div class="view-inner case-inner" tabindex="-1">
-      <h2 class="section-label drift-in">02 &mdash; CASE FILES</h2>
+      <h2 class="section-label drift-in">02 &middot; CASE FILES</h2>
 
       <div class="case-board">
         <svg class="strings" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
@@ -182,7 +181,7 @@
           <span class="pin pin-gold"></span>
           <h3>Aegis - YHack Winner</h3>
           <span class="paper-tags">OSINT &middot; TF-IDF &middot; YHACK 2026 WINNER</span>
-          <p>A real-time OSINT tool that flags identity links &mdash; recurring time, location, and activity patterns
+          <p>A real-time OSINT tool that flags identity links: recurring time, location, and activity patterns
             that let an adversary reconstruct your routine from public posts alone. NER, OCR, and EXIF extraction feed
             three TF-IDF vector spaces, scored by cosine similarity into a weighted breach probability. YHack 2026
             winner at Yale.</p>
@@ -195,8 +194,8 @@
           <h3>ExoDiscover - NASA Space Apps Finalist</h3>
           <span class="paper-tags">XGBOOST &middot; LIGHT CURVES &middot; NASA SPACE APPS</span>
           <p>An exoplanet classification system trained on NASA's Kepler and TESS catalogs. Statistical, transit, and
-            periodicity features are extracted from raw light curves and fed to an XGBoost classifier &mdash; with CNN
-            and LSTM variants &mdash; to label each target as confirmed, candidate, or false positive.</p>
+            periodicity features are extracted from raw light curves and fed to an XGBoost classifier, with CNN
+            and LSTM variants, to label each target as confirmed, candidate, or false positive.</p>
           <span class="paper-open">OPEN FILE &rarr;</span>
         </a>
 
@@ -207,7 +206,7 @@
           <span class="paper-tags">YOLOV11 &middot; GPT-4O VISION &middot; QHACKS 2026</span>
           <p>An AR repair assistant for broken devices, optimized for mobile. YOLOv11 labels components with real-time
             bounding boxes, GPT-4o Vision diagnoses the damage, and voice-guided repair steps flow through Whisper
-            speech-to-text and OpenAI TTS &mdash; React 19 in front, FastAPI behind.</p>
+            speech-to-text and OpenAI TTS. React 19 in front, FastAPI behind.</p>
           <span class="paper-open">OPEN FILE &rarr;</span>
         </a>
 
@@ -228,7 +227,7 @@
           <h3>Forecast FM</h3>
           <span class="paper-tags">SCIKIT-LEARN &middot; FASTAPI &middot; SPOTIFY</span>
           <p>A weather-conditioned music classifier: scikit-learn models predict a weather category for any song from
-            its audio features &mdash; valence, energy, tempo, acousticness, loudness &mdash; pulled through the
+            its audio features (valence, energy, tempo, acousticness, loudness) pulled through the
             Spotify API. Served by FastAPI behind a React + TypeScript frontend.</p>
           <span class="paper-open">OPEN FILE &rarr;</span>
         </a>
