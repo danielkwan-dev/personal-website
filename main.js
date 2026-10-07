@@ -5,19 +5,13 @@ const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
 // upscale is invisible to the eye but cuts fragment work in half
 const RES_SCALE = 0.7;
 
-const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
 function resize() {
     canvas.width = window.innerWidth * RES_SCALE;
     canvas.height = window.innerHeight * RES_SCALE;
     gl.viewport(0, 0, canvas.width, canvas.height);
 }
 resize();
-window.addEventListener('resize', () => {
-    resize();
-    resizeStarfield();
-    drawStarfield();
-});
+window.addEventListener('resize', resize);
 
 const vertexShaderSource = `
     attribute vec2 position;
@@ -165,48 +159,6 @@ document.addEventListener('mouseleave', () => {
     mouse[2] = 0;
 });
 
-// --- Starfield: sparse static backdrop, revealed while a view is open ---
-
-const starfield = document.getElementById('starfield');
-const sfCtx = starfield.getContext('2d');
-let stars = [];
-
-function resizeStarfield() {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    starfield.width = window.innerWidth * dpr;
-    starfield.height = window.innerHeight * dpr;
-    sfCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-    stars = [];
-    for (let i = 0; i < 70; i++) {
-        stars.push({
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
-            size: 0.6 + Math.random() * 0.5,
-            alpha: 0.18 + Math.random() * 0.25
-        });
-    }
-    for (let i = 0; i < 25; i++) {
-        stars.push({
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
-            size: 1.1 + Math.random() * 0.6,
-            alpha: 0.35 + Math.random() * 0.3
-        });
-    }
-}
-
-function drawStarfield() {
-    sfCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-    for (const s of stars) {
-        sfCtx.fillStyle = 'rgba(232, 234, 242, ' + s.alpha + ')';
-        sfCtx.fillRect(s.x, s.y, s.size, s.size);
-    }
-}
-
-resizeStarfield();
-drawStarfield();
-
 // --- Music ---
 
 const audio = document.getElementById('music');
@@ -333,12 +285,8 @@ function startTyping() {
         setTimeout(() => caret.classList.add('caret-done'), 3000);
     }
 
-    if (reducedMotion) {
-        subtitleText.textContent = text;
-        finish();
-        return;
-    }
-
+    // types even under reduced motion — text appearing in place isn't
+    // vestibular motion, and many phones ship with that setting on
     let i = 0;
     function tick() {
         subtitleText.textContent = text.slice(0, ++i);
@@ -351,117 +299,12 @@ function startTyping() {
     tick();
 }
 
-// --- Views: earth opens About, rocket opens Projects ---
-
-const earthBtn = document.getElementById('earth-btn');
-const rocketBtn = document.getElementById('rocket-btn');
-
-const views = {
-    about: { view: document.getElementById('about-view'), button: earthBtn },
-    projects: { view: document.getElementById('projects-view'), button: rocketBtn }
-};
-
-let activeView = null;
-let shaderIdle = false;
-let shaderIdleTimer = null;
-
-function openView(name) {
-    if (activeView === name) return;
-
-    if (activeView) {
-        const prev = views[activeView];
-        prev.view.classList.remove('open');
-        prev.view.setAttribute('aria-hidden', 'true');
-        prev.button.classList.remove('active');
-        prev.button.setAttribute('aria-expanded', 'false');
-    }
-
-    const next = views[name];
-    next.view.classList.add('open');
-    next.view.setAttribute('aria-hidden', 'false');
-    next.view.scrollTop = 0;
-    next.button.classList.add('active');
-    next.button.setAttribute('aria-expanded', 'true');
-    document.body.classList.add('view-open');
-    activeView = name;
-
-    const focusTarget = next.view.querySelector('[tabindex="-1"]');
-    if (focusTarget) focusTarget.focus({ preventScroll: true });
-
-    // once the black hole has fully faded behind the view, stop drawing it
-    clearTimeout(shaderIdleTimer);
-    shaderIdle = false;
-    shaderIdleTimer = setTimeout(() => { shaderIdle = true; }, 900);
-}
-
-function closeView() {
-    if (!activeView) return;
-    const current = views[activeView];
-    current.view.classList.remove('open');
-    current.view.setAttribute('aria-hidden', 'true');
-    current.button.classList.remove('active');
-    current.button.setAttribute('aria-expanded', 'false');
-    document.body.classList.remove('view-open');
-    aboutView.classList.remove('inside');
-
-    clearTimeout(shaderIdleTimer);
-    shaderIdle = false;
-
-    current.button.focus({ preventScroll: true });
-    activeView = null;
-}
-
-function toggleView(name) {
-    if (activeView === name) {
-        closeView();
-    } else {
-        openView(name);
-    }
-}
-
-earthBtn.addEventListener('click', () => toggleView('about'));
-rocketBtn.addEventListener('click', () => toggleView('projects'));
-
-document.querySelectorAll('[data-close]').forEach((btn) => {
-    btn.addEventListener('click', closeView);
-});
-
-// --- The moon outpost: click the station to step inside ---
-
-const aboutView = document.getElementById('about-view');
-const stationBtn = document.getElementById('station-btn');
-const stepOutsideBtn = document.getElementById('step-outside');
-
-function enterStation() {
-    aboutView.classList.add('inside');
-    aboutView.querySelector('.station-room').scrollTop = 0;
-    aboutView.querySelector('.room-inner').focus({ preventScroll: true });
-}
-
-function exitStation() {
-    aboutView.classList.remove('inside');
-    stationBtn.focus({ preventScroll: true });
-}
-
-stationBtn.addEventListener('click', enterStation);
-stepOutsideBtn.addEventListener('click', exitStation);
-
-// escape peels back one layer at a time: room, then view
-document.addEventListener('keydown', (e) => {
-    if (e.key !== 'Escape') return;
-    if (activeView === 'about' && aboutView.classList.contains('inside')) {
-        exitStation();
-    } else {
-        closeView();
-    }
-});
-
 // --- Render loop ---
 
 function render() {
-    // skip the draw while a view hides the hero or the tab is hidden —
+    // skip the draw while the tab is hidden —
     // the shader is by far the most expensive thing on the page
-    if (!shaderIdle && !document.hidden) {
+    if (!document.hidden) {
         const time = (Date.now() - startTime) / 1000;
 
         gl.clear(gl.COLOR_BUFFER_BIT);
