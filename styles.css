@@ -193,7 +193,7 @@ body.revealed .curtain.bottom {
     transform: translateY(100%);
 }
 
-/* --- Enter door --- */
+/* --- Enter --- */
 
 #enter-overlay {
     position: fixed;
@@ -201,173 +201,19 @@ body.revealed .curtain.bottom {
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 2000;
-    cursor: pointer;
-    transition: opacity 0.6s ease;
-    outline: none;
-}
-
-.enter-label {
-    position: absolute;
-    left: 50%;
-    bottom: 100%;
-    margin-bottom: 16px;
-    transform: translateX(-50%);
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
+    color: white;
+    font-weight: 300;
+    font-size: 24px;
     letter-spacing: 0.5em;
-    color: rgba(255, 255, 255, 0.7);
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
-    white-space: nowrap;
+    cursor: pointer;
+    outline: none;
+    transition: opacity 0.5s ease, text-shadow 0.3s ease;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 
-/* the label falls into the void — shrinking, blurring, accelerating
-   toward the door's centre until it slips past the horizon */
-@keyframes enter-label-fall {
-    0%   { transform: translateX(-50%) translateY(0) scale(1);        opacity: 1; filter: blur(0); }
-    100% { transform: translateX(-50%) translateY(60px) scale(0.04);  opacity: 0; filter: blur(3px); }
-}
-
-#enter-overlay.entering .enter-label {
-    animation: enter-label-fall 0.9s cubic-bezier(0.5, 0, 0.9, 0.4) forwards;
-}
-
-.door {
-    position: relative;
-    width: 42px;
-    height: 76px;
-    border: 1.5px solid rgba(255, 255, 255, 0.6);
-    border-radius: 3px 3px 1px 1px;
-    perspective: 160px;
-    animation: door-glow 3s ease-in-out infinite,
-               door-drift 13s ease-in-out infinite,
-               door-spin 8s ease-in-out infinite;
-}
-
-@keyframes door-glow {
-    0%, 100% { box-shadow: 0 0 22px rgba(255, 255, 255, 0.45), 0 0 50px rgba(255, 255, 255, 0.22); }
-    50%      { box-shadow: 0 0 36px rgba(255, 255, 255, 0.75), 0 0 70px rgba(255, 255, 255, 0.36); }
-}
-
-/* translate and rotate run on independent timers (13s / 8s) so their
-   combination rarely lines up the same way twice — reads as a small
-   object drifting and tumbling at random rather than looping in place */
-@keyframes door-drift {
-    0%   { translate: 0px 0px; }
-    18%  { translate: 13px -10px; }
-    37%  { translate: -9px -14px; }
-    55%  { translate: -14px 9px; }
-    74%  { translate: 8px 13px; }
-    100% { translate: 0px 0px; }
-}
-
-@keyframes door-spin {
-    0%   { rotate: 0deg; }
-    30%  { rotate: 12deg; }
-    58%  { rotate: -10deg; }
-    83%  { rotate: 6deg; }
-    100% { rotate: 0deg; }
-}
-
-/* hover warms the glow toward the accretion disk's gold */
-#enter-overlay:hover .door,
-#enter-overlay:focus-visible .door {
-    box-shadow: 0 0 44px rgba(232, 168, 92, 0.6), 0 0 84px rgba(232, 168, 92, 0.32);
-    border-color: rgba(240, 200, 150, 0.75);
-    animation-play-state: paused;
-}
-
-.door-void {
-    position: absolute;
-    inset: 1.5px;
-    background: #000;
-    border-radius: 1.5px;
-    transform-origin: center center;
-    transition: transform 1.5s cubic-bezier(0.6, 0, 0.85, 1), border-radius 1.5s ease;
-    z-index: 0;
-}
-
-.door-leaf {
-    position: absolute;
-    top: 1.5px;
-    bottom: 1.5px;
-    width: 50%;
-    background: linear-gradient(115deg, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.6));
-    transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1;
-}
-
-/* recessed panel lines so each leaf reads clearly as a door, not a slab */
-.door-leaf::before {
-    content: '';
-    position: absolute;
-    inset: 5px 4px;
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    border-radius: 1px;
-}
-
-.door-leaf::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    width: 2.5px;
-    height: 2.5px;
-    background: rgba(255, 255, 255, 0.75);
-    border-radius: 50%;
-    box-shadow: 0 0 3px rgba(255, 255, 255, 0.7);
-}
-
-.door-leaf.left {
-    left: 1.5px;
-    border-right: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 2px 0 0 0;
-    transform-origin: left center;
-    transform: rotateY(20deg);
-}
-
-.door-leaf.left::after {
-    right: 4px;
-}
-
-.door-leaf.right {
-    right: 1.5px;
-    border-left: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 0 2px 0 0;
-    transform-origin: right center;
-    transform: rotateY(-20deg);
-}
-
-.door-leaf.right::after {
-    left: 4px;
-}
-
-/* hover: the doors swing fully open, inviting the click */
-#enter-overlay:hover .door-leaf.left,
-#enter-overlay:focus-visible .door-leaf.left {
-    transform: rotateY(86deg);
-}
-
-#enter-overlay:hover .door-leaf.right,
-#enter-overlay:focus-visible .door-leaf.right {
-    transform: rotateY(-86deg);
-}
-
-#enter-overlay.entering .door-leaf {
-    opacity: 0;
-    transition: opacity 0.6s ease 0.3s, transform 1.6s cubic-bezier(0.6, 0, 0.85, 1);
-}
-
-#enter-overlay.entering .door-leaf.left {
-    transform: rotateY(95deg);
-}
-
-#enter-overlay.entering .door-leaf.right {
-    transform: rotateY(-95deg);
-}
-
-#enter-overlay.entering .door-void {
-    z-index: 3;
-    transform: scale(70);
-    border-radius: 0;
+#enter-overlay:hover,
+#enter-overlay:focus-visible {
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
 }
 
 #enter-overlay.hidden {
@@ -390,7 +236,6 @@ button:focus-visible {
 /* --- Reduced motion --- */
 
 @media (prefers-reduced-motion: reduce) {
-    .door,
     body.revealed .caret {
         animation: none;
     }
@@ -422,10 +267,5 @@ button:focus-visible {
     .bottom-nav a {
         font-size: clamp(10px, 2.8vw, 12px);
         letter-spacing: 0.2em;
-    }
-
-    .door {
-        width: 34px;
-        height: 60px;
     }
 }

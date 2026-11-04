@@ -242,10 +242,10 @@ function fadeVolumeTo(target, ms) {
 const enterOverlay = document.getElementById('enter-overlay');
 
 function enterSite() {
-    if (enterOverlay.classList.contains('entering')) return;
-    enterOverlay.classList.add('entering');
+    if (enterOverlay.classList.contains('hidden')) return;
+    enterOverlay.classList.add('hidden');
 
-    // the score swells in as the void expands — never slamming to full
+    // the score swells in — never slamming to full
     if (audio.muted) {
         audio.muted = false;
         audio.volume = 0;
@@ -253,16 +253,11 @@ function enterSite() {
         fadeVolumeTo(TARGET_VOLUME, 2000);
     }
 
-    // the door's void rushes forward and fills the screen with black —
-    // once it has, reveal the scene behind it, then let the door fade away
+    // curtains split open just after the label fades
     setTimeout(() => {
         document.body.classList.add('revealed');
         setTimeout(startTyping, 1400);
-    }, 1300);
-
-    setTimeout(() => {
-        enterOverlay.classList.add('hidden');
-    }, 1700);
+    }, 200);
 }
 
 enterOverlay.addEventListener('click', enterSite);
