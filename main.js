@@ -202,7 +202,7 @@ if (gl) {
 // --- Music ---
 
 const audio = document.getElementById('music');
-const TARGET_VOLUME = 0.35;
+const TARGET_VOLUME = 0.40;
 
 let fadeFrame = null;
 
@@ -285,12 +285,12 @@ function enterSite() {
     if (enterOverlay.classList.contains('hidden')) return;
     enterOverlay.classList.add('hidden');
 
-    // the score swells in — never slamming to full
+    // start already audible, then swell the rest of the way to full
     if (audio.muted) {
         audio.muted = false;
-        audio.volume = 0;
+        audio.volume = TARGET_VOLUME * 0.7;
         audio.play().catch(() => {});
-        fadeVolumeTo(TARGET_VOLUME, 2000);
+        fadeVolumeTo(TARGET_VOLUME, 800);
     }
 
     // curtains split open just after the label fades
